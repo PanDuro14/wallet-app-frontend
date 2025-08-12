@@ -1,0 +1,115 @@
+
+.button-edit,
+.button-delete,
+.button-guardar {
+  padding: 10px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  width: 100%;
+  margin: 0px;
+}
+
+.button-edit {
+  background-color: #49a09d;
+  color: white;
+}
+
+.button-delete {
+  background-color: red;
+  color: white;
+}
+
+.button-guardar {
+  background-color: #49a063;
+  color: white;
+}
+
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 1rem;
+}
+
+.wallet-card-vertical {
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  height: 350px;
+  padding: 1rem;
+}
+
+.wallet-card-header {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.wallet-logo {
+  max-width: 90px;
+  max-height: 90px;
+  object-fit: contain;
+}
+
+.wallet-logo-placeholder {
+  font-size: 0.9rem;
+  text-align: center;
+  color: inherit;
+}
+
+.wallet-card-body {
+  text-align: center;
+  flex: 1;
+}
+
+.wallet-card-body h3 {
+  margin: 0 0 8px;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.wallet-card-body .date {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.wallet-card-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-edit, .btn-delete {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-edit {
+  background-color: rgba(255,255,255,0.8);
+  color: #333;
+}
+
+.btn-delete {
+  background-color: rgba(255,255,255,0.8);
+  color: #d32f2f;
+}
+
+.btn-edit:hover {
+  background-color: rgba(255,255,255,1);
+}
+
+.btn-delete:hover {
+  background-color: rgba(255,200,200,1);
+}

@@ -1,0 +1,12 @@
+<div class="contenedor">
+  <div class="singup-card">
+  <!-- SIGNUP -->
+    <form [formGroup]="formSingup" (ngSubmit)="signup($event)">
+      <input class="input" type="text" formControlName="name" placeholder="Nombre del negocio">
+      <input class="input" type="email" formControlName="email" placeholder="Correo">
+      <input class="input" type="password" formControlName="password" placeholder="Contraseña">
+      <input class="input" type="password" formControlName="confirmPass" placeholder="Confirmar contraseña">
+      <button type="submit">Registrarse</button>
+    </form>
+  </div>
+</div>

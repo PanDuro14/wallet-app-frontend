@@ -1,1 +1,67 @@
-<p>dashboard works!</p>
+<div class="content">
+  <div class="tabla-dashboard">
+    <div vertical="top" horizontal="start" slot="fixed">
+      <button class="button-guardar" (click)="openCrearBusinessModal()">Create Business</button>
+    </div>
+    <div>
+      <button class="button-guardar" (click)="openCreateCardModal()">Create Card</button>
+    </div>
+    <table *ngIf="allBusinesess">
+      <thead>
+        <tr>
+          <th> Name  </th>
+          <th> Email </th>
+          <th> Logo </th>
+          <th> Was created </th>
+          <th> Last updated </th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of allBusinesess">
+          <td> {{ b.name }} </td>
+          <td> {{ b.email }}</td>
+          <td>
+            <img *ngIf="b.logo" [src]="b.logo | bufferToBase64:b.logoMimeType" width="50" height="50" />
+
+          </td>
+          <td> {{ b.created_atFormat }}</td>
+          <td> {{ b.updated_atFormat }}</td>
+          <td> <button (click)="openEditarModal(b.id)" class="button-edit"> Update</button></td>
+          <td> <button (click)="deleteOneItem(b.id)" class="button-delete"> Delete </button></td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <div *ngIf="allCards">
+
+     <div class="cards-container">
+      <div
+        class="wallet-card-vertical"
+        *ngFor="let card of allCards"
+        [style.background-color]="card.background_color"
+        [style.color]="card.foreground_color"
+      >
+        <div class="wallet-card-header">
+          <img *ngIf="card.logo_url" [src]="card.logo_url | bufferToBase64:card.logo_urlMimeType" alt="Logo" class="wallet-logo">
+          <ng-template #noLogo>
+            <div class="wallet-logo-placeholder">No Logo</div>
+          </ng-template>
+        </div>
+
+        <div class="wallet-card-body">
+          <h3>{{ card.pass_type_id | titlecase }}</h3>
+          <h3> Points </h3>
+        </div>
+
+        <div class="wallet-card-actions">
+          <button (click)="openEditarCardModal(card.id)" class="btn-edit">Editar</button>
+          <button (click)="deleteOneCardModal(card.id)" class="btn-delete">Eliminar</button>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</div>

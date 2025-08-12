@@ -52,7 +52,7 @@ export class AuthService {
           this.userDataSubject.next(decoded);  // Guarda los datos del usuario
           this.isAuthenticatedSubject.next(true);  // El usuario está autenticado
           //console.log('Token xd: ', token);
-          return { success: true, data: response.result || [], token };
+          return { success: true, data: response.data || [], token };
 
         } else {
           return { success: false, message: 'Token no recibido' };
@@ -76,6 +76,7 @@ export class AuthService {
       throw error;
     }
   }
+
 
   // Verificar si el usuario está autenticado
   isAuthenticated(): Observable<boolean> {

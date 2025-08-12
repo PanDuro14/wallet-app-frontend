@@ -45,19 +45,6 @@ export class LoginComponent {
     private http: HttpClient,
     private fb: FormBuilder,
   ) {
-    this.formSingup = this.fb.group({
-      name: ['', Validators.required],
-      email: ['', Validators.required, Validators.email],
-      password: ['', [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.pattern(/^(?=.*[A-Z])(?=.*\d).*$/)
-      ]],
-      logoBuffer: [null],
-      created_at: ['fecha actual xd'],
-      updated_at: ['sin modificar'],
-      confirmPass: ['', [Validators.required, this.confirmPasswordValidators.bind(this)]]
-    });
 
     this.formLogin = this.fb.group({
       emailLogin: ['', [Validators.required, Validators.email]],
@@ -83,25 +70,25 @@ export class LoginComponent {
 
   // Obtener un email
  getOneEmail(email: string): Promise<any> {
-  return new Promise((resolve, reject) => {
-    this.http.post<any>(`${environment.urlApi}/business/getemail/`, { email }).subscribe({
-      next: (data) => {
-        this.businessSesion = (data && data.length > 0) ? data[0] : null;
+    return new Promise((resolve, reject) => {
+      this.http.post<any>(`${environment.urlApi}/business/getemail/`, { email }).subscribe({
+        next: (data) => {
+          this.businessSesion = (data && data.length > 0) ? data[0] : null;
 
-        if (this.businessSesion && Object.keys(this.businessSesion).length > 0) {
-          resolve(this.businessSesion);
-        } else {
-          // No se encontró el email, resolver con null o rechazar
-          resolve(null);
-          // o también reject(new Error('No se encontró el email'));
+          if (this.businessSesion && Object.keys(this.businessSesion).length > 0) {
+            resolve(this.businessSesion);
+          } else {
+            // No se encontró el email, resolver con null o rechazar
+            resolve(null);
+            // o también reject(new Error('No se encontró el email'));
+          }
+        },
+        error: (err) => {
+          reject(err);
         }
-      },
-      error: (err) => {
-        reject(err);
-      }
+      });
     });
-  });
-}
+  }
 
 
   // Inicializar la sesión actual
@@ -118,7 +105,7 @@ export class LoginComponent {
         this.businessService.setCurrentSesion(dataSesion);
       }
     } catch (error){
-      console.error('No se pudo inicializar la sesión');
+      //console.error('No se pudo inicializar la sesión');
       return;
     }
   }
@@ -144,6 +131,7 @@ export class LoginComponent {
 
     try {
       const result = await this.authService.login(emailLogin, passwordLogin);
+      //console.log('Business Data (Login): ', result);
 
       if (result.success) {
         // Guardar datos en BusinessService
@@ -172,43 +160,6 @@ export class LoginComponent {
       this.errorMessage = 'Error al iniciar sesión. Inténtalo más tarde.';
     }
   }
-
-  // Singup
-  async signup(event?: Event) {
-    if (event) event.preventDefault();
-
-    if (this.formSingup.invalid) {
-      this.errorMessage = 'Por favor completa todos los campos correctamente';
-      return;
-    }
-
-    const signupData = {
-      name: this.formSingup.get('name')?.value,
-      email: this.formSingup.get('email')?.value,
-      password: this.formSingup.get('password')?.value,
-      logoBuffer: this.formSingup.get('logoBuffer')?.value,
-      created_at: new Date().toISOString(),
-      updated_at: null
-    };
-
-    try {
-      const response = await this.http.post<any>(
-        `${environment.urlApi}/business`,
-        signupData
-      ).toPromise();
-
-      if (response && response.success) {
-        // Opcional: login automático después de registrarse
-        await this.login(undefined, signupData.email, signupData.password);
-      } else {
-        this.errorMessage = response.message || 'No se pudo registrar el negocio';
-      }
-    } catch (error) {
-      console.error(error);
-      this.errorMessage = 'Error al conectar con el servidor';
-    }
-  }
-
 
 
   // Validaciones de errores

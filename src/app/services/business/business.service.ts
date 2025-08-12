@@ -26,21 +26,27 @@ export class BusinessService {
     const storedBusinessData = localStorage.getItem('businessData');
     const storedSesionData = localStorage.getItem('currentBusinessSesion');
     const storedBusinessId = localStorage.getItem('businessIdGlobal');
-    const isAuthenticated = storedSesionData && storedBusinessData && storedBusinessId ? true : false;
 
-    // Si hay datos guardados, se actualizan los observables
-    if (storedBusinessData) {
-      this.businessDataSubject.next(JSON.parse(storedBusinessData));
-    }
-    if (storedSesionData) {
-      this.businessSesionSubject.next(JSON.parse(storedSesionData));
-    }
-    if (storedBusinessId) {
-      this.businessIdGlobalSubject.next(JSON.parse(storedBusinessId));
-    }
-    // Definir si el negocio está autenticado
+    const safeParse = (value: string | null) => {
+      try {
+        return value && value !== 'undefined' ? JSON.parse(value) : null;
+      } catch {
+        return null;
+      }
+    };
+
+    this.businessDataSubject.next(safeParse(storedBusinessData));
+    this.businessSesionSubject.next(safeParse(storedSesionData));
+    this.businessIdGlobalSubject.next(safeParse(storedBusinessId));
+
+    const isAuthenticated =
+      !!this.businessDataSubject.value &&
+      !!this.businessSesionSubject.value &&
+      !!this.businessIdGlobalSubject.value;
+
     this.isAuthenticatedSubject.next(isAuthenticated);
   }
+
 
   // Configurar los datos del negocio
   setBusinessData(data: any): void {
