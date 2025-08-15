@@ -1,5 +1,13 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment.prod';
+import { map } from 'rxjs/operators';
+export interface Business {
+  id: number,
+  name: string,
+  slug?: string | null;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +25,20 @@ export class BusinessService {
   businessSesion$ = this.businessSesionSubject.asObservable();
   businessIdGlobal$ = this.businessIdGlobalSubject.asObservable();
 
-  constructor() {
+  constructor(private http: HttpClient) {
     this.initializeBusinessSesion();
+  }
+
+  getAllBusinesses(): Observable<Business[]> {
+    const url = `${environment.urlApi}/business`; // o '/business' si tu backend es singular
+    return this.http.get<any>(url).pipe(
+      map(res => {
+        if (Array.isArray(res)) return res;                 // [ ... ]
+        if (Array.isArray(res?.data)) return res.data;      // { data: [ ... ] }
+        if (Array.isArray(res?.businesses)) return res.businesses; // { businesses: [ ... ] }
+        return [];
+      })
+    );
   }
 
   // Inicialización de sesión de negocio (cargar datos del localStorage)

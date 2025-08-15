@@ -1,0 +1,54 @@
+<!-- user.component.html -->
+<form [formGroup]="userRegisterForm" (ngSubmit)="onSubmit()" class="user-form">
+  <div class="form-row">
+    <label>Nombre</label>
+    <input type="text" formControlName="name" />
+    <small *ngIf="f['name']?.touched && f['name']?.invalid">Nombre requerido (min 2)</small>
+  </div>
+
+  <div class="form-row">
+    <label>Email</label>
+    <input type="email" formControlName="email" />
+    <small *ngIf="f['email']?.touched && f['email']?.invalid">Email inválido</small>
+  </div>
+
+  <div class="form-row">
+    <label>Teléfono</label>
+    <input type="text" formControlName="phone" />
+  </div>
+
+    <!-- oculto, pero presente en el form -->
+  <div class="form-row" [hidden]="true">
+    <label>Business ID</label>
+    <input type="number" formControlName="business_id" />
+    <small *ngIf="f['business_id']?.touched && f['business_id']?.invalid">Business ID inválido</small>
+  </div>
+
+  <button type="submit" [disabled]="loading">
+    {{ loading ? 'Creando...' : 'Registrar usuario' }}
+  </button>
+
+  <p class="error" *ngIf="serverError">{{ serverError }}</p>
+</form>
+
+<!-- Resultado de Wallet -->
+<div class="wallet-box" *ngIf="createdUserId">
+  <ng-container *ngIf="walletUrl; else pendingOrError">
+    <a [href]="walletUrl" target="_blank" rel="noopener" class="wallet-btn">
+      Guardar en Google Wallet
+    </a>
+  </ng-container>
+
+  <ng-template #pendingOrError>
+    <div *ngIf="walletStatus === 'PENDING'">
+      <p>La tarjeta está pendiente de emisión.</p>
+      <button (click)="retryWallet()" [disabled]="loading">
+        {{ loading ? 'Generando...' : 'Reintentar generar tarjeta' }}
+      </button>
+    </div>
+    <div *ngIf="!walletStatus && !walletUrl">
+      <p>No se generó la tarjeta. Puedes reintentarlo.</p>
+      <button (click)="retryWallet()" [disabled]="loading">Reintentar</button>
+    </div>
+  </ng-template>
+</div>
