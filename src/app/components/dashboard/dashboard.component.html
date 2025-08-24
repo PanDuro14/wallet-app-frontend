@@ -12,6 +12,7 @@
           <th> Name  </th>
           <th> Email </th>
           <th> Logo </th>
+          <th class="link-col"> Link </th>
           <th> Was created </th>
           <th> Last updated </th>
           <th></th>
@@ -24,8 +25,20 @@
           <td> {{ b.email }}</td>
           <td>
             <img *ngIf="b.logo" [src]="b.logo | bufferToBase64:b.logoMimeType" width="50" height="50" />
-
           </td>
+          <td class="link-cell">
+            <a
+              [href]="links.buildBussinessLink(b)"
+              target="_blank"
+              rel="noopener"
+            >
+              {{ links.buildBussinessLink(b) }}
+            </a>
+            <button type="button" class="btn-copy" (click)="copy(links.buildBussinessLink(b))">
+              Copiar
+            </button>
+          </td>
+
           <td> {{ b.created_atFormat }}</td>
           <td> {{ b.updated_atFormat }}</td>
           <td> <button (click)="openEditarModal(b.id)" class="button-edit"> Update</button></td>
@@ -33,7 +46,40 @@
         </tr>
       </tbody>
     </table>
-    <br>
+
+    <div class="users-table">
+      <table *ngIf="allUsers">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Account ID</th>
+            <th>Points</th>
+            <th>Created at</th>
+            <th>Updated at</th>
+            <th></th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of allUsers">
+            <td>{{ u.name }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.phone }}</td>
+            <td>{{ u.loyalty_account_id }} </td>
+            <td>{{ u.points}}</td>
+            <td>{{ u.created_atFormat}}</td>
+            <td>{{ u.updated_atFormat}}</td>
+            <td><button (click)="openEditarUsuario(u.id)" class="button-edit"> Update</button></td>
+            <td><button (click)="openDeleteUser(u.id)" class="button-delete">Eliminar</button></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <br>
     <div *ngIf="allCards">
 
      <div class="cards-container">
@@ -62,6 +108,6 @@
       </div>
     </div>
 
-
+    </div>
   </div>
 </div>

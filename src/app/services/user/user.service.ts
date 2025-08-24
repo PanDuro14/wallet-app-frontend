@@ -57,7 +57,7 @@ export class UserService {
   }
 
   register(payload: RegisterPayload) {
-    return this.http.post<RegisterResponse>(`${this.base}/users`, payload);
+    return this.http.post<RegisterResponse>(`${this.base}/onboarding/users`, payload);
   }
 
   // Crear un link de una tarjeta

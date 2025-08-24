@@ -2,15 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 // services
-import { BusinessService } from '../../services/business/business.service';
+import { BusinessService, Business } from '../../services/business/business.service';
 import { environment } from '../../../environments/environment.prod';
 import { BufferToBase64Pipe } from '../../Pipe/BufferToBase64.pipe';
+import { LinksServicesService } from '../../services/linksServices/links-services.service';
 
 // fecha
 import { DatePipe } from '@angular/common';
+import { ɵInternalFormsSharedModule } from "@angular/forms";
+
+// components
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+
 @Component({
   selector: 'app-dashboard',
-  imports: [HttpClientModule, CommonModule, BufferToBase64Pipe],
+  imports: [HttpClientModule, CommonModule, BufferToBase64Pipe, ɵInternalFormsSharedModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   standalone: true,
@@ -19,6 +26,8 @@ import { DatePipe } from '@angular/common';
 export class DashboardComponent {
   public allBusinesess: any[] = [];
   public allCards: any[] = [];
+  public allLinks: any[] = [];
+  public allUsers: any[] = [];
 
   public isAdminUser = false;
   private userAdmins = {
@@ -27,18 +36,22 @@ export class DashboardComponent {
 
   constructor (
     private businessService: BusinessService,
+    public links: LinksServicesService,
     private http: HttpClient,
     private datePipe: DatePipe,
+    private dialog: MatDialog,
   ){}
 
   async ngOnInit() {
     console.log('Dashboard');
+    await this.cargarInformacion();
+  }
 
+  async cargarInformacion(){
     const sessionData = await this.getcurrentSessionData();
     if(sessionData){
       console.log('sessionData: ', sessionData );
     }
-
     await this.checkAdminUser(sessionData.email);
     await this.getAllCardsByBusiness(sessionData.id);
   }
@@ -58,7 +71,6 @@ export class DashboardComponent {
             ...business,
             created_atFormat: this.formatData(business.created_at),
             updated_atFormat: this.formatData(business.updated_at)
-
           };
         });
 
@@ -71,13 +83,37 @@ export class DashboardComponent {
     }
   }
 
+  // Obtener un business por el id
+  async getOneBusinessById(id: number): Promise<any> {
+    try {
+      const response = await this.http.get<any>(`${environment.urlApi}/business/${id}`).toPromise();
+      if(response){
+        this.allBusinesess = response.map((business: any) => {
+          return {
+            ...business,
+            created_atFormat: this.formatData(business.created_at),
+            updated_atFormat: this.formatData(business.updated_at)
+          }
+        });
+      }
+    } catch (error){
+      console.error('Error al obtener el business', error);
+      throw error;
+    }
+  }
+
   // verificar si es admin
   async checkAdminUser(email: string){
       if (email === this.userAdmins.email){
         await this.getAllBusinesses();
+        await this.getAllUsers();
         return this.isAdminUser = true;
       } else {
-        this.allBusinesess = [];
+        const sessionData = await this.getcurrentSessionData();
+        if(sessionData){
+          await this.getOneBusinessById(sessionData.id);
+          await this.getAllUsersByBusiness(sessionData.id);
+        }
         return this.isAdminUser = false;
       }
   }
@@ -105,6 +141,45 @@ export class DashboardComponent {
     }
   }
 
+  async getAllUsers(){
+    try {
+      const response = await this.http.get<any>(`${environment.urlApi}/users`).toPromise();
+      if(response){
+        this.allUsers = response.map((users: any) => {
+          return {
+            ...users,
+            created_atFormat: this.formatData(users.created_at),
+            updated_atFormat: this.formatData(users.updated_at)
+          }
+        });
+      }
+    } catch (error){
+      console.error(`Error al obtener a los usuarios`);
+      throw error;
+    }
+  }
+
+
+  async getAllUsersByBusiness(id: number){
+    try {
+      const response = await this.http.get<any>(`${environment.urlApi}/users/business/${id}`).toPromise();
+      if(response){
+        this.allUsers = response.map((users: any) => {
+          return {
+            ...users,
+            created_atFormat: this.formatData(users.created_at),
+            updated_atFormat: this.formatData(users.updated_at)
+          }
+        });
+      }
+    } catch (error){
+      console.error(`Error al obtener a los usuarios del negocio: #${id}`);
+      throw error;
+    }
+  }
+
+
+
   // Opciones para los negocios
   // abrir el modal para crear un negocio
   openCrearBusinessModal(){
@@ -115,8 +190,31 @@ export class DashboardComponent {
 
   }
 
-  deleteOneItem(id: number){
+  async deleteOneItem(id: number){
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '360px',
+      data: { mensaje: '¿Seguro que quieres eliminar a este negocio?' }
+    });
 
+    const confirmed = await ref.afterClosed().toPromise();
+
+    if (confirmed) {
+      try {
+        const response = await this.http
+          .delete(`${environment.urlApi}/business/${id}`)
+          .toPromise();
+
+        console.log('Usuario eliminado', response);
+        await this.cargarInformacion();
+        return response;
+      } catch (error) {
+        console.error('Error al intentar eliminar al usuario', error);
+        throw error;
+      }
+    } else {
+      console.log('Eliminación cancelada');
+      return null;
+    }
   }
 
 
@@ -133,10 +231,62 @@ export class DashboardComponent {
 
   }
 
+  // Opciones para los usuarios
+  openEditarUsuario(id: number){
+
+  }
+
+
+  async openDeleteUser(id: number) {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '360px',
+      data: { mensaje: '¿Seguro que quieres eliminar a este usuario?' }
+    });
+
+    const confirmed = await ref.afterClosed().toPromise();
+
+    if (confirmed) {
+      try {
+        const response = await this.http
+          .delete(`${environment.urlApi}/users/${id}`)
+          .toPromise();
+
+        console.log('Usuario eliminado', response);
+        await this.cargarInformacion();
+        return response;
+      } catch (error) {
+        console.error('Error al intentar eliminar al usuario', error);
+        throw error;
+      }
+    } else {
+      console.log('Eliminación cancelada');
+      return null;
+    }
+  }
+
+
+  getLinkById(id: number): string | null {
+    const b = this.allBusinesess.find(x => x.id === id);
+    return b ? this.links.buildBussinessLink(b) : null;
+  }
+
+  async copy(txt: string){
+    try {
+      await navigator.clipboard.writeText(txt);
+      alert('Link copiado');
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = txt;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      alert('Link copiado (fallback)');
+    }
+  }
 
   // Formatear la fecha
   formatData(fecha: string): string | null {
     return this.datePipe.transform(fecha, 'dd/MM/yyyy');
   }
-
 }

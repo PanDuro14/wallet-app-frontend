@@ -113,3 +113,66 @@
 .btn-delete:hover {
   background-color: rgba(255,200,200,1);
 }
+
+
+/* dashboard.component.scss */
+.link-col {
+  width: 360px; /* ajusta a gusto */
+}
+.link-cell {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  a {
+    display: inline-block;
+    max-width: 280px; /* ajusta a gusto */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+.btn-copy {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  background: #f6f6f6;
+  cursor: pointer;
+}
+
+
+// tabla
+.tabla-container {
+  width: 90%;
+  max-width: 900px;
+  margin: auto;
+  text-align: center;
+
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  color: rgb(0, 0, 0);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 20px; /* Evita que se pegue al botón */
+
+}
+
+th, td {
+  padding: 15px;
+  border-bottom: 1px solid #555;
+  text-align: center;
+}
+
+th {
+  color: white;
+  background: #55608f;
+}
+
+.pocas-existencias {
+  background-color: orange !important;
+  color: black;
+  font-weight: bold;
+}
+

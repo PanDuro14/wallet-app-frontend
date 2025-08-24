@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BusinessService, Business } from '../../services/business/business.service';
 import { environment } from '../../../environments/environment';
+import { LinksServicesService } from '../../services/linksServices/links-services.service';
+
 
 @Component({
   selector: 'app-business-links',
@@ -14,7 +16,7 @@ export class BusinessLinksComponent implements OnInit {
   businesses: Business[] = [];
   base = environment.frontBase || (typeof window !== 'undefined' ? window.location.origin : '');
 
-  constructor(private bizSvc: BusinessService) {}
+  constructor(private bizSvc: BusinessService, private links: LinksServicesService) {}
 
   ngOnInit(): void {
     this.bizSvc.getAllBusinesses().subscribe({
@@ -30,7 +32,7 @@ export class BusinessLinksComponent implements OnInit {
   }
 
   buildLink(b: Business) {
-    return `${this.base}/registro?bid=${b.id}`;
+    return this.links.buildBussinessLink(b);
     // con slug: return `${this.base}/${b.slug}/registro`;
   }
 

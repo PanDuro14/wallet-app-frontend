@@ -1,17 +1,20 @@
 // user.component.ts
 import { Component, OnInit } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { UserService, RegisterResponse } from '../../services/user/user.service';
 import { environment } from '../../../environments/environment.prod';
+import { BufferToBase64Pipe } from '../../Pipe/BufferToBase64.pipe';
 
+const UUIDv4_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 @Component({
   selector: 'app-user',
   standalone: true,
-  imports: [HttpClientModule, CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [HttpClientModule, CommonModule, RouterModule, ReactiveFormsModule, BufferToBase64Pipe],
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss']
 })
@@ -19,25 +22,29 @@ export class UserComponent implements OnInit {
   userRegisterForm!: FormGroup;
   loading = false;
   serverError = '';
+  currentBid = 0;
+  currentBusiness: any[] = [];
   walletUrl: string | null | undefined = null;
   walletStatus: 'PENDING' | undefined;
   createdUserId: number | undefined;
 
   constructor(
-    private router: Router,
     private userService: UserService,
-    private fb: FormBuilder,
     private route: ActivatedRoute,
+    private http: HttpClient,
+    private fb: FormBuilder,
   ) {
     this.userRegisterForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       phone: [''],
       business_id: [1, [Validators.required, Validators.min(1)]],
+      points: [0],
+
     });
   }
 
-  ngOnInit(): void {
+  async ngOnInit(){
     const bidParam = this.route.snapshot.queryParamMap.get('bid');
     const bid = Number(bidParam ?? 1);
     if (!Number.isFinite(bid) || bid <= 0) {
@@ -46,6 +53,11 @@ export class UserComponent implements OnInit {
     }
     this.f['business_id'].setValue(bid);
     this.f['business_id'].disable();
+    this.currentBid = bid;
+    if(this.currentBid){
+      await this.getBusinessInfo(bid);
+      console.log(this.currentBusiness);
+    }
   }
 
   get f() { return this.userRegisterForm.controls; }
@@ -58,6 +70,8 @@ export class UserComponent implements OnInit {
     }
     this.loading = true;
 
+
+
     // Pre-abrimos una pestaña para evitar bloqueos de pop-up
     const walletWin = window.open('', '_blank');
     if (walletWin) {
@@ -66,6 +80,9 @@ export class UserComponent implements OnInit {
 
     // 1) Payload de registro (incluye business_id deshabilitado)
     const regPayload: any = this.userRegisterForm.getRawValue();
+
+    // aseguramos que points siempre sea 10
+    regPayload.points = 10;
 
     // Limpieza: NO mandes campos que ya no existen en tu schema
     delete regPayload.authentication_token;
@@ -92,6 +109,10 @@ export class UserComponent implements OnInit {
           programName: (environment as any).programName || 'Mi Programa',
           businessId
         };
+
+
+
+
 
         this.userService.createWalletLink(walletBody).subscribe({
           next: (w) => {
@@ -157,5 +178,32 @@ export class UserComponent implements OnInit {
       const r = (Math.random()*16)|0, v = c === 'x' ? r : (r&0x3|0x8);
       return v.toString(16);
     });
+  }
+
+   async getBusinessInfo(id: number){
+    try {
+      if(!id) {
+        console.log('ID no disponible');
+        return;
+      }
+
+      const res = await this.http.get<any>(`${environment.urlApi}/business/${id}`).toPromise();
+      const b = Array.isArray(res) ? res[0] : res;
+      if (!b) {
+        console.warn('No se encontró el negocio');
+        this.currentBusiness = [];
+        return;
+      }
+
+      const logoMimeType =
+        b.logoMimeType || b.logo_mime_type || b.logo_mime || 'image/png';
+
+      this.currentBusiness = [{ ...b, logoMimeType }];
+
+    } catch (error:any){
+      console.error('Error al obtener el business', error);
+      this.currentBusiness = [];
+      this.serverError = error?.message || 'No se pudo obtener el negocio';
+    }
   }
 }
