@@ -3,7 +3,8 @@ import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { UserComponent } from './components/user/user.component';
-import { BusinessLinksComponent } from './components/business-links/business-links.component';
+import { ClosePageComponent } from './components/close-page/close-page.component';
+import { BusinessPageComponent } from './components/business-page/business-page.component';
 
 export const routes: Routes = [
   {
@@ -28,7 +29,11 @@ export const routes: Routes = [
     component: UserComponent
   },
   {
-    path:'links/registro',
-    component: BusinessLinksComponent
+    path: 'finish-register',
+    component: ClosePageComponent
+  },
+  {
+    path: 'business/:id',
+    component: BusinessPageComponent
   }
 ];

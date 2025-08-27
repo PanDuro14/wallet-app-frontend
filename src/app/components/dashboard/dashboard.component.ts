@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 // services
-import { BusinessService, Business } from '../../services/business/business.service';
-import { environment } from '../../../environments/environment.prod';
+import { BusinessService } from '../../services/business/business.service';
+import { environment } from '../../../environments/environment';
 import { BufferToBase64Pipe } from '../../Pipe/BufferToBase64.pipe';
 import { LinksServicesService } from '../../services/linksServices/links-services.service';
+import { Router } from '@angular/router';
 
 // fecha
 import { DatePipe } from '@angular/common';
@@ -14,6 +15,7 @@ import { ɵInternalFormsSharedModule } from "@angular/forms";
 // components
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { CreateBusinessComponent } from '../create-business/create-business.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -40,6 +42,7 @@ export class DashboardComponent {
     private http: HttpClient,
     private datePipe: DatePipe,
     private dialog: MatDialog,
+    private router: Router
   ){}
 
   async ngOnInit() {
@@ -183,12 +186,30 @@ export class DashboardComponent {
   // Opciones para los negocios
   // abrir el modal para crear un negocio
   openCrearBusinessModal(){
+    const dialogRef = this.dialog.open(CreateBusinessComponent, {
+      panelClass: 'app-dialog',     // clase para estilizar el contenedor
+      backdropClass: 'app-backdrop',// clase para el overlay
+      autoFocus: false,
+      restoreFocus: false
+    });
 
+    const instance = dialogRef.componentInstance;
+    instance.createdBusiness.subscribe(() => {
+      this.cargarInformacion();
+      dialogRef.close();
+    });
   }
 
   openEditarModal(id: number){
 
   }
+
+  async viewFullBusiness(id: number){
+    await this.router.navigate(['/business', String(id)]);
+  }
+
+
+
 
   async deleteOneItem(id: number){
     const ref = this.dialog.open(ConfirmDialogComponent, {

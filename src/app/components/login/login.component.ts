@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
@@ -10,8 +10,15 @@ import { AuthService } from '../../services/auth/auth.service';
 // formularios
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient, HttpClientModule  } from '@angular/common/http';
-import { environment } from '../../../environments/environment.prod';
+import { environment } from '../../../environments/environment';
 
+// Helpers para validar la sesión
+const norm = (s?: string) => (s ?? '').trim().toLowerCase();
+const toAdminSet = (admins: unknown): Set<string> => {
+  if (Array.isArray(admins)) return new Set(admins.map(norm).filter(Boolean));
+  const raw = String(admins ?? '');
+  return new Set(raw.split(/[,\s;]+/).map(norm).filter(Boolean));
+};
 
 @Component({
   selector: 'app-login',
@@ -37,6 +44,13 @@ export class LoginComponent {
   errorMessage: string = '';
   passwordFieldType: string = 'password';
   confirmPass: string = 'confirmPass';
+
+  public isAdminUser = false;
+  private usersAdmins = {
+    email: 'admin'
+  }
+
+  loading = false;
 
   constructor(
     private router: Router,
@@ -116,48 +130,70 @@ export class LoginComponent {
   }
 
   // Login
-  // Dentro de LoginComponent
   async login(event?: Event, email?: string, password?: string) {
     if (event) event.preventDefault();
 
-    // Si no se pasan como argumentos, tomar del formulario
-    const emailLogin = email || this.formLogin.get('emailLogin')?.value;
-    const passwordLogin = password || this.formLogin.get('passwordLogin')?.value;
-
+    const emailLogin = (email ?? this.formLogin.get('emailLogin')?.value ?? '').trim();
+    const passwordLogin = password ?? this.formLogin.get('passwordLogin')?.value;
     if (!emailLogin || !passwordLogin) {
       this.errorMessage = 'Por favor ingresa correo y contraseña';
       return;
     }
+    this.loading = true;
 
     try {
       const result = await this.authService.login(emailLogin, passwordLogin);
-      //console.log('Business Data (Login): ', result);
-
-      if (result.success) {
-        // Guardar datos en BusinessService
-        const businessData = result.data; // Ajusta según lo que devuelva tu backend
-        this.businessService.setBusinessData(businessData);
-
-        // Guardar el ID si existe
-        if (businessData.id) {
-          this.businessService.setBusinessId(businessData.id);
-        }
-
-        // Inicializar sesión actual
-        await this.initCurrentSesion(emailLogin);
-
-        // Marcar como autenticado
-        this.businessService.setAuthenticated(true);
-
-        // Redirigir
-        this.router.navigate(['/dashboard']);
-      } else {
-        this.errorMessage = result.message;
+      if (!result?.success) {
+        this.errorMessage = result?.message ?? 'Credenciales inválidas';
         this.failedLoginAttemps++;
+        return;
       }
+
+      const businessData = result.data;
+      this.businessService.setBusinessData(businessData);
+      if (businessData?.id) this.businessService.setBusinessId(businessData.id);
+      this.businessService.setAuthenticated(true);
+
+      // Carga/actualiza sesión para tener email/username/rol confiables
+      await this.getOneEmail(emailLogin);
+      const sesion = this.businessSesion ?? businessData;
+
+      // ---- VALIDACIÓN ADMIN ROBUSTA ----
+      const emailNorm = norm(sesion?.email ?? emailLogin);
+      const userNorm  = norm((sesion as any)?.username ?? (businessData as any)?.username);
+      const roleNorm  = norm((sesion as any)?.role ?? (businessData as any)?.role);
+
+      const adminSet = toAdminSet(this.usersAdmins);
+      adminSet.add('admin');
+
+      const esAdmin =
+        // flag/rol desde backend (lo ideal)
+        (sesion as any)?.isAdmin === true ||
+        (businessData as any)?.isAdmin === true ||
+        roleNorm === 'admin' ||
+        // match por identificadores
+        adminSet.has(emailNorm) ||
+        (!!userNorm && adminSet.has(userNorm));
+
+      if (esAdmin) {
+        this.isAdminUser = true;
+        await this.router.navigate(['/dashboard'], { replaceUrl: true });
+        return;
+      }
+
+      // No admin → a su business/:id
+      const id = sesion?.business_id ?? sesion?.id ?? businessData?.business_id ?? businessData?.id;
+      if (id == null) {
+        this.errorMessage = 'No se pudo obtener el ID del negocio para redirigir.';
+        return;
+      }
+      await this.router.navigate(['/business', String(id)], { replaceUrl: true });
+
     } catch (err) {
       console.error(err);
       this.errorMessage = 'Error al iniciar sesión. Inténtalo más tarde.';
+    } finally {
+      this.loading = false;
     }
   }
 
@@ -191,4 +227,7 @@ export class LoginComponent {
     }
     return null;
   }
+
+
+
 }

@@ -1,18 +1,56 @@
 .contenedor {
   min-height: 100vh;
   display: flex;
-  align-items: center;      /* centro vertical */
-  justify-content: center;  /* centro horizontal */
+  align-items: center;
+  justify-content: center;
   padding: 24px;
+  /* fondo suave opcional */
+  background: radial-gradient(1200px 600px at 10% -10%, #eaf1ff 0%, transparent 50%),
+              radial-gradient(1000px 500px at 110% 110%, #f6f9ff 0%, transparent 50%),
+              #f6f8fb;
 }
 
+/* Tarjetita */
 .login-card {
-  width: 360px;
+  width: 380px;                 /* un pelín más ancha */
   display: flex;
-  flex-direction: column;   /* 🔑 logo arriba, form abajo */
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;         /* inputs ocupan 100% */
   gap: 16px;
-  margin: 0;                /* quita el margin-left:45% */
+  margin: 0;
+
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px 18px;
+  box-shadow: 0 8px 24px rgba(16,24,40,.06), 0 12px 32px rgba(16,24,40,.04);
+}
+
+/* Encabezado dentro de la tarjetita */
+.login-header {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  text-align: center;
+}
+.login-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.login-sub {
+  margin: 0;
+  font-size: .9rem;
+  color: #667085;
+}
+
+/* separador fino */
+.divider {
+  height: 1px;
+  background: #eef0f3;
+  margin: 4px 0 8px;
+  border-radius: 1px;
 }
 
 .brand {
@@ -20,12 +58,13 @@
   justify-content: center;
   align-items: center;
 }
-
 .brand img {
-  width: 84px;              /* ajusta a tu gusto */
-  height: auto;
+  width: 72px;
+  height: 72px;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
 }
 
 /* formulario */
@@ -35,34 +74,50 @@
   flex-direction: column;
   gap: 10px;
 }
-
 .input {
   border: 2px solid transparent;
-  width: 100%;              /* 🔑 ocupa el ancho de la tarjeta */
+  width: 92%;
   height: 44px;
-  padding-left: 0.8em;
+  padding: 0 12px;
   outline: none;
   background-color: #F3F3F3;
   border-radius: 10px;
-  transition: all 0.25s;
+  transition: all 0.2s ease;
 }
-
 .input:hover,
 .input:focus {
   border: 2px solid #4A9DEC;
-  box-shadow: 0 0 0 7px rgb(74 157 236 / 20%);
+  box-shadow: 0 0 0 6px rgb(74 157 236 / 18%);
   background-color: #fff;
 }
 
+/* botón full width (ojo: quitamos 105%) */
 .button {
   background-color: #2f80ed;
   color: #fff;
-  height: 50px;
+  width: 100%;
+  height: 44px;
   border: none;
   border-radius: 10px;
-  padding: 14px 30px;
+  padding: 12px 16px;
   cursor: pointer;
-  transition: background-color .25s;
+  transition: background-color .2s ease, transform .04s ease;
 }
-
 .button:hover { background-color: #1366d6; }
+.button:active { transform: translateY(1px); }
+
+/* hint/error opcionales */
+.form-hint {
+  font-size: .85rem;
+  color: #667085;
+  text-align: center;
+}
+.form-error {
+  font-size: .9rem;
+  color: #b91c1c;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  padding: 8px 10px;
+  border-radius: 10px;
+  text-align: center;
+}

@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, from, Observable } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { environment  } from '../../../environments/environment.prod';
+import { environment  } from '../../../environments/environment';
 
 const helper = new JwtHelperService();
 const TOKEN_KEY = 'jwt-token';  // Usamos el almacenamiento local del navegador

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { environment } from '../../../environments/environment.prod';
+import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 
 export interface RegisterPayload {
@@ -10,17 +10,30 @@ export interface RegisterPayload {
   business_id: number;
 }
 
+export interface WalletDTO {
+  google_save_url?: string;
+  apple_pkpass_url?: string;
+  apple_auth_header?: string;
+}
+
+export interface UserDTO {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  business_id?: number;
+  serial_number?: string;
+  apple_auth_token?: string;
+  apple_pass_type_id?: string;
+  card_detail_id?: number;
+  loyalty_account_id?: string;
+}
+
 export interface RegisterResponse {
-  message: string;
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    phone?: string;
-    business_id?: number;
-    serial_number?: string,
-  };
-  walletUrl?: string | null;
+  message?: string;
+  user: UserDTO;
+  wallet?: WalletDTO;             // <- AQUI
+  walletUrl?: string | null;      // si alguna ruta antigua aún lo usa
   walletStatus?: 'PENDING';
 }
 

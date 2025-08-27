@@ -6,15 +6,18 @@ import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { UserService, RegisterResponse } from '../../services/user/user.service';
-import { environment } from '../../../environments/environment.prod';
+import { environment } from '../../../environments/environment';
 import { BufferToBase64Pipe } from '../../Pipe/BufferToBase64.pipe';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { WalletChooserComponent } from '../wallet-chooser/wallet-chooser.component';
+import { Router } from '@angular/router';
 
 const UUIDv4_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 @Component({
   selector: 'app-user',
   standalone: true,
-  imports: [HttpClientModule, CommonModule, RouterModule, ReactiveFormsModule, BufferToBase64Pipe],
+  imports: [HttpClientModule, CommonModule, RouterModule, ReactiveFormsModule, BufferToBase64Pipe, MatDialogModule],
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss']
 })
@@ -31,8 +34,10 @@ export class UserComponent implements OnInit {
   constructor(
     private userService: UserService,
     private route: ActivatedRoute,
+    private dialog: MatDialog,
     private http: HttpClient,
     private fb: FormBuilder,
+    private router: Router,
   ) {
     this.userRegisterForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
@@ -62,6 +67,24 @@ export class UserComponent implements OnInit {
 
   get f() { return this.userRegisterForm.controls; }
 
+  private isAndroid(): boolean {
+    // userAgentData (nuevo) o userAgent (fallback)
+    // Nota: en iOS, Chrome/Edge dicen "CriOS"/"EdgiOS" y NO deben contar como Android
+    const ua = navigator.userAgent || '';
+    const uaDataBrands = (navigator as any).userAgentData?.brands?.map((b: any) => b.brand.toLowerCase()) || [];
+    const uaDataPlatform = (navigator as any).userAgentData?.platform?.toLowerCase() || '';
+    if (uaDataPlatform.includes('android') || uaDataBrands.some((b: string) => b.includes('android'))) return true;
+    return /android/i.test(ua);
+  }
+
+  private isIOS(): boolean {
+    const ua = navigator.userAgent || '';
+    // iPhone/iPad/iPod, y también iPadOS que reporta MacIntel con touch
+    const iOS = /iPad|iPhone|iPod/.test(ua);
+    const iPadOS = (navigator.platform === 'MacIntel' && (navigator as any).maxTouchPoints > 1);
+    return iOS || iPadOS;
+  }
+
   onSubmit() {
     this.serverError = '';
     if (this.userRegisterForm.invalid) {
@@ -69,8 +92,6 @@ export class UserComponent implements OnInit {
       return;
     }
     this.loading = true;
-
-
 
     // Pre-abrimos una pestaña para evitar bloqueos de pop-up
     const walletWin = window.open('', '_blank');
@@ -94,60 +115,67 @@ export class UserComponent implements OnInit {
 
     this.userService.register(regPayload).subscribe({
       next: (res: RegisterResponse) => {
-        // 2) Construir cardCode y pedir link de Wallet
         const user = res.user;
         const businessId = (user as any).business_id ?? regPayload.business_id;
 
-        const shortFromSerial = (user as any)?.serial_number?.split('-')?.[0]?.toUpperCase();
-        const cardCode = shortFromSerial
-          ? `CARD-${businessId}-${shortFromSerial}`
-          : `CARD-${businessId}-${user.id}`;
+        // URLs que ya te da el backend en el registro:
+        const appleUrl = (res as any)?.wallet?.apple_pkpass_url as string | undefined;
+        const googleUrl = (res as any)?.wallet?.google_save_url as string | undefined;
 
-        const walletBody = {
-          cardCode,
-          userName: user.name,
-          programName: (environment as any).programName || 'Mi Programa',
-          businessId
-        };
+        // Si necesitas aún crear algo en backend, mantenlo; pero la navegación usa apple/google de arriba
+        // this.userService.createWalletLink(walletBody).subscribe({ ... });
 
+        this.loading = false;
 
+        // 1) iOS -> Apple Wallet
+        if (this.isIOS() && appleUrl) {
+          if (walletWin) { walletWin.location.href = appleUrl; walletWin.focus?.(); }
+          else { window.location.href = appleUrl; }
+          this.router.navigate(['/finish-register'], { queryParamsHandling: 'preserve', replaceUrl: true });
+          return;
+        }
 
+        // 2) Android -> Google Wallet
+        if (this.isAndroid() && googleUrl) {
+          if (walletWin) { walletWin.location.href = googleUrl; walletWin.focus?.(); }
+          else { window.location.href = googleUrl; }
+          this.router.navigate(['/finish-register'], { queryParamsHandling: 'preserve', replaceUrl: true });
+          return;
+        }
 
+        // 3) Desktop / otros -> chooser
+        const target = googleUrl || appleUrl;
+        if (target) {
+          if (walletWin) walletWin.close(); // <- MUY IMPORTANTE: cierra la about:blank
+          const dialogRef = this.dialog.open(WalletChooserComponent, {
+            width: '520px',
+            maxWidth: '95vw',
+            panelClass: 'app-dialog',
+            backdropClass: 'app-backdrop',
+            data: { appleUrl, googleUrl }
+          });
+          dialogRef.afterClosed().subscribe((choice: 'apple' | 'google' | undefined) => {
+            if (!choice) return;
+            const url = choice === 'apple' ? appleUrl : googleUrl;
+            if (!url) return;
+            const win = window.open(url, '_blank');
+            if (!win) window.location.href = url;
 
-        this.userService.createWalletLink(walletBody).subscribe({
-          next: (w) => {
-            this.walletUrl = w.url;
-            this.walletStatus = undefined;
-            this.createdUserId = user.id;
-            this.loading = false;
-
-            // Redirigir automáticamente
-            if (walletWin) {
-              walletWin.location.href = w.url;   // abre en la pestaña pre-abierta
-              walletWin.focus?.();
-            } else {
-              window.open(w.url, '_blank');      // fallback si el navegador bloqueó
-            }
-
-            // Si prefieres abrir en la misma pestaña, usa:
-            // window.location.href = w.url;
-          },
-          error: (err) => {
-            if (walletWin) walletWin.close();    // cierra la pestaña vacía si falló
-            this.walletUrl = null;
-            this.walletStatus = 'PENDING';
-            this.createdUserId = user.id;
-            this.loading = false;
-            this.serverError = err?.error?.message || 'No se pudo generar la tarjeta (Wallet).';
-          }
-        });
+            this.router.navigate(['/finish-register'], { queryParamsHandling: 'preserve', replaceUrl: true });
+          });
+        } else {
+          if (walletWin) walletWin.close();
+          this.serverError = 'No se recibió una URL válida de Wallet.';
+        }
       },
       error: (err) => {
-        if (walletWin) walletWin.close();
+        if (walletWin) walletWin.close(); // <- cerrar la pestaña pre-abierta en error
+        console.error('REGISTER ERROR', { status: err?.status, body: err?.error });
         this.loading = false;
         this.serverError = err?.error?.message || 'Error al registrar usuario';
       }
     });
+
   }
 
   retryWallet() {

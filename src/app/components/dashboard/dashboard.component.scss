@@ -1,178 +1,266 @@
-
-.button-edit,
-.button-delete,
-.button-guardar {
-  padding: 10px 10px;
-  border-radius: 5px;
-  font-size: 14px;
-  width: 100%;
-  margin: 0px;
+/* close-page.component.scss */
+.contenedor {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;      /* centro vertical */
+  justify-content: center;  /* centro horizontal */
+  background: #f3f6fa;      /* gris claro de fondo */
+  padding: 24px;
 }
 
-.button-edit {
-  background-color: #49a09d;
-  color: white;
-}
-
-.button-delete {
-  background-color: red;
-  color: white;
-}
-
-.button-guardar {
-  background-color: #49a063;
-  color: white;
-}
-
-
-.cards-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  padding: 1rem;
-}
-
-.wallet-card-vertical {
+.card {
+  background: #fff;
+  padding: 32px 24px;
   border-radius: 16px;
-  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  text-align: center;
+  max-width: 420px;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  height: 350px;
-  padding: 1rem;
+  gap: 20px;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
-.wallet-card-header {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  width: 120px;
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.wallet-logo {
-  max-width: 90px;
-  max-height: 90px;
+.brand img {
+  width: 100px;
+  height: auto;
+  border-radius: 12px;
   object-fit: contain;
 }
 
-.wallet-logo-placeholder {
-  font-size: 0.9rem;
-  text-align: center;
-  color: inherit;
-}
-
-.wallet-card-body {
-  text-align: center;
-  flex: 1;
-}
-
-.wallet-card-body h3 {
-  margin: 0 0 8px;
+h1 {
   font-size: 1.4rem;
-  font-weight: bold;
+  font-weight: 600;
+  color: #2f80ed;
+  margin: 0;
 }
 
-.wallet-card-body .date {
-  font-size: 0.85rem;
-  opacity: 0.85;
+p {
+  font-size: 1rem;
+  color: #444;
+  margin: 0;
 }
 
-.wallet-card-actions {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-}
-
-.btn-edit, .btn-delete {
-  border: none;
-  padding: 6px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.btn-edit {
-  background-color: rgba(255,255,255,0.8);
-  color: #333;
-}
-
-.btn-delete {
-  background-color: rgba(255,255,255,0.8);
-  color: #d32f2f;
-}
-
-.btn-edit:hover {
-  background-color: rgba(255,255,255,1);
-}
-
-.btn-delete:hover {
-  background-color: rgba(255,200,200,1);
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 
-/* dashboard.component.scss */
-.link-col {
-  width: 360px; /* ajusta a gusto */
+/* ===== Tema Claro para Business Page ===== */
+:host {
+  /* Paleta clara */
+  --bg: #f6f8fb;           /* fondo general */
+  --card: #ffffff;         /* tarjetas */
+  --muted: #667085;        /* textos secundarios */
+  --text: #0f172a;         /* texto principal */
+  --accent: #2563eb;       /* azul acción */
+  --success: #16a34a;      /* verde estado */
+  --border: #e5e7eb;       /* bordes suaves */
+  --shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+
+  display: block;
+  color: var(--text);
 }
-.link-cell {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  a {
-    display: inline-block;
-    max-width: 280px; /* ajusta a gusto */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+
+.page {
+  padding: 16px clamp(16px, 4vw, 32px);
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+/* Alertas */
+.alert {
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  &.alert-error {
+    background: #fff1f1;
+    border-color: #fca5a5;
+    color: #7f1d1d;
   }
 }
-.btn-copy {
-  padding: 4px 8px;
-  border: 1px solid #ccc;
-  background: #f6f6f6;
-  cursor: pointer;
+
+/* Header */
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
-
-// tabla
-.tabla-container {
-  width: 90%;
-  max-width: 900px;
-  margin: auto;
-  text-align: center;
-
+.brand {
+  display: flex; gap: 16px; align-items: center;
+  img {
+    width: 56px; height: 56px; object-fit: cover;
+    border-radius: 12px; border: 1px solid var(--border);
+    background: #fff;
+    box-shadow: var(--shadow);
+  }
+  .info {
+    .name { margin: 0; font-size: 1.25rem; font-weight: 700; color: #111827; }
+    .meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  }
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+.chip {
+  padding: 4px 8px; font-size: 12px; border: 1px solid var(--border);
+  border-radius: 999px; color: var(--muted); background: #f9fafb;
+  &.chip-id { color: #1d4ed8; border-color: #bfdbfe; background: #eff6ff; }
+}
+.status {
+  padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  border: 1px solid #bbf7d0; color: #166534; background: #ecfdf5;
+  &.active { color: #3cd81d }
+}
+
+/* Acciones */
+.actions {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;
+  .btn {
+    border-radius: 10px; padding: 10px 14px; background: var(--card);
+    border: 1px solid var(--border); color: var(--text); cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: transform .05s ease, background .2s ease, border-color .2s ease;
+    &:hover { background: #fafafa; border-color: #d1d5db; }
+    &:active { transform: translateY(1px); }
+    &.primary { background: var(--accent); border-color: var(--accent); color: white; }
+    &.ghost { background: transparent; box-shadow: none; }
+  }
+}
+
+/* Tarjetas y KPIs */
+.kpis {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px; margin: 12px 0 16px;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 14px;
+  box-shadow: var(--shadow);
+}
+.kpi-label { color: var(--muted); font-size: 12px; }
+.kpi-value { font-size: 24px; font-weight: 800; margin: 4px 0; color: #111827; }
+.kpi-hint { color: var(--muted); font-size: 12px; }
+
+/* Grid detalle */
+.grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  h3 { margin: 0 0 10px; font-size: 14px; color: #334155; }
+}
+
+.dl {
+  display: grid; grid-template-columns: 180px 1fr;
+  row-gap: 8px; column-gap: 12px; align-items: start;
+  .dt { color: var(--muted); }
+  .dd { color: var(--text); word-wrap: anywhere; }
+  .terms {
+    max-height: 120px; overflow: auto; padding: 8px;
+    background: #fafafa; border: 1px solid var(--border); border-radius: 8px;
+  }
+}
+
+/* Empty */
+.empty { color: var(--muted); text-align: center; padding: 24px; }
+
+/* Skeletons (claros) */
+.skeleton-header,
+.skeleton-card,
+.skeleton-row {
   background: #ffffff;
-  color: rgb(0, 0, 0);
-  border-radius: 10px;
-  overflow: hidden;
-  margin-top: 20px; /* Evita que se pegue al botón */
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.skeleton-header { height: 80px; margin-bottom: 12px; }
+.skeleton-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+.skeleton-card { height: 88px; }
+.skeleton-row { height: 180px; }
 
+/* Responsivo */
+@media (max-width: 920px) {
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .grid { grid-template-columns: 1fr; }
 }
 
-th, td {
-  padding: 15px;
-  border-bottom: 1px solid #555;
-  text-align: center;
+/* ===== Tabla de usuarios ===== */
+.table-card {
+  margin-top: 16px;
+  width: 100%;
+  max-width: none;          /* por si algún estilo global limita .card */
+  margin-left: 0;
+  margin-right: 0;
 }
 
-th {
-  color: white;
-  background: #55608f;
+.table-header {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  h3 { margin: 0; font-size: 14px; color: #334155; }
+  .sub { color: var(--muted); font-size: 12px; }
 }
 
-.pocas-existencias {
-  background-color: orange !important;
-  color: black;
-  font-weight: bold;
+.table-wrapper {
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
+.table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  th, td { padding: 10px 12px; text-align: left; white-space: nowrap; }
+  thead th {
+    position: sticky; top: 0; background: #f9fafb; z-index: 1;
+    font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border);
+  }
+  tbody tr {
+    background: #fff;
+    &:not(:last-child) td { border-bottom: 1px solid var(--border); }
+    &:hover { background: #fafafa; }
+  }
+
+  .col-id { width: 80px; color: #475569; }
+  .col-pts { width: 120px; }
+  .col-actions { width: 260px; text-align: right; }
+  .col-email { max-width: 360px; overflow: hidden; text-overflow: ellipsis; }
+  .col-name { max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+}
+
+.badge.pts {
+  display: inline-block; min-width: 44px; text-align: center;
+  padding: 2px 8px; border-radius: 999px; font-weight: 700; font-size: 12px;
+  color: #1d4ed8; background: #eff6ff; border: 1px solid #bfdbfe;
+}
+
+/* Botones pequeños en tabla */
+.btn.small {
+  padding: 6px 10px; border-radius: 8px; font-size: 12px;
+  border: 1px solid var(--border); background: var(--card); color: var(--text);
+  box-shadow: var(--shadow);
+  &:hover { background: #fafafa; border-color: #d1d5db; }
+  &.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  &.danger  { background: #fff1f2; border-color: #fecdd3; color: #b91c1c; }
+}
+
+
+/* Cuando el componente vive dentro de un mat-dialog con .app-dialog */
+:host-context(.app-dialog) .contenedor {
+  min-height: auto;      /* ya no pantalla completa */
+  padding: 0;            /* sin colchón extra */
+  background: transparent;
+  display: block;        /* quita el grid centering de página */
+}
+
+:host-context(.app-dialog) .login-card {
+  width: min(520px, 92vw); /* centrado y responsive */
+  margin: 0;
+  /* deja tu estilo de card como estaba */
+}
+
+/* Si quieres un poco de aire uniforme dentro de la tarjeta */
+:host-context(.app-dialog) .login-card .user-form {
+  gap: 14px; /* como te gustó el gap */
+}

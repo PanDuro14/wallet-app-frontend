@@ -1,18 +1,36 @@
 <div class="contenedor">
   <div class="login-card">
 
-    <div class="brand" *ngIf="currentBusiness?.length">
-      <img
-        *ngIf="currentBusiness[0]?.logo"
-        [src]="currentBusiness[0].logo | bufferToBase64: currentBusiness[0].logoMimeType"
-        alt="Logo del negocio"
-      />
+    <div class="login-header">
+      <div class="brand" *ngIf="currentBusiness?.length">
+        <img
+          *ngIf="currentBusiness[0]?.logo"
+          [src]="currentBusiness[0].logo | bufferToBase64: currentBusiness[0].logoMimeType"
+          alt="Logo del negocio"
+        />
+      </div>
+
+      <h2 class="login-title">
+        {{ currentBusiness.length ? ('Login to ' + currentBusiness[0].name) : 'Login' }}
+      </h2>
+      <p class="login-sub" *ngIf="currentBusiness?.length">
+        Accede para registrar usuarios en tu programa
+      </p>
     </div>
 
+    <div class="divider"></div>
+
+    <!-- opcional: mostrar errores de submit -->
+    <!-- <div class="form-error" *ngIf="serverError">{{ serverError }}</div> -->
+
     <form [formGroup]="userRegisterForm" (ngSubmit)="onSubmit()" class="user-form">
-      <input class="input" type="text" formControlName="name" placeholder="Name"/>
+      <input class="input" type="text" formControlName="name"  placeholder="Name"/>
       <input class="input" type="email" formControlName="email" placeholder="Email"/>
       <input class="input" type="text" formControlName="phone" placeholder="Phone"/>
+
+      <div class="form-hint">
+        Los datos se usarán para generar la tarjeta de lealtad.
+      </div>
 
       <button class="button" type="submit" [disabled]="loading">
         {{ loading ? 'Creando...' : 'Registrar usuario' }}

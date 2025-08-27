@@ -1,113 +1,50 @@
-<div class="content">
-  <div class="tabla-dashboard">
-    <div vertical="top" horizontal="start" slot="fixed">
-      <button class="button-guardar" (click)="openCrearBusinessModal()">Create Business</button>
+<section class="card table-card bizlist" *ngIf="allBusinesess">
+  <div class="table-header">
+    <h3>Negocios</h3>
+    <div class="header-actions">
+      <button class="btn small primary" (click)="openCrearBusinessModal()">Create Business</button>
+      <button class="btn small" (click)="openCreateCardModal()">Create Card</button>
     </div>
-    <div>
-      <button class="button-guardar" (click)="openCreateCardModal()">Create Card</button>
-    </div>
-    <table *ngIf="allBusinesess">
+  </div>
+
+  <div class="table-wrapper">
+    <table class="table businesses">
       <thead>
         <tr>
-          <th> Name  </th>
+          <th>Name</th>
           <th> Email </th>
           <th> Logo </th>
           <th class="link-col"> Link </th>
           <th> Was created </th>
           <th> Last updated </th>
-          <th></th>
-          <th></th>
+          <th colspan="3" class="col-actions">Acciones</th>
         </tr>
       </thead>
+
       <tbody>
         <tr *ngFor="let b of allBusinesess">
-          <td> {{ b.name }} </td>
-          <td> {{ b.email }}</td>
+          <td>{{ b.name }}</td>
+          <td class="col-email">{{ b.email }}</td>
+
           <td>
             <img *ngIf="b.logo" [src]="b.logo | bufferToBase64:b.logoMimeType" width="50" height="50" />
           </td>
+
           <td class="link-cell">
-            <a
-              [href]="links.buildBussinessLink(b)"
-              target="_blank"
-              rel="noopener"
-            >
+            <a [href]="links.buildBussinessLink(b)" target="_blank" rel="noopener">
               {{ links.buildBussinessLink(b) }}
             </a>
-            <button type="button" class="btn-copy" (click)="copy(links.buildBussinessLink(b))">
-              Copiar
-            </button>
+            <button type="button" class="btn-copy" (click)="copy(links.buildBussinessLink(b))">Copiar</button>
           </td>
 
-          <td> {{ b.created_atFormat }}</td>
-          <td> {{ b.updated_atFormat }}</td>
-          <td> <button (click)="openEditarModal(b.id)" class="button-edit"> Update</button></td>
-          <td> <button (click)="deleteOneItem(b.id)" class="button-delete"> Delete </button></td>
+          <td>{{ b.created_atFormat }}</td>
+          <td>{{ b.updated_atFormat }}</td>
+
+          <td><button (click)="viewFullBusiness(b.id)"  class="btn small">Admin</button></td>
+          <td><button (click)="openEditarModal(b.id)"    class="btn small">Update</button></td>
+          <td><button (click)="deleteOneItem(b.id)"      class="btn small danger">Delete</button></td>
         </tr>
       </tbody>
     </table>
-
-    <div class="users-table">
-      <table *ngIf="allUsers">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Account ID</th>
-            <th>Points</th>
-            <th>Created at</th>
-            <th>Updated at</th>
-            <th></th>
-            <th></th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let u of allUsers">
-            <td>{{ u.name }}</td>
-            <td>{{ u.email }}</td>
-            <td>{{ u.phone }}</td>
-            <td>{{ u.loyalty_account_id }} </td>
-            <td>{{ u.points}}</td>
-            <td>{{ u.created_atFormat}}</td>
-            <td>{{ u.updated_atFormat}}</td>
-            <td><button (click)="openEditarUsuario(u.id)" class="button-edit"> Update</button></td>
-            <td><button (click)="openDeleteUser(u.id)" class="button-delete">Eliminar</button></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <br>
-    <div *ngIf="allCards">
-
-     <div class="cards-container">
-      <div
-        class="wallet-card-vertical"
-        *ngFor="let card of allCards"
-        [style.background-color]="card.background_color"
-        [style.color]="card.foreground_color"
-      >
-        <div class="wallet-card-header">
-          <img *ngIf="card.logo_url" [src]="card.logo_url | bufferToBase64:card.logo_urlMimeType" alt="Logo" class="wallet-logo">
-          <ng-template #noLogo>
-            <div class="wallet-logo-placeholder">No Logo</div>
-          </ng-template>
-        </div>
-
-        <div class="wallet-card-body">
-          <h3>{{ card.pass_type_id | titlecase }}</h3>
-          <h3> Points </h3>
-        </div>
-
-        <div class="wallet-card-actions">
-          <button (click)="openEditarCardModal(card.id)" class="btn-edit">Editar</button>
-          <button (click)="deleteOneCardModal(card.id)" class="btn-delete">Eliminar</button>
-        </div>
-      </div>
-    </div>
-
-    </div>
   </div>
-</div>
+</section>

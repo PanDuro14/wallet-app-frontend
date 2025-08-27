@@ -1,0 +1,64 @@
+<div class="contenedor">
+  <div class="login-card">
+    <div class="login-header">
+      <h2 class="login-title">Create Business</h2>
+      <p class="login-sub">Completa los datos para continuar</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <form [formGroup]="formCreateBusiness" (ngSubmit)="createBusiness($event)" novalidate>
+      <!-- NAME -->
+      <input type="text" class="input" formControlName="name" placeholder="Name" [class.invalid]="touchedInvalid('name')" required>
+      <div class="hint error" *ngIf="touchedInvalid('name')">
+        <p *ngIf="formCreateBusiness.get('name')?.hasError('required')">Required name</p>
+        <p *ngIf="formCreateBusiness.get('name')?.hasError('minlength')">Min 3 characters</p>
+        <p *ngIf="formCreateBusiness.get('name')?.hasError('maxlength')">Max 80 characters</p>
+      </div>
+
+      <!-- EMAIL -->
+      <input type="email" class="input" formControlName="email" placeholder="Email" [class.invalid]="touchedInvalid('email')" required>
+      <div class="hint error" *ngIf="touchedInvalid('email')">
+        <p *ngIf="formCreateBusiness.get('email')?.hasError('required')">Required email</p>
+        <p *ngIf="formCreateBusiness.get('email')?.hasError('email')">Invalid email</p>
+      </div>
+
+      <!-- LOGO -->
+      <input id="logo" type="file" accept="image/*" (change)="onFileChange($event)" hidden>
+      <label for="logo" class="input file-like">{{ selectedFile || 'Seleccionar logo' }}</label>
+      <div class="hint error" *ngIf="touchedInvalid('logo')">
+        <p *ngIf="formCreateBusiness.get('logo')?.hasError('required')">Logo is required</p>
+        <p *ngIf="formCreateBusiness.get('logo')?.hasError('fileType')">Only PNG, JPG/JPEG or WEBP</p>
+        <p *ngIf="formCreateBusiness.get('logo')?.hasError('fileMaxSize')">Max size 160MB</p>
+      </div>
+
+      <!-- PASSWORD -->
+      <div class="password-row">
+        <input [type]="passwordFieldType" class="input" formControlName="password" placeholder="Password" [class.invalid]="touchedInvalid('password')" required>
+        <button type="button" class="eye-btn" (click)="togglePassword()" aria-label="Toggle password">
+          <i class="fas" [ngClass]="passwordFieldType === 'text' ? 'fa-eye-slash' : 'fa-eye'"></i>
+        </button>
+      </div>
+      <div class="hint error" *ngIf="touchedInvalid('password')">
+        <p *ngIf="formCreateBusiness.get('password')?.hasError('required')">Required password</p>
+        <p *ngIf="formCreateBusiness.get('password')?.hasError('minlength')">Min 8 characters</p>
+        <p *ngIf="formCreateBusiness.get('password')?.hasError('pattern')">At least 1 upper, 1 number</p>
+      </div>
+
+      <!-- CONFIRM -->
+      <div class="password-row">
+        <input [type]="confirmFieldType" class="input" formControlName="confirmPass" placeholder="Confirm password" [class.invalid]="touchedInvalid('confirmPass') || formCreateBusiness.hasError('passwordMismatch')" required>
+        <button type="button" class="eye-btn" (click)="toggleConfirmPassVisibility()" aria-label="Toggle confirm">
+          <i class="fas" [ngClass]="confirmFieldType === 'text' ? 'fa-eye-slash' : 'fa-eye'"></i>
+        </button>
+      </div>
+      <div class="hint error" *ngIf="touchedInvalid('confirmPass') || formCreateBusiness.hasError('passwordMismatch')">
+        <p *ngIf="formCreateBusiness.get('confirmPass')?.hasError('required')">Required confirmation</p>
+        <p *ngIf="formCreateBusiness.hasError('passwordMismatch')">Passwords don’t match</p>
+      </div>
+
+      <!-- SUBMIT -->
+      <button type="submit" class="button button-65" [disabled]="formCreateBusiness.invalid">Create</button>
+    </form>
+  </div>
+</div>

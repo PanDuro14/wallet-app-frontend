@@ -1,0 +1,201 @@
+  <div class="page">
+    <div class="container">
+      <!-- Error -->
+      <div class="alert alert-error" *ngIf="serverError">
+        {{ serverError }}
+      </div>
+
+      <!-- Skeleton -->
+      <div class="skeleton" *ngIf="isLoading">
+        <div class="skeleton-header"></div>
+        <div class="skeleton-kpis">
+          <div class="skeleton-card" *ngFor="let i of [1,2,3,4]"></div>
+        </div>
+        <div class="skeleton-row"></div>
+      </div>
+
+      <!-- Contenido -->
+      <ng-container *ngIf="!isLoading && currentBusiness?.length">
+        <div class="header">
+          <div class="brand">
+            <img
+              *ngIf="currentBusiness[0]?.logo"
+              [src]="currentBusiness[0].logo | bufferToBase64: currentBusiness[0].logoMimeType"
+              alt="Logo del negocio"
+            />
+            <div class="info">
+              <h1 class="name">{{ currentBusiness[0]?.name || 'Negocio' }}</h1>
+              <div class="meta">
+                <span class="chip">{{ currentBusiness[0]?.email || 'sin-email' }}</span>
+                <span class="chip chip-id">ID: {{ currentBid }}</span>
+                <span class="status active">Activo</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" (click)="onOpenAdjust(1)">Cargar puntos</button>
+            <button class="btn" (click)="onIssuePass()">Emitir pase</button>
+            <button class="btn ghost" (click)="onExportCSV()">Exportar CSV</button>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <section class="kpis">
+          <div class="card kpi">
+            <div class="kpi-label">Pases activos</div>
+            <div class="kpi-value">—</div>
+            <div class="kpi-hint">últimos 7 días</div>
+          </div>
+
+          <div class="card kpi">
+            <div class="kpi-label">Añadidos hoy</div>
+            <div class="kpi-value">—</div>
+            <div class="kpi-hint">hoy</div>
+          </div>
+
+          <div class="card kpi">
+            <div class="kpi-label">Redenciones hoy</div>
+            <div class="kpi-value">—</div>
+            <div class="kpi-hint">hoy</div>
+          </div>
+
+          <div class="card kpi">
+            <div class="kpi-label">Pasivo en puntos</div>
+            <div class="kpi-value">—</div>
+            <div class="kpi-hint">estimado</div>
+          </div>
+        </section>
+
+        <!-- Detalle negocio -->
+        <section class="grid">
+          <div class="card">
+            <h3>Detalles del negocio</h3>
+            <div class="dl">
+              <div class="dt">Nombre</div>
+              <div class="dd">{{ currentBusiness[0]?.name }}</div>
+
+              <div class="dt">Email</div>
+              <div class="dd">{{ currentBusiness[0]?.email || '—' }}</div>
+
+              <div class="dt">Creado</div>
+              <div class="dd">{{ currentBusiness[0]?.created_atFormat }}</div>
+
+              <div class="dt">Actualizado</div>
+              <div class="dd">{{ currentBusiness[0]?.updated_atFormat }}</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Programa Wallet</h3>
+            <div class="dl">
+              <div class="dt">Pass Type ID</div>
+              <div class="dd">{{ currentBusiness[0]?.pass_type_id || '—' }}</div>
+
+              <div class="dt">Color de fondo</div>
+              <div class="dd">{{ currentBusiness[0]?.background_color || '—' }}</div>
+
+              <div class="dt">Términos</div>
+              <div class="dd terms">{{ currentBusiness[0]?.terms || '—' }}</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Aquí podrías renderizar tus enlaces/acciones específicas -->
+        <!-- <app-business-links [businessId]="currentBid"></app-business-links> -->
+      </ng-container>
+
+      <!-- Empty state -->
+    <div class="empty" *ngIf="!isLoading && !currentBusiness?.length && !serverError">
+      <p>No se encontró información del negocio.</p>
+    </div>
+
+      <!-- Tabla de usuarios (demo) -->
+    <section class="card table-card" *ngIf="!isLoading">
+      <div class="table-header">
+        <h3>Usuarios</h3>
+        <span class="sub"></span>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="table users">
+          <thead>
+            <tr>
+              <th class="col-id">ID</th>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th class="col-pts">Puntos</th>
+              <th>Creado</th>
+              <th>Actualizado</th>
+              <th class="col-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of userRows; trackBy: trackById">
+              <td class="col-id">#{{ u.id }}</td>
+              <td class="col-name">{{ u.name }}</td>
+              <td class="col-email">{{ u.email }}</td>
+              <td class="col-pts">
+                <span class="badge pts">{{ u.points }}</span>
+              </td>
+              <td class="col-date">{{ u.created_atFormat }}</td>
+              <td class="col-date">{{ u.updated_atFormat }}</td>
+              <td class="col-actions">
+                <button class="btn small primary" (click)="onOpenAdjust(u.id)">Actualizar puntos</button>
+                <button class="btn small danger" (click)="onDeleteUser(u)">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <!-- Modal Ajuste de Puntos -->
+    <!-- Modal Ajuste de Puntos -->
+    <div class="backdrop" *ngIf="adjust.open" (click)="!adjust.busy && onCloseAdjust()"></div>
+
+    <div class="modal" *ngIf="adjust.open" role="dialog" aria-modal="true">
+      <div class="modal-panel" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Ajustar puntos</h3>
+          <button class="btn close" (click)="onCloseAdjust()" [disabled]="adjust.busy">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="who">
+            <div class="name">{{ adjust.name }}</div>
+            <div class="muted">{{ adjust.email }}</div>
+          </div>
+
+          <div class="row">
+            <label>Actual</label>
+            <div class="value">{{ adjust.currentPoints }}</div>
+          </div>
+
+          <div class="row">
+            <label>Delta</label>
+            <div class="delta">
+              <button class="btn chip" (click)="bump(-50)" [disabled]="adjust.busy">-50</button>
+              <button class="btn chip" (click)="bump(-10)" [disabled]="adjust.busy">-10</button>
+              <input class="input num" type="number" [(ngModel)]="adjust.delta" [disabled]="adjust.busy">
+              <button class="btn chip" (click)="bump(10)"  [disabled]="adjust.busy">+10</button>
+              <button class="btn chip" (click)="bump(50)"  [disabled]="adjust.busy">+50</button>
+            </div>
+          </div>
+
+          <div class="preview">
+            Nuevo: <b>{{ (adjust.currentPoints || 0) + (+adjust.delta || 0) }}</b>
+          </div>
+
+          <div class="alert alert-error" *ngIf="adjust.error">{{ adjust.error }}</div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn ghost" (click)="onCloseAdjust()" [disabled]="adjust.busy">Cancelar</button>
+          <button class="btn primary" (click)="applyAdjust()" [disabled]="!canApply()">Aplicar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

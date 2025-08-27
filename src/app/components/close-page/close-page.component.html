@@ -1,0 +1,13 @@
+<div class="contenedor">
+  <div class="card">
+    <div class="brand" *ngIf="currentBusiness?.length">
+      <img
+        *ngIf="currentBusiness[0]?.logo"
+        [src]="currentBusiness[0].logo | bufferToBase64: currentBusiness[0].logoMimeType"
+        alt="Logo del negocio"
+      />
+    </div>
+    <h1>¡Gracias por unirte a {{currentBusiness[0]?.name}}!</h1>
+    <p>Tu tarjeta ya está lista, úsala y disfruta las recompensas</p>
+  </div>
+</div>
