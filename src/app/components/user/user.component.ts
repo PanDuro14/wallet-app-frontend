@@ -131,7 +131,7 @@ export class UserComponent implements OnInit {
         if (this.isIOS() && appleUrl) {
           if (walletWin) { walletWin.location.href = appleUrl; walletWin.focus?.(); }
           else { window.location.href = appleUrl; }
-          this.router.navigate(['/finish-register'], { queryParamsHandling: 'preserve', replaceUrl: true });
+          this.router.navigate(['/finish-register', businessId], { replaceUrl: true });
           return;
         }
 
@@ -139,7 +139,7 @@ export class UserComponent implements OnInit {
         if (this.isAndroid() && googleUrl) {
           if (walletWin) { walletWin.location.href = googleUrl; walletWin.focus?.(); }
           else { window.location.href = googleUrl; }
-          this.router.navigate(['/finish-register'], { queryParamsHandling: 'preserve', replaceUrl: true });
+          this.router.navigate(['/finish-register', businessId], { replaceUrl: true });
           return;
         }
 
@@ -161,7 +161,7 @@ export class UserComponent implements OnInit {
             const win = window.open(url, '_blank');
             if (!win) window.location.href = url;
 
-            this.router.navigate(['/finish-register'], { queryParamsHandling: 'preserve', replaceUrl: true });
+            this.router.navigate(['/finish-register', businessId], { replaceUrl: true });
           });
         } else {
           if (walletWin) walletWin.close();
@@ -175,7 +175,6 @@ export class UserComponent implements OnInit {
         this.serverError = err?.error?.message || 'Error al registrar usuario';
       }
     });
-
   }
 
   retryWallet() {

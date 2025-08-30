@@ -1,0 +1,53 @@
+<div class="login-card">
+  <div class="scan-card">
+    <h2>Escanear tarjeta del cliente</h2>
+
+    <!-- muestra cámara si hay soporte; si no, muestra noCam -->
+    <ng-container *ngIf="cameraReady; else noCam">
+      <div class="video-wrap" [class.expanded]="scanning" [class.compact]="!scanning">
+        <video #video autoplay muted playsinline></video>
+      </div>
+
+      <button class="btn" (click)="toggleScan()">
+        {{ scanning ? 'Detener cámara' : 'Iniciar cámara' }}
+      </button>
+    </ng-container>
+
+    <ng-template #noCam>
+      <p>Tu navegador no soporta cámara o no tiene permisos. Usa la entrada manual.</p>
+    </ng-template>
+
+    <div class="manual">
+      <label for="code">Código (serial / cuenta)</label>
+      <input
+        id="code"
+        class="input"
+        name="code"
+        [(ngModel)]="code"
+        placeholder="UUID o Account ID"
+      />
+      <!-- Si prefieres no poner name: usa [ngModelOptions]="{standalone:true}" -->
+      <!-- [(ngModel)]="code" [ngModelOptions]="{standalone:true}" -->
+    </div>
+
+    <div class="points">
+      <label for="delta">Puntos a aplicar (positivo suma / negativo resta)</label>
+      <input
+        id="delta"
+        class="input"
+        type="number"
+        name="delta"
+        [(ngModel)]="delta"
+        placeholder="e.g. 50 o -20"
+      />
+      <!-- o: [(ngModel)]="delta" [ngModelOptions]="{standalone:true}" -->
+    </div>
+
+    <button class="btn primary" [disabled]="busy || !canSubmit()" (click)="apply()">
+      {{ busy ? 'Aplicando…' : 'Aplicar' }}
+    </button>
+
+    <p class="ok"  *ngIf="okMsg"  aria-live="polite">{{ okMsg }}</p>
+    <p class="err" *ngIf="errMsg" aria-live="assertive">{{ errMsg }}</p>
+  </div>
+</div>

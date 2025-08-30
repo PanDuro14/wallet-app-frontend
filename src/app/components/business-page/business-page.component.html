@@ -36,7 +36,7 @@
           <div class="actions">
             <button class="btn primary" (click)="onOpenAdjust(1)">Cargar puntos</button>
             <button class="btn" (click)="onIssuePass()">Emitir pase</button>
-            <button class="btn ghost" (click)="onExportCSV()">Exportar CSV</button>
+            <button class="btn ghost" (click)="adminDesings(currentBusiness[0]?.id)">Administrar Diseños</button>
           </div>
         </div>
 
@@ -141,7 +141,7 @@
               <td class="col-date">{{ u.created_atFormat }}</td>
               <td class="col-date">{{ u.updated_atFormat }}</td>
               <td class="col-actions">
-                <button class="btn small primary" (click)="onOpenAdjust(u.id)">Actualizar puntos</button>
+                <button class="btn small primary" (click)="openUpdatePoints(u.id)">Actualizar puntos</button>
                 <button class="btn small danger" (click)="onDeleteUser(u)">Eliminar</button>
               </td>
             </tr>

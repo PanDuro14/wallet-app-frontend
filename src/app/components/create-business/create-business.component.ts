@@ -27,8 +27,9 @@ import { MatButtonModule } from '@angular/material/button';
   templateUrl: './create-business.component.html',
   styleUrls: ['./create-business.component.scss']
 })
+
 export class CreateBusinessComponent implements OnInit{
-  @Output() createdBusiness = new EventEmitter<void>();
+  @Output() createdBusiness = new EventEmitter<{ id: number, name: string, email:string}>();
   formCreateBusiness!: FormGroup;
 
   errorMessage: string = '';
@@ -143,7 +144,6 @@ export class CreateBusinessComponent implements OnInit{
     return !!(c && c.invalid && (c.touched || c.dirty));
   }
 
-
   // --- File input: guarda en logo y preview ---
   onFileChange(event: any){
     const file: File | undefined = event?.target?.files?.[0];
@@ -165,8 +165,6 @@ export class CreateBusinessComponent implements OnInit{
 
     console.log('[logo]', { size: file.size, type: file.type });
   }
-
-
 
   // --- Toggle de contraseña (usa passwordFieldType) ---
   togglePassword(): void {
@@ -205,8 +203,12 @@ export class CreateBusinessComponent implements OnInit{
 
       const response = await this.http.post<any>(`${environment.urlApi}/business`, fd).toPromise();
 
-      if( response && (response.success ?? true) ){
-        this.createdBusiness.emit(); // cierra modal / notifica padre
+      if( response && (response.success ?? true) && (response?.business?.id) ){
+        this.createdBusiness.emit({
+          id: response.business.id,
+          name: response.business.name,
+          email: response.business.email
+        }); // cierra modal / notifica padre con los elementos del business
       } else {
         this.errorMessage = response?.message || 'No se pudo registrar el negocio';
       }

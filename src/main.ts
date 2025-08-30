@@ -11,3 +11,5 @@ bootstrapApplication(AppComponent, {
     provideHttpClient()
   ]
 }).catch(err => console.error(err));
+// ng build --configuration production
+// firebase deploy --only hosting

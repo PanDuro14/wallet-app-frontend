@@ -28,28 +28,29 @@ export class ClosePageComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    // 1) lee ?bid= de la URL
-    const bidParam = this.route.snapshot.queryParamMap.get('id');
-    const bid = Number(bidParam ?? 0);
+    // 1) lee :id de la URL (param de ruta)
+    const idParam = this.route.snapshot.paramMap.get('id'); // <- aquí
+    const bid = Number(idParam ?? 0);
     if (!Number.isFinite(bid) || bid <= 0) {
       this.serverError = 'Link inválido: falta o es incorrecto el Business ID.';
       return;
     }
     this.currentBid = bid;
 
-    // 2) si quieres personalizar con datos del negocio
+    // 2) datos del negocio
     await this.getBusinessInfo(bid);
 
     // 3) bloquear volver (opcional)
-    history.replaceState(null, '', location.href); // reemplaza la entrada actual
+    history.replaceState(null, '', location.href);
     this.popStateHandler = () => {
       this.router.navigate(
-        ['/finish-register'],
-        { queryParams: { bid: this.currentBid }, replaceUrl: true }
+        ['/finish-register', this.currentBid], // <- aquí
+        { replaceUrl: true }
       );
     };
     window.addEventListener('popstate', this.popStateHandler);
   }
+
 
   ngOnDestroy() {
     if (this.popStateHandler) {

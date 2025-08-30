@@ -1,0 +1,144 @@
+<div class="viewport-wrap">
+<div class="login-card">
+  <!-- Header -->
+  <div class="login-header">
+    <h1 class="login-title">Crear diseño</h1>
+    <p class="login-sub">Configura y guarda tu <code>design_json</code></p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Form -->
+  <form class="user-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <!-- Business / Program -->
+    <input class="input"
+           type="text"
+           formControlName="programName"
+           placeholder="Program name (ej. Windoe)"
+           [disabled]="form.get('hideProgramName')?.value">
+    <div class="hint error" *ngIf="fc('programName').invalid && fc('programName').touched">
+      Programa es requerido.
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Colores -->
+    <label>Background</label>
+    <div class="password-row">
+      <input class="input"
+             type="text"
+             formControlName="background"
+             placeholder="#074f63"
+             (blur)="fixHex('background')">
+      <input class="input" type="color"
+             [value]="colorForPicker('background')"
+             (input)="syncFromPicker('background', $event)">
+      <button type="button" class="eye-btn" title="Gotero"
+              (click)="pickWithEyedropper('background')">🎯</button>
+    </div>
+    <div class="hint error" *ngIf="fc('background').invalid && fc('background').touched">
+      Usa hex válido (#RGB/#RRGGBB con o sin alfa).
+    </div>
+
+    <label>Foreground</label>
+    <div class="password-row">
+      <input class="input"
+             type="text"
+             formControlName="foreground"
+             placeholder="#E6E6E6"
+             (blur)="fixHex('foreground')">
+      <input class="input" type="color"
+             [value]="colorForPicker('foreground')"
+             (input)="syncFromPicker('foreground', $event)">
+      <button type="button" class="eye-btn" title="Gotero"
+              (click)="pickWithEyedropper('foreground')">🎯</button>
+    </div>
+    <div class="hint error" *ngIf="fc('foreground').invalid && fc('foreground').touched">
+      Usa hex válido.
+    </div>
+
+    <label>Label (opcional)</label>
+    <div class="password-row">
+      <input class="input"
+             type="text"
+             formControlName="label"
+             placeholder="#FFFFFF"
+             (blur)="fixHex('label', true)">
+      <input class="input" type="color"
+             [value]="colorForPicker('label')"
+             (input)="syncFromPicker('label', $event)">
+      <button type="button" class="eye-btn" title="Gotero"
+              (click)="pickWithEyedropper('label')">🎯</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Flags -->
+    <label>
+      <input type="checkbox" formControlName="disableStrip"> Ocultar strip
+    </label>
+    <label>
+      <input type="checkbox" formControlName="disableLogo"> Ocultar logo superior
+    </label>
+    <label>
+      <input type="checkbox" formControlName="hideAccount"> Ocultar “cuenta”
+    </label>
+    <label>
+      <input type="checkbox" formControlName="hideProgramName"> Ocultar "nombre"
+    </label>
+
+    <div class="divider"></div>
+
+    <!-- Barcode -->
+    <select class="input" formControlName="primary">
+      <option *ngFor="let f of formats" [value]="f">{{ f }}</option>
+    </select>
+
+    <input class="input"
+           type="text"
+           formControlName="message"
+           placeholder="{{'{{cardCode}}'}}">
+
+    <input class="input"
+           type="text"
+           formControlName="altText"
+           placeholder="{{'{{cardCode}}'}}">
+
+    <input class="input"
+           type="text"
+           formControlName="encoding"
+           placeholder="iso-8859-1">
+
+    <!-- Chips sencillos para additional -->
+    <div>
+      <span>Formatos adicionales:</span>
+      <button type="button"
+              class="button"
+              style="height:32px;border-radius:8px;background:#eef2ff;color:#111;"
+              *ngFor="let f of formats"
+              (click)="toggleAdditional(f)">
+        {{ f }} <span *ngIf="isAdditional(f)">✔</span>
+      </button>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Acciones -->
+    <button class="button" type="submit" [disabled]="form.invalid || busy">
+      {{ busy ? 'Guardando…' : 'Guardar diseño' }}
+    </button>
+
+    <button class="button" type="button" style="background:#e5e7eb;color:#111"
+            (click)="reset()">Limpiar</button>
+
+    <!-- Mensajes -->
+    <div class="hint error" *ngIf="errorMessage">❌ {{ errorMessage }}</div>
+    <div class="hint" *ngIf="createdId">✅ Creado con id: {{ createdId }}</div>
+
+    <!-- Vista previa -->
+    <pre class="input" style="height:auto; background:#fff; overflow:auto;">
+{{ buildPayload() | json }}
+    </pre>
+  </form>
+</div>
+</div>

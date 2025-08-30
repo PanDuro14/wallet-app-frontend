@@ -13,6 +13,9 @@ import { DatePipe } from '@angular/common';
 import { LinksServicesService } from '../../services/linksServices/links-services.service';
 import { WalletService } from '../../services/wallet/wallet.service';
 
+import { MatDialog } from '@angular/material/dialog';
+import { AdminScanComponentComponent } from '../admin-scan-component/admin-scan-component.component';
+
 // Usuarios
 export interface UserApi {
   id: number;
@@ -86,6 +89,7 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private wallet: WalletService,
     private datePipe: DatePipe,
+    private dialog: MatDialog,
     private http: HttpClient,
     private router: Router,
   ) {}
@@ -177,6 +181,11 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  async cargarInformacion(){
+    await this.getBusinessInfo(this.currentBid);
+    this.getLinkById(this.currentBid);
+  }
+
   trackById = (_: number, r: UserRow) => r.id;
 
   async getAllUsesByBusiness(id: number){
@@ -200,7 +209,7 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
     this.router.navigate(['/registro'], { queryParams: { bid: id } });
   }
 
-  onExportCSV() {}
+  async adminDesings(id: number) {await this.router.navigate(['/desings', String(id)]);}
   onDeleteUser(user: UserRow) { console.log('Eliminar usuario →', user); /* TODO: confirm + llamada API */ }
 
   private getLinkById(id: number): string | null {
@@ -215,9 +224,21 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
     return this.datePipe.transform(d, fmt) ?? '—';
   }
 
-
-
   onOpenAdjust(userId: number) {
+    const dialogAdmin = this.dialog.open(AdminScanComponentComponent, {
+      panelClass: 'app-dialog',
+      backdropClass: 'app-backdrop',
+      autoFocus: false,
+      restoreFocus: false,
+    });
+
+    dialogAdmin.componentInstance.bumpedPoints.subscribe(() => {
+      dialogAdmin.close();
+      this.cargarInformacion();
+    });
+  }
+
+  openUpdatePoints(userId: number){
     const raw = this.usersById.get(userId);
     if (!raw) {
       this.serverError = 'Usuario no encontrado en caché';
@@ -265,18 +286,10 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
 
     try {
       await firstValueFrom(this.wallet.updatePoints(serial, Number(delta)));
-
-      // Opción A: refrescar desde API
       const fresh = await firstValueFrom(
         this.http.get<UserApi>(`${environment.urlApi}/users/${userId}`)
       );
       this.upsertUser(fresh);
-
-      // Opción B (rápida): actualizar local (coméntala si usas A)
-//      const raw = this.usersById.get(userId)!;
-//      const patched: UserApi = { ...raw, points: (raw.points ?? 0) + Number(delta), updated_at: new Date().toISOString() };
-//      this.upsertUser(patched);
-
       this.onCloseAdjust();
     } catch (e: any) {
       this.adjust.error = e?.error?.message || 'No se pudo actualizar los puntos';
@@ -284,5 +297,7 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
       this.adjust.busy = false;
     }
   }
+
+
 
 }

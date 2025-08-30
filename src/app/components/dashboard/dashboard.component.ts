@@ -16,6 +16,7 @@ import { ɵInternalFormsSharedModule } from "@angular/forms";
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { CreateBusinessComponent } from '../create-business/create-business.component';
+import { CreateDesingComponent } from '../create-desing/create-desing.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -186,17 +187,47 @@ export class DashboardComponent {
   // Opciones para los negocios
   // abrir el modal para crear un negocio
   openCrearBusinessModal(){
-    const dialogRef = this.dialog.open(CreateBusinessComponent, {
+    const dialogBusness = this.dialog.open(CreateBusinessComponent, {
       panelClass: 'app-dialog',     // clase para estilizar el contenedor
       backdropClass: 'app-backdrop',// clase para el overlay
       autoFocus: false,
       restoreFocus: false
     });
 
-    const instance = dialogRef.componentInstance;
-    instance.createdBusiness.subscribe(() => {
-      this.cargarInformacion();
-      dialogRef.close();
+    dialogBusness.componentInstance.createdBusiness.subscribe((biz: {id:number, name:string, email:string}) => {
+      dialogBusness.close();
+      const dialogDesing = this.dialog.open(CreateDesingComponent, {
+        panelClass: 'app-dialog',
+        backdropClass: 'app-backdrop',
+        autoFocus: false,
+        restoreFocus: false,
+        disableClose: true // para evitar que se cancele el proceso y deje huerfano al busines xdd
+      });
+      dialogDesing.componentInstance.businessId = biz.id;
+      queueMicrotask(() => dialogDesing.componentInstance.form?.get('businessId')?.setValue(biz.id));
+
+      // cuando se crea el diseño -> set default
+      dialogDesing.componentInstance.createdDesing.subscribe(async ({ designId }) => {
+        try {
+          await this.http.put(`${environment.urlApi}/business/${biz.id}/design/default`, { card_detail_id: designId}).toPromise();
+          dialogDesing.close(true);
+          await this.cargarInformacion();
+        } catch (error: any){
+          // fallback: borra el negocio recién creado (rollback)
+          await this.http.delete(`${environment.urlApi}/business/${biz.id}`).toPromise();
+          dialogDesing.close(false);
+          alert('No se pudo establecer el diseño como predeterminado. Se reviritó la creación del negocio');
+          await this.cargarInformacion();
+        }
+      });
+
+      dialogDesing.afterClosed().subscribe(async (ok) => {
+        if(ok === true) return;
+        try {
+          await this.http.delete(`${environment.urlApi}/business/${biz.id}`).toPromise();
+        } catch {}
+        await this.cargarInformacion();
+      });
     });
   }
 
@@ -207,9 +238,6 @@ export class DashboardComponent {
   async viewFullBusiness(id: number){
     await this.router.navigate(['/business', String(id)]);
   }
-
-
-
 
   async deleteOneItem(id: number){
     const ref = this.dialog.open(ConfirmDialogComponent, {
