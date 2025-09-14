@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { firstValueFrom } from 'rxjs';
 
 // material
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,6 +18,13 @@ import { MatIconModule }       from '@angular/material/icon';
 import { MatButtonModule }     from '@angular/material/button';
 import { MatSelectModule }     from '@angular/material/select';
 import { MatCheckboxModule }   from '@angular/material/checkbox';
+
+type KVItem = {
+  key: 'pass_type_id' | 'terms' | string;
+  value: string | string[];
+  type: 'text' | 'file';
+  enabled: boolean;
+};
 
 @Component({
   selector: 'app-create-desing',
@@ -63,7 +71,10 @@ export class CreateDesingComponent implements OnInit {
       message:  ['{{cardCode}}'],
       altText:  ['{{cardCode}}'],
       encoding: ['iso-8859-1'],
-      additional: this.fb.array<string>([])
+      additional: this.fb.array<string>([]),
+
+      pass_type_id: ['Loyalty Pass'],
+      terms: ['', [Validators.maxLength(5000)]],
     });
   }
 
@@ -136,27 +147,49 @@ export class CreateDesingComponent implements OnInit {
     const payload = this.buildPayload();
     payload.businessId = Number(this.businessId);
 
-    // Seguridad extra por si alguien puso #FFFFFFF
+    // normaliza label si vino mal
     if (payload.colors?.label && !/^#[0-9a-f]{6}$/i.test(payload.colors.label)) {
       payload.colors.label = this.normalizeHexTo6(payload.colors.label);
     }
 
     this.busy = true;
     try {
-      const url = `${environment.urlApi}/cards/unified`;
-      const res: any = await this.http.post(url, payload).toPromise();
-
+      // 1) Crear diseño (vive en design_json)
+      const createUrl = `${environment.urlApi}/cards/unified`;
+      const res: any = await this.http.post(createUrl, payload).toPromise();
       const designId = Number(res?.id || res?.design?.id || res?.data?.id || 0);
       if (!designId) throw new Error('No se recibió id de diseño');
 
+      // 2) PATCH SOLO pass_type_id y terms (columnas), sin tocar imágenes
+      const passType = (this.fc('pass_type_id').value || '').trim();
+      const terms    = (this.fc('terms').value || '').trim();
+
+      if (passType || terms) {
+        const body: any = {};
+        if (passType) body.pass_type_id = passType;
+        if (terms)    body.terms        = terms;
+
+        await this.http.patch(
+          `${environment.urlApi}/cards/meta/${designId}`,
+          body
+          // si quieres reforzar ownership:
+          // { ...body, business_id: this.businessId }
+        ).toPromise();
+      }
+
+      // 3) Emitir evento al caller
       this.createdId = designId;
-      this.createdDesing.emit({ designId: Number(designId) });
+      this.createdDesing.emit({ designId });
+
     } catch (e: any) {
       this.errorMessage = e?.error?.error || e?.message || 'Error al crear diseño';
     } finally {
       this.busy = false;
     }
   }
+
+
+
 
   reset() {
     this.form.reset({
@@ -173,7 +206,8 @@ export class CreateDesingComponent implements OnInit {
       message: '{{cardCode}}',
       altText: '{{cardCode}}',
       encoding: 'iso-8859-1',
-      additional: []
+      additional: [],
+      terms: ''
     });
     this.additionalFA().clear();
   }
@@ -223,6 +257,7 @@ export class CreateDesingComponent implements OnInit {
     const arr = (this.form.get('additional') as any).value as string[];
     return arr?.includes(f);
   }
+
   toggleAdditional(f: string) {
     const arr = this.form.get('additional') as any;
     const val: string[] = arr.value || [];

@@ -12,6 +12,12 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validator
 import { HttpClient, HttpClientModule  } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
+// Material
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+
 // Helpers para validar la sesión
 const norm = (s?: string) => (s ?? '').trim().toLowerCase();
 const toAdminSet = (admins: unknown): Set<string> => {
@@ -23,7 +29,8 @@ const toAdminSet = (admins: unknown): Set<string> => {
 @Component({
   selector: 'app-login',
   imports: [
-            CommonModule, RouterModule, ReactiveFormsModule, HttpClientModule
+            CommonModule, RouterModule, ReactiveFormsModule, HttpClientModule, MatFormFieldModule,
+            MatInputModule, MatIconModule, MatButtonModule
           ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
@@ -133,7 +140,7 @@ export class LoginComponent {
   async login(event?: Event, email?: string, password?: string) {
     if (event) event.preventDefault();
 
-    const emailLogin = (email ?? this.formLogin.get('emailLogin')?.value ?? '').trim();
+    const emailLogin = (email ?? this.formLogin.get('emailLogin')?.value ?? '').trim().toLowerCase();
     const passwordLogin = password ?? this.formLogin.get('passwordLogin')?.value;
     if (!emailLogin || !passwordLogin) {
       this.errorMessage = 'Por favor ingresa correo y contraseña';
@@ -228,6 +235,13 @@ export class LoginComponent {
     return null;
   }
 
+  touchedInvalid(controlName: string): boolean {
+    const c = this.formLogin.get(controlName);
+    return !!(c && c.invalid && (c.touched || c.dirty));
+  }
 
+  togglePassword(): void {
+    this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
+  }
 
 }

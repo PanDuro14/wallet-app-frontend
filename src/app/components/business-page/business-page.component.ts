@@ -12,6 +12,7 @@ import { DatePipe } from '@angular/common';
 
 import { LinksServicesService } from '../../services/linksServices/links-services.service';
 import { WalletService } from '../../services/wallet/wallet.service';
+import { AuthService } from '../../services/auth/auth.service';
 
 import { MatDialog } from '@angular/material/dialog';
 import { AdminScanComponentComponent } from '../admin-scan-component/admin-scan-component.component';
@@ -24,9 +25,9 @@ export interface UserApi {
   phone?: string;
   business_id: number;
   points: number;
-  serial_number: string;            // para /passes/:serial/points
-  created_at: string;               // ISO
-  updated_at: string;               // ISO
+  serial_number: string;
+  created_at: string;
+  updated_at: string;
   loyalty_account_id?: string;
   wallet_url?: string | null;
   wallet_added?: boolean;
@@ -63,6 +64,7 @@ type AdjustModalState = {
   styleUrl: './business-page.component.scss',
   providers: [ DatePipe ]
 })
+
 export class BusinessPageComponent implements OnInit, OnDestroy {
   serverError = '';
   isLoading = false;
@@ -86,6 +88,7 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
 
   constructor(
     public links: LinksServicesService,
+    private authService: AuthService,
     private route: ActivatedRoute,
     private wallet: WalletService,
     private datePipe: DatePipe,
@@ -224,7 +227,7 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
     return this.datePipe.transform(d, fmt) ?? '—';
   }
 
-  onOpenAdjust(userId: number) {
+  onOpenAdjust() {
     const dialogAdmin = this.dialog.open(AdminScanComponentComponent, {
       panelClass: 'app-dialog',
       backdropClass: 'app-backdrop',
@@ -298,6 +301,7 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
     }
   }
 
-
-
+  logout(){
+    this.authService.logout();
+  }
 }

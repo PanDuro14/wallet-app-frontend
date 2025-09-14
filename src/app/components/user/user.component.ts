@@ -93,60 +93,70 @@ export class UserComponent implements OnInit {
     }
     this.loading = true;
 
-    // Pre-abrimos una pestaña para evitar bloqueos de pop-up
     const walletWin = window.open('', '_blank');
     if (walletWin) {
       walletWin.document.write('<p style="font-family:sans-serif;">Generando tarjeta…</p>');
     }
 
-    // 1) Payload de registro (incluye business_id deshabilitado)
     const regPayload: any = this.userRegisterForm.getRawValue();
-
-    // aseguramos que points siempre sea 10
-    regPayload.points = 10;
-
-    // Limpieza: NO mandes campos que ya no existen en tu schema
+    regPayload.points = 0;
     delete regPayload.authentication_token;
     delete regPayload.strip_image_url;
-    // No necesitas mandar serial_number: tu DB lo genera (uuid_generate_v4)
     delete regPayload.serial_number;
-    // points solo si tu backend lo requiere; si no, quítalo:
     if (regPayload.points === undefined) delete regPayload.points;
 
     this.userService.register(regPayload).subscribe({
       next: (res: RegisterResponse) => {
         const user = res.user;
         const businessId = (user as any).business_id ?? regPayload.business_id;
-
-        // URLs que ya te da el backend en el registro:
         const appleUrl = (res as any)?.wallet?.apple_pkpass_url as string | undefined;
         const googleUrl = (res as any)?.wallet?.google_save_url as string | undefined;
 
-        // Si necesitas aún crear algo en backend, mantenlo; pero la navegación usa apple/google de arriba
-        // this.userService.createWalletLink(walletBody).subscribe({ ... });
-
         this.loading = false;
 
-        // 1) iOS -> Apple Wallet
+        const finishUrl = `${location.origin}/finish-register/${businessId}`;
+        const redirectWalletWinToFinish = (delayMs = 5000) => {
+          if (!walletWin) return;
+          // Fallback: si el prompt del Wallet se cierra o al volver al navegador,
+          // esta pestaña se redirige sola a la finish page.
+          try {
+            setTimeout(() => {
+              try { walletWin.location.href = finishUrl; } catch {}
+            }, delayMs);
+          } catch {}
+        };
+
+        // iOS -> Apple Wallet (usar la pestaña pre-abierta y luego redirigir esa misma)
         if (this.isIOS() && appleUrl) {
-          if (walletWin) { walletWin.location.href = appleUrl; walletWin.focus?.(); }
-          else { window.location.href = appleUrl; }
-          this.router.navigate(['/finish-register', businessId], { replaceUrl: true });
+          if (walletWin) {
+            walletWin.location.href = appleUrl;
+            walletWin.focus?.();
+            redirectWalletWinToFinish(6000); // 6s suele bastar para el sheet de Apple Wallet
+          } else {
+            // Sin ventana: navega en la actual y (opcional) redirige por tiempo con History API
+            window.location.href = appleUrl;
+            // Como se pierde el contexto, mejor dejar que el usuario vuelva manualmente.
+          }
+          // IMPORTANTE: NO navegamos aquí la pestaña original. La finish page vivirá en walletWin.
           return;
         }
 
-        // 2) Android -> Google Wallet
+        // Android -> Google Wallet (misma estrategia de temporizador)
         if (this.isAndroid() && googleUrl) {
-          if (walletWin) { walletWin.location.href = googleUrl; walletWin.focus?.(); }
-          else { window.location.href = googleUrl; }
-          this.router.navigate(['/finish-register', businessId], { replaceUrl: true });
+          if (walletWin) {
+            walletWin.location.href = googleUrl;
+            walletWin.focus?.();
+            redirectWalletWinToFinish(7000); // Google suele tardar un poco más
+          } else {
+            window.location.href = googleUrl;
+          }
           return;
         }
 
-        // 3) Desktop / otros -> chooser
+        // Desktop / otros -> chooser (flujo actual)
         const target = googleUrl || appleUrl;
         if (target) {
-          if (walletWin) walletWin.close(); // <- MUY IMPORTANTE: cierra la about:blank
+          if (walletWin) walletWin.close();
           const dialogRef = this.dialog.open(WalletChooserComponent, {
             width: '520px',
             maxWidth: '95vw',
@@ -160,7 +170,7 @@ export class UserComponent implements OnInit {
             if (!url) return;
             const win = window.open(url, '_blank');
             if (!win) window.location.href = url;
-
+            // En desktop sí navegamos la pestaña original a la finish page (como ya tenías)
             this.router.navigate(['/finish-register', businessId], { replaceUrl: true });
           });
         } else {
@@ -169,13 +179,14 @@ export class UserComponent implements OnInit {
         }
       },
       error: (err) => {
-        if (walletWin) walletWin.close(); // <- cerrar la pestaña pre-abierta en error
+        if (walletWin) walletWin.close();
         console.error('REGISTER ERROR', { status: err?.status, body: err?.error });
         this.loading = false;
         this.serverError = err?.error?.message || 'Error al registrar usuario';
       }
     });
   }
+
 
   retryWallet() {
     if (!this.createdUserId) return;

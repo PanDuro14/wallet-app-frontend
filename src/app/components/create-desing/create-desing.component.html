@@ -34,7 +34,7 @@
              [value]="colorForPicker('background')"
              (input)="syncFromPicker('background', $event)">
       <button type="button" class="eye-btn" title="Gotero"
-              (click)="pickWithEyedropper('background')">🎯</button>
+              (click)="pickWithEyedropper('background')"></button>
     </div>
     <div class="hint error" *ngIf="fc('background').invalid && fc('background').touched">
       Usa hex válido (#RGB/#RRGGBB con o sin alfa).
@@ -51,7 +51,7 @@
              [value]="colorForPicker('foreground')"
              (input)="syncFromPicker('foreground', $event)">
       <button type="button" class="eye-btn" title="Gotero"
-              (click)="pickWithEyedropper('foreground')">🎯</button>
+              (click)="pickWithEyedropper('foreground')"></button>
     </div>
     <div class="hint error" *ngIf="fc('foreground').invalid && fc('foreground').touched">
       Usa hex válido.
@@ -68,7 +68,7 @@
              [value]="colorForPicker('label')"
              (input)="syncFromPicker('label', $event)">
       <button type="button" class="eye-btn" title="Gotero"
-              (click)="pickWithEyedropper('label')">🎯</button>
+              (click)="pickWithEyedropper('label')"></button>
     </div>
 
     <div class="divider"></div>
@@ -123,6 +123,14 @@
 
     <div class="divider"></div>
 
+    <div class="field">
+      <label for="terms">Términos</label>
+      <textarea id="terms" rows="6" formControlName="terms" placeholder="Condiciones de uso..."></textarea>
+      <small class="hint">
+        {{ (form.get('terms')?.value?.length || 0) }} / 5000
+      </small>
+    </div>
+
     <!-- Acciones -->
     <button class="button" type="submit" [disabled]="form.invalid || busy">
       {{ busy ? 'Guardando…' : 'Guardar diseño' }}
@@ -132,13 +140,14 @@
             (click)="reset()">Limpiar</button>
 
     <!-- Mensajes -->
-    <div class="hint error" *ngIf="errorMessage">❌ {{ errorMessage }}</div>
-    <div class="hint" *ngIf="createdId">✅ Creado con id: {{ createdId }}</div>
+    <div class="hint error" *ngIf="errorMessage"> {{ errorMessage }}</div>
+    <div class="hint" *ngIf="createdId"> Creado con id: {{ createdId }}</div>
 
-    <!-- Vista previa -->
+    <!-- Vista previa
     <pre class="input" style="height:auto; background:#fff; overflow:auto;">
-{{ buildPayload() | json }}
+      {{ buildPayload() | json }}
     </pre>
+     -->
   </form>
 </div>
 </div>

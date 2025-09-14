@@ -34,9 +34,10 @@
           </div>
 
           <div class="actions">
-            <button class="btn primary" (click)="onOpenAdjust(1)">Cargar puntos</button>
+            <button class="btn primary" (click)="onOpenAdjust()">Cargar puntos</button>
             <button class="btn" (click)="onIssuePass()">Emitir pase</button>
             <button class="btn ghost" (click)="adminDesings(currentBusiness[0]?.id)">Administrar Diseños</button>
+            <button class="btn danger" (click)="logout()">Log out</button>
           </div>
         </div>
 
@@ -86,7 +87,7 @@
             </div>
           </div>
 
-          <div class="card">
+          <div class="card" >
             <h3>Programa Wallet</h3>
             <div class="dl">
               <div class="dt">Pass Type ID</div>

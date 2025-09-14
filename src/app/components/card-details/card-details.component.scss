@@ -1,0 +1,181 @@
+.card.mini {
+  background: var(--card, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: var(--shadow, 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08));
+  display: grid;
+  gap: 10px;
+  max-width: 100%;  /* Asegura que la tarjeta ocupe el 100% del ancho disponible */
+  width: min(480px, 90%);  /* Limita el ancho máximo para evitar que sea demasiado grande */
+  margin: 0 auto;  /* Centra la tarjeta */
+}
+
+/* Asegura que el contenido dentro de la tarjeta se ajuste */
+.form {
+  display: grid;
+  gap: 10px;
+}
+
+/* Alineación de los botones */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;  /* Permite que los botones se ajusten si es necesario */
+}
+
+/* Alertas con diseño responsivo */
+.alert {
+  padding: 8px 10px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  background: #f9fafb;
+  color: #334155;
+}
+
+.alert-error {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #b91c1c;
+}
+
+
+/* Formularios dentro de .card */
+.mat-form-field {
+  width: 100%;  /* Hacer que los campos de entrada ocupen el 100% del contenedor */
+}
+
+textarea.matInput {
+  resize: none;  /* Evitar que el textarea sea redimensionado */
+  min-height: 120px;  /* Asegurar que tenga una altura adecuada */
+}
+
+/* Estilo para los botones */
+button.mat-button {
+  height: 44px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.actions button {
+  width: 100%;
+  max-width: 200px;  /* Limita el ancho máximo del botón */
+  font-size: 14px;
+}
+
+/* Para pantallas más pequeñas, ajustamos el ancho de los botones y el formulario */
+@media (max-width: 768px) {
+  .card.mini {
+    width: 100%;
+    max-width: none; /* Asegura que la tarjeta ocupe todo el ancho disponible en pantallas pequeñas */
+    padding: 10px;
+  }
+
+  .form {
+    gap: 8px;
+  }
+
+  .actions button {
+    width: 100%;
+    max-width: none; /* Los botones se expanden al 100% en pantallas pequeñas */
+  }
+}
+
+@media (max-width: 480px) {
+  .card.mini {
+    padding: 8px;
+  }
+
+  .form input,
+  .form textarea,
+  .form button {
+    font-size: 14px;  /* Reducir tamaño de fuente en dispositivos más pequeños */
+  }
+}
+
+.auto,
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auto button,
+.form button {
+  width: 100%;
+  max-width: 250px;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 10px;
+}
+
+/* Responsividad de los botones en auto y manual */
+@media (max-width: 768px) {
+  .auto button,
+  .form button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .auto button,
+  .form button {
+    font-size: 14px;  /* Reducir tamaño de fuente en dispositivos pequeños */
+  }
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 40;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.modal-panel {
+  width: min(560px, 92vw);
+  max-height: min(80vh, 680px);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* Responsividad del modal para pantallas pequeñas */
+@media (max-width: 768px) {
+  .modal-panel {
+    width: 100%;
+    height: 100%;
+    padding: 12px;
+  }
+
+  .modal-header,
+  .modal-actions {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-panel {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+  }
+
+  .modal-body {
+    padding: 10px;
+  }
+}

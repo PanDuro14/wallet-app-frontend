@@ -30,3 +30,175 @@ nav a.active {
 nav a:hover {
   color: #ddd;
 }
+
+
+.card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+}
+
+.button {
+  background-color: var(--accent);
+  color: var(--text);
+}
+
+button:hover {
+  background-color: var(--muted);
+}
+
+
+/* Variables del tema claro */
+:host {
+  --bg: #f6f8fb;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #667085;
+  --border: #e5e7eb;
+  --accent: #2563eb;
+  --danger: #ef4444;
+  --shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+  color: var(--text);
+}
+
+/* Variables del tema oscuro */
+:host-context(.dark-theme) {
+  --bg: #121212;
+  --card: #1f1f1f;
+  --text: #e5e5e5;
+  --muted: #a5a5a5;
+  --border: #333333;
+  --accent: #9c27b0;
+  --danger: #f44336;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  color: var(--text);
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+/* Otros estilos de componentes */
+.card {
+  background-color: var(--card);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+input, textarea {
+  background-color: var(--card);
+  color: var(--text);
+}
+
+button {
+  background-color: var(--accent);
+  color: white;
+}
+
+button:hover {
+  background-color: var(--muted);
+}
+
+
+/* Estilos para el navbar */
+nav {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+}
+
+nav li {
+  margin-right: 20px;
+}
+
+nav a {
+  text-decoration: none;
+  color: white;
+  font-size: 18px;
+}
+
+nav a.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+nav a:hover {
+  color: #ddd;
+}
+
+/* Botones */
+.button {
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  transition: transform .05s ease, background .2s ease, box-shadow .2s ease;
+}
+
+.button:hover { background: #1366d6; box-shadow: 0 8px 20px rgba(47,128,237,.2); }
+.button:active { transform: translateY(1px); }
+.button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Estilos de la tarjeta y contenido */
+.card {
+  background-color: var(--card);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+.input {
+  width: 92%;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #f9fafb;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color .2s, background .2s, box-shadow .2s;
+  font: inherit;
+}
+
+.input:hover,
+.input:focus {
+  background: #fff;
+  border-color: #cbd5e1;
+  box-shadow: 0 0 0 4px rgba(47,128,237,.15);
+}
+
+/* Para mobile responsive */
+@media (max-width: 768px) {
+  .input {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  .button {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .input {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .button {
+    font-size: 12px;
+  }
+}

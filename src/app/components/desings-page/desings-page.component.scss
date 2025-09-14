@@ -1,0 +1,368 @@
+/* =========================================================
+   Designs Page — compartiendo tokens y patrón visual
+   (usa las mismas variables: --bg, --card, --border, --shadow, etc.)
+   Todo va scopeado bajo .designs para no chocar con otras vistas.
+   ========================================================= */
+
+:host { display: block; } /* usa las vars del tema ya definidas en tu :host global */
+
+.designs {
+  /* Alert (ya tienes .alert en tu tema; solo margen) */
+  .alert { margin-bottom: 16px; }
+
+  /* Tarjetas contenedoras reutilizan .card; solo agrego tweaks por vista */
+  .card { padding: 16px; }
+  .card-title { margin: 0 0 12px; font-size: 14px; color: #334155; }
+
+  /* -------- Tarjeta seleccionada (vertical) -------- */
+  .card--pass {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+  }
+
+  /* flip-card base (reusa sombras/bordes del tema vía vars) */
+  .flip-card {
+    perspective: 1000px;
+
+    /* colores por defecto; se sobreescriben con [ngStyle]="getCardStyle(...)" */
+    --card-bg: #9fd3b8;
+    --card-fg: #ffffff;
+    --card-label: #dff2e8;
+
+    color: var(--card-fg);
+
+    .flip-card-inner {
+      position: relative; width: 100%; height: 100%;
+      transition: transform .6s; transform-style: preserve-3d;
+      border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden; box-shadow: var(--shadow);
+      background: var(--card-bg);
+    }
+
+    &.flipped .flip-card-inner { transform: rotateY(180deg); }
+
+    .flip-card-face {
+      position: absolute; inset: 0; backface-visibility: hidden;
+      display: grid; grid-template-rows: auto 1fr auto;
+      padding: 16px; background: var(--card-bg); color: var(--card-fg);
+    }
+
+    .back { transform: rotateY(180deg); }
+    .back .kv {
+      display: grid; grid-template-columns: 140px 1fr;
+      gap: 6px 10px; align-content: start;
+    }
+  }
+
+  /* tamaño vertical tipo pase (9:16) */
+  .flip-card--vertical {
+    width: min(360px, 90vw);
+    aspect-ratio: 9 / 16;
+  }
+
+  .selected-actions { justify-content: center; }
+
+  /* Frente estilo captura (vertical) */
+  .front--preview-vertical {
+    display: grid; grid-template-rows: auto 1fr auto; padding: 16px;
+  }
+
+  .card-head {
+    display: flex; align-items: center; justify-content: flex-start; gap: 8px;
+    .logo { height: 28px; width: auto; object-fit: contain; border-radius: 4px; }
+  }
+
+  .points-vertical {
+    display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 12px; margin-top: 10px;
+    .points-number { font-size: 96px; line-height: .85; font-weight: 800; }
+    .points-info { display: grid; gap: 6px; padding-top: 8px; }
+    .points-label { font-size: 18px; font-weight: 700; letter-spacing: .8px; }
+    .member { display: grid; gap: 2px; }
+    .member-label { color: var(--card-label); font-weight: 700; letter-spacing: .8px; }
+    .member-name { color: var(--card-label); opacity: .9; }
+  }
+
+  .barcode-box {
+    background: #fff; color: #111; border-radius: 12px; padding: 10px;
+    display: grid; gap: 6px; align-content: center; justify-items: center; margin-top: 8px;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+  }
+  .barcode-fake {
+    width: 100%; height: 64px; border-radius: 6px;
+    background:
+      linear-gradient(90deg,
+        #000 0 4%, transparent 4% 7%,
+        #000 7% 9%, transparent 9% 12%,
+        #000 12% 13%, transparent 13% 17%,
+        #000 17% 18%, transparent 18% 20%,
+        #000 20% 25%, transparent 25% 28%,
+        #000 28% 30%, transparent 30% 33%,
+        #000 33% 36%, transparent 36% 40%,
+        #000 40% 41%, transparent 41% 45%,
+        #000 45% 49%, transparent 49% 53%,
+        #000 53% 54%, transparent 54% 58%,
+        #000 58% 60%, transparent 60% 63%,
+        #000 63% 66%, transparent 66% 70%,
+        #000 70% 72%, transparent 72% 76%,
+        #000 76% 80%, transparent 80% 83%,
+        #000 83% 87%, transparent 87% 90%,
+        #000 90% 92%, transparent 92% 96%,
+        #000 96% 100%
+      );
+  }
+  .barcode-text { font-size: 12px; letter-spacing: .3px; color: #333; }
+
+  .dots {
+    display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 6px;
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #b7b7b7; opacity: .8; }
+    .dot.active { background: #f7c74a; opacity: 1; }
+  }
+
+  /* -------- Carrusel -------- */
+  .card--slider { padding-bottom: 6px; }
+  .rail {
+    display: flex; gap: 12px; overflow-x: auto; padding: 8px 2px 14px;
+    scroll-snap-type: x mandatory;
+  }
+  .slide {
+    scroll-snap-align: start;
+    min-width: 260px; max-width: 260px;
+    display: grid; gap: 6px;
+  }
+
+  .mini-card {
+    position: relative; width: 100%; aspect-ratio: 16/10; perspective: 800px;
+
+    .flip-card-inner {
+      position: relative; width: 100%; height: 100%;
+      transition: transform .5s; transform-style: preserve-3d;
+      border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);
+      background: var(--card-bg);
+    }
+    &.flipped .flip-card-inner { transform: rotateY(180deg); }
+
+    .flip-card-face {
+      position: absolute; inset: 0; backface-visibility: hidden;
+      padding: 12px; display: grid; grid-template-rows: auto 1fr;
+      background: var(--card-bg); color: var(--card-fg);
+    }
+    .front .program { font-weight: 600; font-size: 14px; }
+    .front .mini-strip {
+      height: 18px; background: linear-gradient(90deg, rgba(255,255,255,.25), transparent);
+      border-radius: 6px; margin: 6px 0;
+    }
+    .front .mini-body { display: grid; gap: 2px; }
+    .front .label { color: var(--card-label); font-size: 11px; }
+    .front .value { font-size: 14px; font-weight: 600; }
+
+    .back { transform: rotateY(180deg); }
+    .back .mini-kv { font-size: 12px; display: grid; gap: 2px; }
+  }
+
+  .mini-actions { display: flex; gap: 6px; }
+  .toolbar { justify-content: flex-end; }
+}
+
+/* Responsive acorde a tu tema */
+@media (max-width: 920px) {
+  .designs .flip-card--vertical { width: min(380px, 94vw); }
+}
+
+
+/* Centrar sección "Otros diseños" */
+.designs .card--slider {
+  display: grid;
+  gap: 12px;
+  justify-items: center;          /* centra el contenido dentro de la card */
+}
+
+.designs .card--slider .card-title {
+  text-align: center;             /* centra el título */
+  width: 100%;
+}
+
+.designs .card--slider .rail {
+  justify-content: center;        /* centra los slides cuando no llenan el ancho */
+}
+
+.designs .card--slider .slide {
+  scroll-snap-align: center;      /* centra el “snap” al deslizar */
+}
+
+/* =========================
+   Botonera unificada (scope: .designs)
+   ========================= */
+.designs {
+  /* Contenedor de acciones: mismo patrón */
+  .actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center; /* centrado por default aquí */
+  }
+
+  /* Base */
+  .btn {
+    border-radius: 10px;
+    padding: 10px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: transform .05s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn:hover  { background: #fafafa; border-color: #d1d5db; }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: .6; cursor: not-allowed; }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Variantes */
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn.ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    box-shadow: none;
+  }
+  .btn.danger {
+    background: #fff1f2;
+    border-color: #fecdd3;
+    color: #b91c1c;
+  }
+
+  /* Tamaños / formas */
+  .btn.small {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+  .btn.icon {
+    padding: 8px;
+    width: 36px;
+    height: 36px;
+    justify-content: center;
+  }
+  .btn.block { width: 100%; justify-content: center; }
+  .btn.round { border-radius: 999px; }
+}
+
+/* ===== Header compartido (scope: .designs) ===== */
+.designs .header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+  margin-left: 41%;
+  margin-bottom: 16px;
+}
+
+.designs .brand { display: flex; gap: 16px; align-items: center; }
+
+.designs .brand img {
+  width: 56px !important;
+  height: 56px !important;
+  max-width: 56px;
+  max-height: 56px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.designs .brand .info .name {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+}
+.designs .brand .info .meta {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;
+}
+.designs .chip {
+  padding: 4px 8px; font-size: 12px; border: 1px solid var(--border);
+  border-radius: 999px; color: var(--muted); background: #f9fafb;
+}
+.designs .chip.chip-id { color: #1d4ed8; border-color: #bfdbfe; background: #eff6ff; }
+.designs .status {
+  padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  border: 1px solid #bbf7d0; background: #ecfdf5; color: #166534;
+}
+
+
+/* Si quieres alinear algunas barras de acciones a la derecha o izquierda en secciones concretas: */
+
+.designs .card--pass { margin-top: 12px; }
+
+@media (max-width: 768px) {
+  .card--pass {
+    max-width: 400px; /* Ajusta el tamaño para pantallas pequeñas */
+  }
+
+  .flip-card {
+    width: 100%;
+    height: auto;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .table th, .table td {
+    font-size: 10px;  /* Reducir el tamaño de la fuente */
+    padding: 8px 6px; /* Reducir el padding en pantallas pequeñas */
+  }
+
+  .table th {
+    font-size: 12px;
+  }
+
+  /* Mejorar la visualización en pantallas más pequeñas */
+  .table-wrapper {
+    overflow-x: scroll; /* Habilitar scroll horizontal */
+  }
+}
+@media (max-width: 768px) {
+  .actions .btn {
+    width: 100%; /* Los botones ocupan toda la línea */
+  }
+}
+
+@media (max-width: 768px) {
+  .brand img {
+    width: 60px; /* Reducir el tamaño en pantallas pequeñas */
+    height: 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .toolbar {
+    justify-content: center; /* Centrar los botones en pantallas pequeñas */
+  }
+
+  .toolbar .btn {
+    width: 100%; /* Hacer los botones más grandes en pantallas pequeñas */
+  }
+}
+@media (max-width: 768px) {
+  .designs .card--pass {
+    width: 100%; /* Ajusta la tarjeta para ocupar todo el espacio */
+  }
+
+  .card--slider {
+    display: grid;
+    justify-items: center;
+  }
+
+  .designs .flip-card--vertical {
+    width: min(360px, 90vw); /* Ajusta el tamaño de las tarjetas */
+  }
+}

@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-/* You can add global styles to this file, and also import other style files */
 /* Fondo oscuro */
 .app-backdrop {
   background: rgba(0,0,0,.55) !important;
@@ -18,12 +17,62 @@
 
 .app-dialog .mat-mdc-dialog-content { padding: 0 !important; }
 
-
 html, body {
   font-family: 'Poppins', sans-serif;
   font-size: 15px;
   color: #333;
 }
 
+/* Variables del tema claro */
+/* Tema Claro */
+:root {
+  --bg: #f6f8fb;               /* Fondo claro */
+  --card: #ffffff;             /* Fondo de tarjetas */
+  --text: #0f172a;             /* Color de texto principal */
+  --muted: #667085;            /* Texto secundario */
+  --border: #e5e7eb;           /* Borde suave */
+  --accent: #2563eb;
+  --success: #16a34a;
+  --danger: #ef4444;           /* Color para alertas de error */
+  --shadow: 0 8px 24px rgba(16, 24, 40, 0.08); /* Sombra suave */
+}
+
+/* Tema Oscuro */
+:host-context(.dark-theme) {
+  --bg: #121212;               /* Fondo oscuro */
+  --card: #1f1f1f;             /* Fondo de tarjetas oscuro */
+  --text: #e5e5e5;             /* Texto claro */
+  --muted: #a5a5a5;            /* Texto secundario claro */
+  --border: #333333;           /* Borde oscuro */
+  --accent: #2563eb;
+  --success: #16a34a;
+  --danger: #f44336;           /* Color para alertas de error (rojo) */
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.2); /* Sombra más marcada */
+}
 
 
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+/* Aplica cambios específicos para otros componentes */
+.card {
+  background-color: var(--card);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+input, textarea {
+  background-color: var(--card);
+  color: var(--text);
+}
+
+button {
+  background-color: var(--accent);
+  color: white;
+}
+
+button:hover {
+  background-color: var(--muted);
+}

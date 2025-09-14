@@ -1,1 +1,138 @@
-<p>desings-page works!</p>
+
+<div class="page">
+  <div class="container designs">
+    <!-- Header (idéntico al de business-page) -->
+    <div class="header" *ngIf="currentBusiness?.length">
+      <div class="brand">
+        <img
+          *ngIf="currentBusiness[0]?.logo"
+          [src]="currentBusiness[0].logo | bufferToBase64: currentBusiness[0].logoMimeType"
+          alt="Logo del negocio"
+        />
+        <div class="info">
+          <h1 class="name">{{ currentBusiness[0]?.name || 'Negocio' }}</h1>
+          <div class="meta">
+            <span class="chip">{{ currentBusiness[0]?.email || 'sin-email' }}</span>
+            <span class="chip chip-id">ID: {{ currentBid }}</span>
+            <span class="status active">Activo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Alertas -->
+    <div *ngIf="serverError" class="alert alert-error">
+      {{ serverError }}
+    </div>
+
+    <!-- Tarjeta seleccionada (vertical) dentro de una .card -->
+    <div class="card card--pass" *ngIf="selectedDesign as sd">
+      <h3 class="card-title">Tarjeta seleccionada</h3>
+
+      <div
+        class="flip-card flip-card--vertical"
+        [class.flipped]="flipSelected"
+        [ngStyle]="getCardStyle(sd)"
+      >
+        <div class="flip-card-inner">
+          <!-- Frente -->
+          <div class="flip-card-face front front--preview-vertical">
+            <div class="card-head">
+              <img *ngIf="businessLogoSrc" [src]="businessLogoSrc" alt="logo" class="logo" />
+            </div>
+
+            <div class="points-vertical">
+              <div class="points-number">{{ previewPoints }}</div>
+              <div class="points-info">
+                <div class="points-label">POINTS</div>
+                <div class="member">
+                  <span class="member-label">{{ previewMemberLabel }}</span>
+                  <span class="member-name">{{ previewName }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="barcode-box">
+              <div class="barcode-fake" aria-hidden="true"></div>
+              <div class="barcode-text">{{ previewCode }}</div>
+            </div>
+          </div>
+
+          <!-- Reverso -->
+          <div class="flip-card-face back">
+            <div class="kv">
+              <div><b>Programa</b></div><div>{{ sd.design_json.programName }}</div>
+              <div><b>Label</b></div><div>{{ sd.design_json.colors.label }}</div>
+              <div><b>Fondo</b></div><div>{{ sd.design_json.colors.background }}</div>
+              <div><b>Texto</b></div><div>{{ sd.design_json.colors.foreground }}</div>
+              <div><b>Strip</b></div><div>{{ sd.design_json.assets.disableStrip ? 'Oculto' : 'Visible' }}</div>
+              <div><b>HideAccount</b></div><div>{{ sd.design_json.hideAccount }}</div>
+              <div><b>Barcode</b></div><div>{{ sd.design_json.barcode.primary || '—' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones estiladas con .actions / .btn -->
+      <div class="actions selected-actions">
+        <button class="btn" (click)="toggleFlipSelected()">
+          {{ flipSelected ? 'Ver frente' : 'Ver reverso' }}
+        </button>
+        <button class="btn" (click)="setDefault(sd.id)" [disabled]="isDefault(sd.id)">
+          {{ isDefault(sd.id) ? 'Ya es predeterminada' : 'Establecer como predeterminada' }}
+        </button>
+        <button class="btn" (click)="editDesing(sd.id)">Editar</button>
+      </div>
+
+      <!-- Puntitos demo -->
+      <div class="dots">
+        <span class="dot"></span>
+        <span class="dot active"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+
+    <!-- Carrusel de otras tarjetas -->
+    <div class="card card--slider" *ngIf="othersDesigns.length">
+      <h3 class="card-title">Otros diseños</h3>
+      <div class="rail" tabindex="0">
+        <div class="slide" *ngFor="let d of othersDesigns" [ngStyle]="getCardStyle(d)">
+          <div class="mini-card flip" [class.flipped]="flippedIds.has(d.id)" (click)="toggleFlip(d.id)">
+            <div class="flip-card-inner">
+              <!-- Front mini -->
+              <div class="flip-card-face front">
+                <div class="program">{{ d.design_json.programName }}</div>
+                <div class="mini-strip" *ngIf="!d.design_json.assets.disableStrip"></div>
+                <div class="mini-body">
+                  <div class="label">Preview</div>
+                  <div class="value">**** 1234</div>
+                </div>
+              </div>
+              <!-- Back mini -->
+              <div class="flip-card-face back">
+                <div class="mini-kv">
+                  <div><b>Label</b>: {{ d.design_json.colors.label }}</div>
+                  <div><b>Fondo</b>: {{ d.design_json.colors.background }}</div>
+                  <div><b>Texto</b>: {{ d.design_json.colors.foreground }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions mini-actions">
+            <button class="btn small" (click)="selectDesign(d.id)">Ver</button>
+            <button class="btn small" (click)="setDefault(d.id)" [disabled]="isDefault(d.id)">
+              {{ isDefault(d.id) ? 'Predeterminada' : 'Hacer predeterminada' }}
+            </button>
+            <button class="btn danger" (click)="deleteDesign(d.id)">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar inferior reutilizando .actions/.btn -->
+    <div class="actions toolbar">
+      <button class="btn primary" (click)="openCreateDesing()">Nuevo diseño</button>
+    </div>
+
+  </div>
+</div>

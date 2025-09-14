@@ -12,15 +12,33 @@
     <!-- LOGIN -->
     <form [formGroup]="formLogin" (ngSubmit)="login($event)" class="user-form">
       <input class="input" type="email" formControlName="emailLogin" placeholder="Correo">
-      <input class="input" type="password" formControlName="passwordLogin" placeholder="Contraseña">
 
-      <!-- error del form -->
+      <div class="password-row">
+        <!-- usa passwordLogin para que coincida con el FormGroup -->
+        <input [type]="passwordFieldType"
+              class="input"
+              formControlName="passwordLogin"
+              placeholder="Password"
+              [class.invalid]="touchedInvalid('passwordLogin')"
+              required>
+
+        <!-- Opción A: Font Awesome (si cargas su CSS) -->
+        <button type="button" class="eye-btn" (click)="togglePassword()" aria-label="Toggle password">
+          <i class="fas" [ngClass]="passwordFieldType === 'text' ? 'fa-eye-slash' : 'fa-eye'"></i>
+        </button>
+
+        <!-- Opción B: Material Icon (ya tienes MatIconModule)
+        <button type="button" class="eye-btn" (click)="togglePassword()" aria-label="Toggle password">
+          <mat-icon>{{ passwordFieldType === 'text' ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        -->
+      </div>
+
       <div class="form-error" *ngIf="errorMessage">{{ errorMessage }}</div>
 
       <button class="button" type="submit">
         {{ loading ? 'Entrando…' : 'Iniciar sesión' }}
       </button>
     </form>
-
   </div>
 </div>

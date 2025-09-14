@@ -235,3 +235,79 @@ input[type="file"].input {
 @media (max-height: 740px) {
   .login-card { max-height: 90vh; }
 }
+
+
+.scan-success {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px;
+  margin-top: 10px;
+  text-align: center;
+  border-radius: 5px;
+  font-weight: bold;
+  animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+
+
+/* Responsividad del input para móviles */
+@media (max-width: 768px) {
+  .login-card {
+    padding: 16px;
+  }
+
+  .input {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  .btn {
+    font-size: 14px;
+  }
+
+  .video-wrap {
+    height: 120px;
+  }
+}
+
+/* Para pantallas de tamaño móvil más pequeño */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 12px;
+  }
+
+  .input {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .btn {
+    font-size: 12px;
+  }
+
+  .video-wrap {
+    height: 100px;
+  }
+}
+
+/* Para dispositivos con pantallas altas, ajustamos la altura de la tarjeta */
+@media (max-height: 740px) {
+  .login-card {
+    max-height: 80vh;
+  }
+}

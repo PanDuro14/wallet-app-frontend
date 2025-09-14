@@ -1,37 +1,29 @@
-/* ===== LAYOUT ===== */
-:host {
-  --bg: #f6f8fb;
-  --card: #fff;
-  --text: #0f172a;
-  --muted: #667085;
-  --border: #e5e7eb;
-  --accent: #2f80ed;
-  --danger: #ef4444;
-  --shadow: 0 8px 24px rgba(16,24,40,.08);
-  color: var(--text);
-  display: block;
-}
-
-
+/* ----- Responsividad de la tarjeta del formulario ----- */
 .login-card {
-  width: min(420px, 92vw);
+  width: min(420px, 92vw);  /* Ajusta el ancho de la tarjeta a un valor máximo del 92% del ancho de la pantalla */
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: var(--shadow);
   padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0 auto; /* Centra la tarjeta en la pantalla */
 }
 
-/* ===== HEADER OPCIONAL ===== */
+/* ----- Ajustes de los títulos y subtítulos ----- */
 .login-header {
   text-align: center;
   margin-bottom: 8px;
 }
+
 .login-title {
   margin: 0;
   font-size: 20px;
   font-weight: 700;
 }
+
 .login-sub {
   margin: 4px 0 0;
   color: var(--muted);
@@ -44,32 +36,27 @@
   margin: 12px 0 16px;
 }
 
-/* ===== FORM ===== */
-.user-form {
-  display: grid;
-  gap: 12px;
-}
-
+/* ----- Estilos de los inputs ----- */
 .input {
-  width: 92%;
+  width: 100%;  /* Hacer que los inputs ocupen el 100% del espacio disponible */
   height: 44px;
+  padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid var(--border);
   background: #f9fafb;
-  padding: 10px 12px;
   outline: none;
-  transition: border-color .2s, background .2s, box-shadow .2s;
-  font: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
-.input:hover,
-.input:focus {
+/* Efecto de hover o focus */
+.input:hover, .input:focus {
   background: #fff;
   border-color: #cbd5e1;
   box-shadow: 0 0 0 4px rgba(47,128,237,.15);
 }
 
-/* estados automáticos + tu clase [class.invalid] */
+/* ----- Estilo para los campos con errores ----- */
 .input.invalid,
 .input.ng-invalid.ng-touched {
   border-color: #fecaca;
@@ -77,6 +64,7 @@
   box-shadow: 0 0 0 4px rgba(239,68,68,.08);
 }
 
+/* ----- Estilo de la alerta de error ----- */
 .hint.error {
   margin-top: -4px;
   margin-bottom: 4px;
@@ -85,72 +73,100 @@
   line-height: 1.25;
 }
 
-/* Password con ojito */
-.password-row {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.password-row .input { padding-right: 40px; }
-
-.eye-btn {
-  position: absolute;
-  right: 15px;
-  height: 28px;
-  width: 28px;
-  display: grid;
-  place-items: center;
-  border: none;
-  background: transparent;
-  color: #6b7280;
-  cursor: pointer;
-  border-radius: 6px;
-}
-.eye-btn:hover { color: var(--accent); }
-
-/* File input (misma “cara” que los otros) */
-input[type="file"].input {
-  height: auto;
-  padding: 10px 12px;
-  background: #fff;
-}
-
-/* ===== BUTTON ===== */
+/* ----- Estilo de los botones ----- */
 .button {
   height: 44px;
+  padding: 10px 14px;
   border-radius: 10px;
-  border: 1px solid transparent;
   background: var(--accent);
   color: #fff;
   cursor: pointer;
-  font: inherit;
   font-weight: 600;
-  transition: transform .05s ease, background .2s ease, box-shadow .2s ease;
+  transition: transform 0.05s ease, background 0.2s ease, box-shadow 0.2s ease;
+  font-size: 14px;
+  width: 100%;  /* Asegura que el botón ocupe el 100% del ancho */
 }
-.button:hover { background: #1366d6; box-shadow: 0 8px 20px rgba(47,128,237,.2); }
-.button:active { transform: translateY(1px); }
+
+.button:hover {
+  background: #1366d6;
+  box-shadow: 0 8px 20px rgba(47,128,237,.2);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
 .button:disabled {
   opacity: .6;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-
-.input.file-like {
-  display: block;
-  width: 92%;
-  height: 44px;
-  border-radius: 10px;
+/* ----- Estilo de los botones pequeños ----- */
+.btn.small {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
   border: 1px solid var(--border);
-  background: #f9fafb;
-  padding: 10px 12px;
-  cursor: pointer;
-}
-.input.file-like:hover {
-  background: #fff;
-  border-color: #cbd5e1;
-  box-shadow: 0 0 0 4px rgba(47,128,237,.15);
+  background: var(--card);
+  color: var(--text);
+  box-shadow: var(--shadow);
 }
 
-.user-form { gap: 14px; }
-.divider { margin: 12px 0 18px; }
+.btn.small:hover {
+  background: #fafafa;
+  border-color: #d1d5db;
+}
+
+.btn.small.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn.small.danger {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #b91c1c;
+}
+
+/* ----- Ajustes para pantallas pequeñas (móviles y tabletas) ----- */
+@media (max-width: 768px) {
+  .login-card {
+    padding: 16px;  /* Reducir el padding */
+  }
+
+  .input {
+    font-size: 14px;  /* Reducir el tamaño de la fuente para inputs */
+    padding: 8px 12px;
+  }
+
+  .button {
+    font-size: 14px;  /* Reducir tamaño de la fuente de los botones */
+  }
+
+  .actions {
+    flex-direction: column; /* Apilar los botones verticalmente */
+    gap: 12px;
+  }
+
+  /* Eliminar cualquier exceso de espacio */
+  .divider {
+    margin: 12px 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 12px;  /* Ajustar más el padding */
+  }
+
+  .input {
+    font-size: 12px;  /* Reducir más el tamaño de los inputs */
+    padding: 6px 10px;
+  }
+
+  .button {
+    font-size: 12px;  /* Reducir tamaño de los botones */
+  }
+}

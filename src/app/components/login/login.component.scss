@@ -121,3 +121,33 @@
   border-radius: 10px;
   text-align: center;
 }
+
+.input.invalid,
+.input.ng-invalid.ng-touched {
+  border-color: #fecaca;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(239,68,68,.08);
+}
+
+/* Password con ojito */
+.password-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-row .input { padding-right: 40px; }
+
+.eye-btn {
+  position: absolute;
+  right: 15px;
+  height: 28px;
+  width: 28px;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.eye-btn:hover { color: var(--accent); }

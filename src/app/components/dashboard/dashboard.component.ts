@@ -6,7 +6,9 @@ import { BusinessService } from '../../services/business/business.service';
 import { environment } from '../../../environments/environment';
 import { BufferToBase64Pipe } from '../../Pipe/BufferToBase64.pipe';
 import { LinksServicesService } from '../../services/linksServices/links-services.service';
+import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
+
 
 // fecha
 import { DatePipe } from '@angular/common';
@@ -40,6 +42,7 @@ export class DashboardComponent {
   constructor (
     private businessService: BusinessService,
     public links: LinksServicesService,
+    private authService: AuthService,
     private http: HttpClient,
     private datePipe: DatePipe,
     private dialog: MatDialog,
@@ -337,5 +340,9 @@ export class DashboardComponent {
   // Formatear la fecha
   formatData(fecha: string): string | null {
     return this.datePipe.transform(fecha, 'dd/MM/yyyy');
+  }
+
+  logout(){
+    this.authService.logout();
   }
 }

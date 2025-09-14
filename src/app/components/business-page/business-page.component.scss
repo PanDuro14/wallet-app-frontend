@@ -111,6 +111,7 @@
 .actions .btn:active { transform: translateY(1px); }
 .actions .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .actions .btn.ghost   { background: transparent; box-shadow: none; }
+.actions .btn.danger { background: #fff1f2; border-color: #fecdd3; color: #b91c1c; }
 
 /* KPIs */
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 12px 0 16px; }
@@ -220,7 +221,6 @@
 .btn.small.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .btn.small.danger  { background: #fff1f2; border-color: #fecdd3; color: #b91c1c; }
 
-
 /* =========================
    4) Modal ajustar puntos
    ========================= */
@@ -267,4 +267,133 @@
 .alert-error {
   margin-top: 8px; padding: 8px 10px; border-radius: 10px;
   background:#fff1f2; border:1px solid #fecdd3; color:#b91c1c;
+}
+
+
+/* Para dispositivos pequeños, la marca se coloca centrada */
+@media (max-width: 768px) {
+  .header {
+    grid-template-columns: 1fr; /* En pantallas pequeñas, todo se apila verticalmente */
+    text-align: center; /* Centrar todo el contenido */
+  }
+
+  .brand {
+    margin-bottom: 16px;
+    justify-content: center;
+  }
+
+  .brand img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .brand .info {
+    margin-left: 0;
+  }
+
+  .actions {
+    flex-direction: row; /* Las acciones se apilan verticalmente en pantallas pequeñas */
+    align-items: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .actions {
+    justify-content: center; /* Centramos los botones */
+    gap: 12px;
+  }
+
+  .actions .btn {
+    width: auto;  /* Evita que los botones se estiren demasiado */
+    font-size: 14px; /* Reducimos el tamaño de la fuente en pantallas pequeñas */
+  }
+}
+
+/* Hacer los KPIs responsivos: en pantallas más pequeñas, usamos 2 columnas */
+@media (max-width: 768px) {
+  .kpis {
+    grid-template-columns: 1fr 1fr; /* 2 columnas */
+  }
+}
+
+@media (max-width: 480px) {
+  .kpis {
+    grid-template-columns: 1fr; /* 1 columna en pantallas muy pequeñas */
+  }
+
+  .card.kpi {
+    padding: 10px;
+  }
+
+  .kpi-label,
+  .kpi-value {
+    font-size: 16px;
+  }
+
+  .kpi-hint {
+    font-size: 10px;
+  }
+}
+
+/* Hacer que la tabla sea más responsiva: en pantallas pequeñas, los textos se truncan o se ocultan */
+@media (max-width: 768px) {
+  .table th,
+  .table td {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .table .col-id,
+  .table .col-pts {
+    width: 80px;
+  }
+
+  .table .col-actions {
+    width: 120px;
+  }
+
+  .table .col-name,
+  .table .col-email {
+    max-width: 120px;
+  }
+
+  .table .table-wrapper {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .table th,
+  .table td {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .table .col-id,
+  .table .col-pts {
+    width: 60px;
+  }
+
+  .table .col-actions {
+    width: 100px;
+  }
+
+  .table .col-name,
+  .table .col-email {
+    max-width: 100px;
+  }
+}
+
+/* Para pantallas pequeñas, el modal se ajusta al 100% de la pantalla */
+@media (max-width: 768px) {
+  .modal-panel {
+    width: 100%;
+    height: 100%;
+    padding: 12px;
+  }
+
+  .modal-header,
+  .modal-actions {
+    padding: 12px;
+  }
 }

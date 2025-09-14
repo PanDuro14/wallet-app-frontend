@@ -5,7 +5,12 @@
     <!-- muestra cámara si hay soporte; si no, muestra noCam -->
     <ng-container *ngIf="cameraReady; else noCam">
       <div class="video-wrap" [class.expanded]="scanning" [class.compact]="!scanning">
-        <video #video autoplay muted playsinline></video>
+        <video #video
+          playsinline
+          webkit-playsinline
+          muted
+          autoplay
+          style="width:100%;height:auto;object-fit:cover;background:#000"></video>
       </div>
 
       <button class="btn" (click)="toggleScan()">
@@ -16,6 +21,11 @@
     <ng-template #noCam>
       <p>Tu navegador no soporta cámara o no tiene permisos. Usa la entrada manual.</p>
     </ng-template>
+
+    <!-- Callback de escaneo exitoso -->
+    <div *ngIf="scannedSuccessfully" class="scan-success">
+      ¡Escaneo exitoso! :D
+    </div>
 
     <div class="manual">
       <label for="code">Código (serial / cuenta)</label>
@@ -29,6 +39,12 @@
       <!-- Si prefieres no poner name: usa [ngModelOptions]="{standalone:true}" -->
       <!-- [(ngModel)]="code" [ngModelOptions]="{standalone:true}" -->
     </div>
+    <div *ngIf="userData && userData.name && userData.email">
+      <h3>Información del Usuario</h3>
+      <p><strong>Usuario:</strong> {{ userData.name }}</p>
+      <p><strong>Puntos actuales:</strong> {{ currentPoints }}</p>
+      <p><strong>Puntos después del cambio:</strong> {{ newPoints }}</p>
+    </div>
 
     <div class="points">
       <label for="delta">Puntos a aplicar (positivo suma / negativo resta)</label>
@@ -39,8 +55,9 @@
         name="delta"
         [(ngModel)]="delta"
         placeholder="e.g. 50 o -20"
+        (ngModelChange)="updateNewPoints()"
       />
-      <!-- o: [(ngModel)]="delta" [ngModelOptions]="{standalone:true}" -->
+
     </div>
 
     <button class="btn primary" [disabled]="busy || !canSubmit()" (click)="apply()">

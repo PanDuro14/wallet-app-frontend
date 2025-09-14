@@ -1,0 +1,28 @@
+ <div class="card mini" *ngIf="designId">
+    <h3>Actualizar términos y tipo</h3>
+
+    <div class="alert alert-error" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="alert" *ngIf="infoMessage && !errorMessage">{{ infoMessage }}</div>
+
+    <!-- Modo manual (sin KV) -->
+    <form [formGroup]="form" class="form" *ngIf="!autoApply">
+      <mat-form-field appearance="outline">
+        <mat-label>pass_type_id</mat-label>
+        <input matInput formControlName="pass_type_id" placeholder="puntos">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Términos</mat-label>
+        <textarea matInput rows="5" formControlName="terms" placeholder="Condiciones..."></textarea>
+      </mat-form-field>
+
+      <div class="actions">
+        <button mat-button color="primary" [disabled]="busy || form.invalid" (click)="applyFromForm()">Aplicar</button>
+      </div>
+    </form>
+
+    <!-- Modo auto (con KV) -->
+    <div *ngIf="autoApply" class="auto">
+      <button mat-button color="primary" [disabled]="busy" (click)="applyFromKv()">Aplicar desde KV</button>
+    </div>
+  </div>
