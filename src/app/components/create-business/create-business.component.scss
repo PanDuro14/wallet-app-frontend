@@ -1,172 +1,241 @@
-/* ----- Responsividad de la tarjeta del formulario ----- */
-.login-card {
-  width: min(420px, 92vw);  /* Ajusta el ancho de la tarjeta a un valor máximo del 92% del ancho de la pantalla */
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  padding: 20px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin: 0 auto; /* Centra la tarjeta en la pantalla */
+  /* ----- Responsividad de la tarjeta del formulario ----- */
+  .login-card {
+    width: min(420px, 92vw);  /* Ajusta el ancho de la tarjeta a un valor máximo del 92% del ancho de la pantalla */
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 0 auto; /* Centra la tarjeta en la pantalla */
+  }
+
+  /* ----- Ajustes de los títulos y subtítulos ----- */
+  .login-header {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .login-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .login-sub {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 12px 0 16px;
+  }
+
+  /* ----- Estilos de los inputs ----- */
+  .input {
+    width: 95%;  /* Hacer que los inputs ocupen el 100% del espacio disponible */
+    height: 44px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #f9fafb;
+    outline: none;
+    font-size: 14px;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+
+  /* Efecto de hover o focus */
+  .input:hover, .input:focus {
+    background: #fff;
+    border-color: #cbd5e1;
+    box-shadow: 0 0 0 4px rgba(47,128,237,.15);
+  }
+
+  /* ----- Estilo para los campos con errores ----- */
+  .input.invalid,
+  .input.ng-invalid.ng-touched {
+    border-color: #fecaca;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(239,68,68,.08);
+  }
+
+  /* ----- Estilo de la alerta de error ----- */
+  .hint.error {
+    margin-top: -4px;
+    margin-bottom: 4px;
+    color: var(--danger);
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  /* ----- Estilo de los botones ----- */
+  .button {
+    height: 44px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.05s ease, background 0.2s ease, box-shadow 0.2s ease;
+    font-size: 14px;
+    width: 100%;  /* Asegura que el botón ocupe el 100% del ancho */
+  }
+
+  .button:hover {
+    background: #1366d6;
+    box-shadow: 0 8px 20px rgba(47,128,237,.2);
+  }
+
+  .button:active {
+    transform: translateY(1px);
+  }
+
+  .button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* ----- Estilo de los botones pequeños ----- */
+  .btn.small {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    box-shadow: var(--shadow);
+  }
+
+  .btn.small:hover {
+    background: #fafafa;
+    border-color: #d1d5db;
+  }
+
+  .btn.small.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .btn.small.danger {
+    background: #fff1f2;
+    border-color: #fecdd3;
+    color: #b91c1c;
+  }
+
+  /* ----- Ajustes para pantallas pequeñas (móviles y tabletas) ----- */
+  @media (max-width: 768px) {
+    .login-card {
+      padding: 16px;  /* Reducir el padding */
+    }
+
+    .input {
+      font-size: 14px;  /* Reducir el tamaño de la fuente para inputs */
+      padding: 8px 12px;
+    }
+
+    .button {
+      font-size: 14px;  /* Reducir tamaño de la fuente de los botones */
+    }
+
+    .actions {
+      flex-direction: column; /* Apilar los botones verticalmente */
+      gap: 12px;
+    }
+
+    /* Eliminar cualquier exceso de espacio */
+    .divider {
+      margin: 12px 0 16px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .login-card {
+      padding: 12px;  /* Ajustar más el padding */
+    }
+
+    .input {
+      font-size: 12px;  /* Reducir más el tamaño de los inputs */
+      padding: 6px 10px;
+    }
+
+    .button {
+      font-size: 12px;  /* Reducir tamaño de los botones */
+    }
+  }
+/* Layout del formulario: grid limpio y consistente */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px; /* espaciado vertical consistente entre campos */
 }
 
-/* ----- Ajustes de los títulos y subtítulos ----- */
-.login-header {
-  text-align: center;
-  margin-bottom: 8px;
+.field {
+  display: grid;
+  gap: 6px;
 }
 
-.login-title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.login-sub {
-  margin: 4px 0 0;
-  color: var(--muted);
+.field > label {
   font-size: 13px;
+  color: var(--muted);
 }
 
-.divider {
-  height: 1px;
-  background: var(--border);
-  margin: 12px 0 16px;
+/* Ojo dentro del input */
+.password-field {
+  position: relative;
 }
 
-/* ----- Estilos de los inputs ----- */
-.input {
-  width: 100%;  /* Hacer que los inputs ocupen el 100% del espacio disponible */
-  height: 44px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: #f9fafb;
-  outline: none;
-  font-size: 14px;
-  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+.password-field .input {
+  padding-right: 42px; /* espacio para el botón del ojo */
 }
 
-/* Efecto de hover o focus */
-.input:hover, .input:focus {
-  background: #fff;
-  border-color: #cbd5e1;
-  box-shadow: 0 0 0 4px rgba(47,128,237,.15);
-}
-
-/* ----- Estilo para los campos con errores ----- */
-.input.invalid,
-.input.ng-invalid.ng-touched {
-  border-color: #fecaca;
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(239,68,68,.08);
-}
-
-/* ----- Estilo de la alerta de error ----- */
-.hint.error {
-  margin-top: -4px;
-  margin-bottom: 4px;
-  color: var(--danger);
-  font-size: 12px;
-  line-height: 1.25;
-}
-
-/* ----- Estilo de los botones ----- */
-.button {
-  height: 44px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: var(--accent);
-  color: #fff;
+.eye-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(calc(-50% + 1px));
+  height: 28px;
+  width: 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
   cursor: pointer;
-  font-weight: 600;
-  transition: transform 0.05s ease, background 0.2s ease, box-shadow 0.2s ease;
-  font-size: 14px;
-  width: 100%;  /* Asegura que el botón ocupe el 100% del ancho */
+  opacity: .75;
+}
+
+.eye-btn:hover { opacity: 1; }
+
+/* Azul correcto en el botón de enviar */
+:root {
+  /* si ya tienes --accent definida en otro lado, asegúrate que quede así: */
+  --accent: #2f80ed;
+}
+
+.button {
+  background: var(--accent);
 }
 
 .button:hover {
-  background: #1366d6;
-  box-shadow: 0 8px 20px rgba(47,128,237,.2);
+  /* un poco más oscuro del #2f80ed */
+  background: #256dd0;
 }
 
-.button:active {
-  transform: translateY(1px);
-}
-
-.button:disabled {
-  opacity: .6;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* ----- Estilo de los botones pequeños ----- */
-.btn.small {
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: var(--text);
-  box-shadow: var(--shadow);
-}
-
-.btn.small:hover {
-  background: #fafafa;
-  border-color: #d1d5db;
-}
-
-.btn.small.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
-
-.btn.small.danger {
-  background: #fff1f2;
-  border-color: #fecdd3;
-  color: #b91c1c;
-}
-
-/* ----- Ajustes para pantallas pequeñas (móviles y tabletas) ----- */
+/* Ajustes responsivos */
 @media (max-width: 768px) {
-  .login-card {
-    padding: 16px;  /* Reducir el padding */
-  }
-
-  .input {
-    font-size: 14px;  /* Reducir el tamaño de la fuente para inputs */
-    padding: 8px 12px;
-  }
-
-  .button {
-    font-size: 14px;  /* Reducir tamaño de la fuente de los botones */
-  }
-
-  .actions {
-    flex-direction: column; /* Apilar los botones verticalmente */
-    gap: 12px;
-  }
-
-  /* Eliminar cualquier exceso de espacio */
-  .divider {
-    margin: 12px 0 16px;
-  }
+  .form-grid { gap: 12px; }
 }
 
-@media (max-width: 480px) {
-  .login-card {
-    padding: 12px;  /* Ajustar más el padding */
+@media (min-width: 720px) {
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
-
-  .input {
-    font-size: 12px;  /* Reducir más el tamaño de los inputs */
-    padding: 6px 10px;
-  }
-
-  .button {
-    font-size: 12px;  /* Reducir tamaño de los botones */
-  }
+  .field:nth-child(5) { grid-column: 1 / -1; }  /* el logo a lo ancho */
 }

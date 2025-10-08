@@ -4,7 +4,7 @@
     <!-- (Opcional) encabezado bonito -->
     <div class="login-header">
       <h2 class="login-title">Business Login</h2>
-      <p class="login-sub">Accede a tu panel</p>
+      <p class="login-sub" i18n="@@businessLoginSub">Accede a tu panel</p>
     </div>
 
     <div class="divider"></div>
@@ -27,11 +27,6 @@
           <i class="fas" [ngClass]="passwordFieldType === 'text' ? 'fa-eye-slash' : 'fa-eye'"></i>
         </button>
 
-        <!-- Opción B: Material Icon (ya tienes MatIconModule)
-        <button type="button" class="eye-btn" (click)="togglePassword()" aria-label="Toggle password">
-          <mat-icon>{{ passwordFieldType === 'text' ? 'visibility_off' : 'visibility' }}</mat-icon>
-        </button>
-        -->
       </div>
 
       <div class="form-error" *ngIf="errorMessage">{{ errorMessage }}</div>

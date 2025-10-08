@@ -28,15 +28,15 @@
               <div class="meta">
                 <span class="chip">{{ currentBusiness[0]?.email || 'sin-email' }}</span>
                 <span class="chip chip-id">ID: {{ currentBid }}</span>
-                <span class="status active">Activo</span>
+                <span class="status active" i18n="@@activoDesgns">Activo</span>
               </div>
             </div>
           </div>
 
           <div class="actions">
-            <button class="btn primary" (click)="onOpenAdjust()">Cargar puntos</button>
-            <button class="btn" (click)="onIssuePass()">Emitir pase</button>
-            <button class="btn ghost" (click)="adminDesings(currentBusiness[0]?.id)">Administrar Diseños</button>
+            <button class="btn primary" (click)="onOpenAdjust()" i18n="@@loadPoints">Cargar puntos</button>
+            <button class="btn" (click)="onIssuePass()" i18n="@@issuePass">Emitir pase</button>
+            <button class="btn ghost" (click)="adminDesings(currentBusiness[0]?.id)" i18n="@@manageDesings">Administrar Diseños</button>
             <button class="btn danger" (click)="logout()">Log out</button>
           </div>
         </div>
@@ -44,59 +44,59 @@
         <!-- KPIs -->
         <section class="kpis">
           <div class="card kpi">
-            <div class="kpi-label">Pases activos</div>
+            <div class="kpi-label" i18n="@@activePasses">Pases activos</div>
             <div class="kpi-value">—</div>
-            <div class="kpi-hint">últimos 7 días</div>
+            <div class="kpi-hint" i18n="@@last7days">Últimos 7 días</div>
           </div>
 
           <div class="card kpi">
-            <div class="kpi-label">Añadidos hoy</div>
+            <div class="kpi-label"i18n="@@addedToday">Añadidos hoy</div>
             <div class="kpi-value">—</div>
-            <div class="kpi-hint">hoy</div>
+            <div class="kpi-hint"i18n="@@today">hoy</div>
           </div>
 
           <div class="card kpi">
-            <div class="kpi-label">Redenciones hoy</div>
+            <div class="kpi-label" i18n="@@redeptionToday">Redenciones hoy</div>
             <div class="kpi-value">—</div>
-            <div class="kpi-hint">hoy</div>
+            <div class="kpi-hint" i18n="@@today">Hoy</div>
           </div>
 
           <div class="card kpi">
-            <div class="kpi-label">Pasivo en puntos</div>
+            <div class="kpi-label" i18n="@@passivePoints">Pasivo en puntos</div>
             <div class="kpi-value">—</div>
-            <div class="kpi-hint">estimado</div>
+            <div class="kpi-hint" i18n="@@estimated">estimado</div>
           </div>
         </section>
 
         <!-- Detalle negocio -->
         <section class="grid">
           <div class="card">
-            <h3>Detalles del negocio</h3>
+            <h3 i18n="@@businessDetails">Detalles del negocio</h3>
             <div class="dl">
-              <div class="dt">Nombre</div>
+              <div class="dt" i18n="@@name">Nombre</div>
               <div class="dd">{{ currentBusiness[0]?.name }}</div>
 
-              <div class="dt">Email</div>
+              <div class="dt" i18n="@@email">Email</div>
               <div class="dd">{{ currentBusiness[0]?.email || '—' }}</div>
 
-              <div class="dt">Creado</div>
+              <div class="dt" i18n="@@createdAt">Creado</div>
               <div class="dd">{{ currentBusiness[0]?.created_atFormat }}</div>
 
-              <div class="dt">Actualizado</div>
+              <div class="dt" i18n="@@updatedAt">Actualizado</div>
               <div class="dd">{{ currentBusiness[0]?.updated_atFormat }}</div>
             </div>
           </div>
 
-          <div class="card" >
-            <h3>Programa Wallet</h3>
+          <div class="card">
+            <h3 i18n="@@walletProgram">Programa Wallet</h3>
             <div class="dl">
-              <div class="dt">Pass Type ID</div>
+              <div class="dt" >Pass Type ID</div>
               <div class="dd">{{ currentBusiness[0]?.pass_type_id || '—' }}</div>
 
-              <div class="dt">Color de fondo</div>
+              <div class="dt">BG Color</div>
               <div class="dd">{{ currentBusiness[0]?.background_color || '—' }}</div>
 
-              <div class="dt">Términos</div>
+              <div class="dt">Terms</div>
               <div class="dd terms">{{ currentBusiness[0]?.terms || '—' }}</div>
             </div>
           </div>
@@ -108,13 +108,13 @@
 
       <!-- Empty state -->
     <div class="empty" *ngIf="!isLoading && !currentBusiness?.length && !serverError">
-      <p>No se encontró información del negocio.</p>
+      <p i18n="@@">No se encontró información del negocio.</p>
     </div>
 
       <!-- Tabla de usuarios (demo) -->
     <section class="card table-card" *ngIf="!isLoading">
       <div class="table-header">
-        <h3>Usuarios</h3>
+        <h3 i18n="@@users">Usuarios</h3>
         <span class="sub"></span>
       </div>
 
@@ -123,12 +123,12 @@
           <thead>
             <tr>
               <th class="col-id">ID</th>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th class="col-pts">Puntos</th>
-              <th>Creado</th>
-              <th>Actualizado</th>
-              <th class="col-actions">Acciones</th>
+              <th i18n="@@name">Nombre</th>
+              <th i18n="@@email">Correo</th>
+              <th class="col-pts" i18n="@@points">Puntos</th>
+              <th i18n="@@createdAt">Creado</th>
+              <th i18n="@@updatedAt">Actualizado</th>
+              <th class="col-actions" i18n="@@actions">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -142,8 +142,8 @@
               <td class="col-date">{{ u.created_atFormat }}</td>
               <td class="col-date">{{ u.updated_atFormat }}</td>
               <td class="col-actions">
-                <button class="btn small primary" (click)="openUpdatePoints(u.id)">Actualizar puntos</button>
-                <button class="btn small danger" (click)="onDeleteUser(u)">Eliminar</button>
+                <button class="btn small primary" (click)="openUpdatePoints(u.id)" i18n="@@updatePoints">Actualizar puntos</button>
+                <button class="btn small danger" (click)="onDeleteUser(u)" i18n="@@delete">Eliminar</button>
               </td>
             </tr>
           </tbody>
@@ -157,7 +157,7 @@
     <div class="modal" *ngIf="adjust.open" role="dialog" aria-modal="true">
       <div class="modal-panel" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h3>Ajustar puntos</h3>
+          <h3 i18n="@@updatePoints">Ajustar puntos</h3>
           <button class="btn close" (click)="onCloseAdjust()" [disabled]="adjust.busy">✕</button>
         </div>
 
@@ -168,7 +168,7 @@
           </div>
 
           <div class="row">
-            <label>Actual</label>
+            <label i18n="@@current">Actual</label>
             <div class="value">{{ adjust.currentPoints }}</div>
           </div>
 
@@ -183,7 +183,7 @@
             </div>
           </div>
 
-          <div class="preview">
+          <div class="preview" i18n="@@Nuevo">
             Nuevo: <b>{{ (adjust.currentPoints || 0) + (+adjust.delta || 0) }}</b>
           </div>
 
@@ -191,8 +191,8 @@
         </div>
 
         <div class="modal-actions">
-          <button class="btn ghost" (click)="onCloseAdjust()" [disabled]="adjust.busy">Cancelar</button>
-          <button class="btn primary" (click)="applyAdjust()" [disabled]="!canApply()">Aplicar</button>
+          <button class="btn ghost" (click)="onCloseAdjust()" [disabled]="adjust.busy" i18n="@@cancel">Cancelar</button>
+          <button class="btn primary" (click)="applyAdjust()" [disabled]="!canApply()" i18n="@@apply">Aplicar</button>
         </div>
       </div>
     </div>

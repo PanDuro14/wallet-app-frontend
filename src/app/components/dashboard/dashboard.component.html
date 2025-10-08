@@ -17,7 +17,7 @@
           <th class="link-col"> Link </th>
           <th> Was created </th>
           <th> Last updated </th>
-          <th colspan="3" class="col-actions">Acciones</th>
+          <th colspan="3" class="col-actions">Actions</th>
         </tr>
       </thead>
 
@@ -34,7 +34,7 @@
             <a [href]="links.buildBussinessLink(b)" target="_blank" rel="noopener">
               {{ links.buildBussinessLink(b) }}
             </a>
-            <button type="button" class="btn-copy" (click)="copy(links.buildBussinessLink(b))">Copiar</button>
+            <button type="button" class="btn-copy" (click)="copy(links.buildBussinessLink(b))">Copy</button>
           </td>
 
           <td>{{ b.created_atFormat }}</td>

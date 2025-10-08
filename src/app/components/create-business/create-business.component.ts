@@ -38,8 +38,13 @@ export class CreateBusinessComponent implements OnInit{
   confirmPass: string = 'confirmPass';
 
   showPassword = false;
+  previewLogo: string | ArrayBuffer | null = null;
+  previewStripOn: string | ArrayBuffer | null = null;
+  previewStripOff: string | ArrayBuffer | null = null;
   previewImage: string | ArrayBuffer | null = null;
-  selectedFile: File | null = null;
+  selectedLogoFile: string | null = null;
+  selectedStripOnFile: string | null = null;
+  selectedStripOffFile: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -59,6 +64,16 @@ export class CreateBusinessComponent implements OnInit{
       logo: [null,  [
         this.fileRequired(),
         this.fileType(['image/png','image/jpeg','image/webp']),
+        this.fileMaxSize(160 * 1024 * 1024)
+      ]],
+      strip_image_on: [null, [
+        this.fileRequired(),
+        this.fileType(['image/png', 'image/jpeg', 'image/webp']),
+        this.fileMaxSize(160 * 1024 * 1024)
+      ]],
+      strip_image_off: [null, [
+        this.fileRequired(),
+        this.fileType(['image/png', 'image/jpeg', 'image/webp']),
         this.fileMaxSize(160 * 1024 * 1024)
       ]],
       created_at: [''],
@@ -145,25 +160,28 @@ export class CreateBusinessComponent implements OnInit{
   }
 
   // --- File input: guarda en logo y preview ---
-  onFileChange(event: any){
+  onFileChange(event: any, type: string) {
     const file: File | undefined = event?.target?.files?.[0];
-    if (!file) {
-      this.formCreateBusiness.get('logo')?.setValue(null);
-      return;
-    }
+    if (!file) return;
 
-    // preview base64
+    // Preview base64
     const reader = new FileReader();
-    reader.onload = () => { this.previewImage = reader.result; };
+    reader.onload = () => {
+      if (type === 'logo') {
+        this.previewLogo = reader.result as string;
+        this.selectedLogoFile = file.name
+      } else if (type === 'strip_image_on') {
+        this.previewStripOn = reader.result as string;
+        this.selectedStripOnFile = file.name;
+      } else if (type === 'strip_image_off') {
+        this.previewStripOff = reader.result as string;
+        this.selectedStripOffFile = file.name;
+      }
+    };
     reader.readAsDataURL(file);
 
-    // setea el File en el control (como NO está enlazado al input, no rompe)
-    this.formCreateBusiness.get('logo')?.setValue(file);
-    this.formCreateBusiness.get('logo')?.markAsTouched();
-    this.formCreateBusiness.get('logo')?.markAsDirty();
-    this.formCreateBusiness.get('logo')?.updateValueAndValidity();
-
-    console.log('[logo]', { size: file.size, type: file.type });
+    // Set the file in the control
+    this.formCreateBusiness.get(type)?.setValue(file);
   }
 
   // --- Toggle de contraseña (usa passwordFieldType) ---
@@ -197,7 +215,13 @@ export class CreateBusinessComponent implements OnInit{
       fd.append('email', this.formCreateBusiness.get('email')?.value);
       fd.append('password', this.formCreateBusiness.get('password')?.value);
       const file = this.formCreateBusiness.get('logo')?.value as File | null;
+      const fileStripOn = this.formCreateBusiness.get('strip_image_on')?.value as File | null;
+      const fileStripOff = this.formCreateBusiness.get('strip_image_off')?.value as File | null;
+
       if (file) fd.append('logo', file);
+      if (fileStripOn) fd.append('strip_image_on', fileStripOn);
+      if (fileStripOff) fd.append('strip_image_off', fileStripOff);
+
       fd.append('created_at', this.formCreateBusiness.get('created_at')?.value);
       fd.append('updated_at', this.formCreateBusiness.get('updated_at')?.value);
 

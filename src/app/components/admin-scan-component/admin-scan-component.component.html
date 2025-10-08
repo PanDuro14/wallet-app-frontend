@@ -1,70 +1,163 @@
 <div class="login-card">
   <div class="scan-card">
-    <h2>Escanear tarjeta del cliente</h2>
+    <h2 i18n="@@scan-title">Escanear tarjeta del cliente</h2>
 
-    <!-- muestra cámara si hay soporte; si no, muestra noCam -->
+    <!-- SECCIÓN DE BÚSQUEDA -->
+    <div class="search-section">
+      <label for="searchQuery" i18n="@@search-client">Buscar cliente</label>
+      <div class="search-input-group">
+        <input
+          id="searchQuery"
+          class="input"
+          [(ngModel)]="searchQuery"
+          placeholder="Serial, email o teléfono"
+          (keyup.enter)="searchUsers()"
+        />
+      </div>
+
+      <button class="btn btn-search" [disabled]="busy" (click)="searchUsers()" i18n="@@button-search">
+        {{ busy ? 'Buscando...' : 'Buscar' }}
+      </button>
+
+      <p class="hint" i18n="@@hint">
+        Puedes buscar por UUID, correo electrónico o número de teléfono
+      </p>
+    </div>
+
+    <!-- RESULTADOS DE BÚSQUEDA -->
+    <div *ngIf="showResults && searchResults.length > 0" class="search-results">
+      <h3 i18n="@@select-user">Selecciona un usuario:</h3>
+      <div class="results-list">
+        <div
+          *ngFor="let user of searchResults"
+          class="result-item"
+          (click)="selectUser(user)"
+        >
+          <div class="result-info">
+            <strong>{{ user.name }}</strong>
+            <span class="result-detail" *ngIf="user.email"> {{ user.email }}</span>
+            <span class="result-detail" *ngIf="user.phone"> {{ user.phone }}</span>
+            <span class="result-serial">Serial: {{ user.serial }}</span>
+          </div>
+          <div class="result-type">
+            {{ user.card_type === 'strips' ? '🎫 Colección' : '⭐ Puntos' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider">O</div>
+
+    <!-- ESCANEO CON CÁMARA -->
     <ng-container *ngIf="cameraReady; else noCam">
       <div class="video-wrap" [class.expanded]="scanning" [class.compact]="!scanning">
-        <video #video
+        <video
+          #video
           playsinline
           webkit-playsinline
           muted
           autoplay
-          style="width:100%;height:auto;object-fit:cover;background:#000"></video>
+          style="width:100%;height:auto;object-fit:cover;background:#000"
+        ></video>
       </div>
 
-      <button class="btn" (click)="toggleScan()">
+      <button class="btn" (click)="toggleScan()" i18n="@@start-camera">
         {{ scanning ? 'Detener cámara' : 'Iniciar cámara' }}
       </button>
     </ng-container>
 
     <ng-template #noCam>
-      <p>Tu navegador no soporta cámara o no tiene permisos. Usa la entrada manual.</p>
+      <p i18n="@@camera-unsupported">
+        Tu navegador no soporta cámara o no tiene permisos.
+      </p>
     </ng-template>
 
     <!-- Callback de escaneo exitoso -->
-    <div *ngIf="scannedSuccessfully" class="scan-success">
+    <div *ngIf="scannedSuccessfully" class="scan-success" i18n="@@scan-success">
       ¡Escaneo exitoso! :D
     </div>
 
-    <div class="manual">
-      <label for="code">Código (serial / cuenta)</label>
-      <input
-        id="code"
-        class="input"
-        name="code"
-        [(ngModel)]="code"
-        placeholder="UUID o Account ID"
-      />
-      <!-- Si prefieres no poner name: usa [ngModelOptions]="{standalone:true}" -->
-      <!-- [(ngModel)]="code" [ngModelOptions]="{standalone:true}" -->
-    </div>
-    <div *ngIf="userData && userData.name && userData.email">
-      <h3>Información del Usuario</h3>
-      <p><strong>Usuario:</strong> {{ userData.name }}</p>
-      <p><strong>Puntos actuales:</strong> {{ currentPoints }}</p>
-      <p><strong>Puntos después del cambio:</strong> {{ newPoints }}</p>
+    <!-- INFORMACIÓN DEL USUARIO SELECCIONADO -->
+    <div *ngIf="userData && userData.name" class="user-info-card">
+      <h3 i18n="@@selected-client">Cliente seleccionado</h3>
+      <div class="user-details">
+        <p><strong i18n="@@phName">Nombre:</strong> {{ userData.name }}</p>
+        <p *ngIf="userData.email"><strong i18n="@@phEmail">Email:</strong> {{ userData.email }}</p>
+        <p *ngIf="userData.phone"><strong i18n="@@phPhone">Teléfono:</strong> {{ userData.phone }}</p>
+        <p class="serial-display"><strong>Serial:</strong> <code>{{ code }}</code></p>
+
+        <!-- Tarjeta de PUNTOS -->
+        <ng-container *ngIf="!userData.isStrips">
+          <div class="card-type-badge points" i18n="@@card-points">Tarjeta de Puntos</div>
+          <p class="points-display">
+            <strong i18n="@@current-points">Puntos actuales:</strong>
+            <span class="current">{{ currentPoints }}</span>
+          </p>
+          <p class="points-preview">
+            <strong i18n="@@preview-points">Puntos después:</strong>
+            <span class="preview">{{ newPoints }}</span>
+          </p>
+        </ng-container>
+
+        <!-- Tarjeta de STRIPS -->
+        <ng-container *ngIf="userData.isStrips">
+          <div class="card-type-badge strips" i18n="@@card-strips">Tarjeta de Colección</div>
+          <p class="strips-progress">
+            <strong i18n="@@progress">Progreso:</strong>
+            <span class="progress-bar">
+              <span
+                class="progress-fill"
+                [style.width.%]="(userData.strips_collected / userData.strips_required) * 100"
+              ></span>
+            </span>
+            {{ userData.strips_collected }}/{{ userData.strips_required }}
+          </p>
+          <p *ngIf="userData.reward_title" class="reward-title">
+            <strong i18n="@@reward-title">Premio:</strong> {{ userData.reward_title }}
+          </p>
+          <p *ngIf="userData.reward_unlocked" class="completed-badge" i18n="@@reward-unlocked">
+            ¡Colección completada!
+          </p>
+          <p *ngIf="!userData.reward_unlocked" class="next-strip">
+            <strong i18n="@@next-strip">Siguiente strip a otorgar:</strong>
+            <span class="strip-number">#{{ nextStripNumber }}</span>
+          </p>
+        </ng-container>
+      </div>
     </div>
 
-    <div class="points">
-      <label for="delta">Puntos a aplicar (positivo suma / negativo resta)</label>
+    <!-- INPUT PARA PUNTOS (solo si NO es strips) -->
+    <div class="points" *ngIf="userData && !userData.isStrips">
+      <label for="delta" i18n="@@points-input-label">
+        Puntos a aplicar (positivo suma / negativo resta)
+      </label>
       <input
         id="delta"
         class="input"
         type="number"
         name="delta"
         [(ngModel)]="delta"
-        placeholder="e.g. 50 o -20"
+        placeholder="Ej: 50 o -20"
         (ngModelChange)="updateNewPoints()"
       />
-
     </div>
 
-    <button class="btn primary" [disabled]="busy || !canSubmit()" (click)="apply()">
-      {{ busy ? 'Aplicando…' : 'Aplicar' }}
+    <!-- BOTÓN DE ACCIÓN -->
+    <button
+      class="btn primary"
+      [disabled]="busy || !canSubmit()"
+      (click)="apply()"
+      *ngIf="userData"
+      i18n="@@apply"
+    >
+      {{ busy ? 'Aplicando…' : userData.isStrips ? 'Otorgar Strip #' + nextStripNumber : 'Aplicar Puntos' }}
     </button>
 
-    <p class="ok"  *ngIf="okMsg"  aria-live="polite">{{ okMsg }}</p>
-    <p class="err" *ngIf="errMsg" aria-live="assertive">{{ errMsg }}</p>
+    <p class="ok" *ngIf="okMsg" aria-live="polite" i18n="@@okMsg">
+      Operación completada correctamente
+    </p>
+    <p class="err" *ngIf="errMsg" aria-live="assertive" i18n="@@errMsg">
+      Ocurrió un error al procesar la solicitud
+    </p>
   </div>
 </div>

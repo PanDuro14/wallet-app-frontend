@@ -22,16 +22,41 @@
         <p *ngIf="formCreateBusiness.get('email')?.hasError('required')">Required email</p>
         <p *ngIf="formCreateBusiness.get('email')?.hasError('email')">Invalid email</p>
       </div>
+      <br><br>
 
       <!-- LOGO -->
-      <input id="logo" type="file" accept="image/*" (change)="onFileChange($event)" hidden>
-      <label for="logo" class="input file-like">{{ selectedFile || 'Seleccionar logo' }}</label>
+      <input id="logo" type="file" accept="image/*" (change)="onFileChange($event, 'logo')" hidden>
+      <label for="logo" class="input file-like">{{ selectedLogoFile || 'Logo' }}</label>
       <div class="hint error" *ngIf="touchedInvalid('logo')">
         <p *ngIf="formCreateBusiness.get('logo')?.hasError('required')">Logo is required</p>
         <p *ngIf="formCreateBusiness.get('logo')?.hasError('fileType')">Only PNG, JPG/JPEG or WEBP</p>
         <p *ngIf="formCreateBusiness.get('logo')?.hasError('fileMaxSize')">Max size 160MB</p>
       </div>
 
+      <!-- Strip Image On -->
+      <input id="strip_image_on" type="file" accept="image/*" (change)="onFileChange($event, 'strip_image_on')" hidden>
+      <label for="strip_image_on" class="input file-like">{{ selectedStripOnFile || ' Strip On' }}</label>
+      <div class="hint error" *ngIf="touchedInvalid('strip_image_on')">
+        <p *ngIf="formCreateBusiness.get('strip_image_on')?.hasError('required')">Logo is required</p>
+        <p *ngIf="formCreateBusiness.get('strip_image_on')?.hasError('fileType')">Only PNG, JPG/JPEG or WEBP</p>
+        <p *ngIf="formCreateBusiness.get('strip_image_on')?.hasError('fileMaxSize')">Max size 160MB</p>
+      </div>
+
+      <!-- Strip Image Off -->
+      <input id="strip_image_off" type="file" accept="image/*" (change)="onFileChange($event, 'strip_image_off')" hidden>
+      <label for="strip_image_off" class="input file-like">{{ selectedStripOnFile || ' Strip Off' }}</label>
+      <div class="hint error" *ngIf="touchedInvalid('strip_image_off')">
+        <p *ngIf="formCreateBusiness.get('strip_image_off')?.hasError('required')">Logo is required</p>
+        <p *ngIf="formCreateBusiness.get('strip_image_off')?.hasError('fileType')">Only PNG, JPG/JPEG or WEBP</p>
+        <p *ngIf="formCreateBusiness.get('strip_image_off')?.hasError('fileMaxSize')">Max size 160MB</p>
+      </div>
+
+      <!-- Previews de imágenes -->
+      <img *ngIf="previewLogo" [src]="previewLogo" alt="Logo Preview" class="preview" width="60px" height="60px">
+      <img *ngIf="previewStripOn" [src]="previewStripOn" alt="Strip On Preview" class="preview" width="60px" height="60px">
+      <img *ngIf="previewStripOff" [src]="previewStripOff" alt="Strip Off Preview" class="preview" width="60px" height="60px">
+
+      <br><br>
       <!-- PASSWORD -->
       <div class="password-row">
         <input [type]="passwordFieldType" class="input" formControlName="password" placeholder="Password" [class.invalid]="touchedInvalid('password')" required>

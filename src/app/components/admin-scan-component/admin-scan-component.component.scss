@@ -1,313 +1,384 @@
-.scan-card { max-width: 480px; margin: 0 auto; display: grid; gap: 12px; }
-.video-wrap { position: relative; display: grid; gap: 8px; }
-video { width: 100%; border-radius: 12px; background: #000; }
-.input { width: 100%; height: 44px; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 10px; }
-.btn { height: 44px; border: 0; border-radius: 10px; cursor: pointer; }
-.btn.primary { background: #2f80ed; color: #fff; font-weight: 600; }
-.ok { color: #16a34a; } .err { color: #ef4444; }
-.video-wrap {
-  position: relative;
-  width: 100%;
-  border-radius: 12px;
-  background: #000;          /* fondo al apagar cámara */
-  overflow: hidden;
-  transition: height .25s ease, box-shadow .2s ease;
-}
-
-.video-wrap.compact {
-  height: 140px;             /* tamaño “anterior”/compacto */
-  box-shadow: none;
-}
-
-.video-wrap.expanded {
-  height: min(70vh, 520px);  /* tamaño grande mientras escaneas */
-  box-shadow: 0 8px 24px rgba(0,0,0,.25);
-}
-
-.video-wrap video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;         /* llena el área sin deformarse */
-  display: block;
-}
-
-
-// todo lo demas xd
-/* ===== LAYOUT ===== */
-:host {
-  --bg: #f6f8fb;
-  --card: #fff;
-  --text: #0f172a;
-  --muted: #667085;
-  --border: #e5e7eb;
-  --accent: #2f80ed;
-  --danger: #ef4444;
-  --shadow: 0 8px 24px rgba(16,24,40,.08);
-  color: var(--text);
-  display: block;
-}
-
-
 .login-card {
-  width: min(420px, 92vw);
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  padding: 20px 18px;
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
 }
 
-/* ===== HEADER OPCIONAL ===== */
-.login-header {
-  max-height: min(84vh, 780px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-gutter: stable;
+.scan-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    margin-top: 0;
+    color: #333;
+    text-align: center;
+  }
+
+  h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: #555;
+  }
 }
-.login-title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
+
+// Búsqueda
+.search-section {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #555;
+  }
+
+  .hint {
+    font-size: 0.85rem;
+    color: #999;
+    margin-top: 0.5rem;
+    font-style: italic;
+  }
 }
-.login-sub {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 13px;
+
+.search-input-group {
+  display: flex;
+  gap: 0.5rem;
+
+  .input {
+    flex: 1;
+  }
+
+  .btn-search {
+    white-space: nowrap;
+  }
+}
+
+// Resultados de búsqueda
+.search-results {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+
+  h3 {
+    margin-top: 0;
+    font-size: 1rem;
+    color: #666;
+  }
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .result-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    strong {
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    .result-detail {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .result-serial {
+      font-size: 0.8rem;
+      color: #999;
+      font-family: monospace;
+    }
+  }
+
+  .result-type {
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+    background: #f0f0f0;
+    border-radius: 6px;
+  }
 }
 
 .divider {
-  height: 1px;
-  background: var(--border);
-  margin: 12px 0 16px;
-}
-
-/* ===== FORM ===== */
-.user-form {
-  display: grid;
-  gap: 12px;
-}
-
-.input {
-  width: 92%;
-  height: 44px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: #f9fafb;
-  padding: 10px 12px;
-  outline: none;
-  transition: border-color .2s, background .2s, box-shadow .2s;
-  font: inherit;
-}
-
-.input:hover,
-.input:focus {
-  background: #fff;
-  border-color: #cbd5e1;
-  box-shadow: 0 0 0 4px rgba(47,128,237,.15);
-}
-
-/* estados automáticos + tu clase [class.invalid] */
-.input.invalid,
-.input.ng-invalid.ng-touched {
-  border-color: #fecaca;
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(239,68,68,.08);
-}
-
-.hint.error {
-  margin-top: -4px;
-  margin-bottom: 4px;
-  color: var(--danger);
-  font-size: 12px;
-  line-height: 1.25;
-}
-
-/* Password con ojito */
-.password-row {
+  text-align: center;
+  margin: 2rem 0;
   position: relative;
+  color: #999;
+  font-weight: 600;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 45%;
+    height: 1px;
+    background: #ddd;
+  }
+
+  &::before {
+    left: 0;
+  }
+
+  &::after {
+    right: 0;
+  }
+}
+
+// Video
+.video-wrap {
+  margin: 1rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+
+  &.compact {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s;
+  }
+
+  &.expanded {
+    max-height: 400px;
+    transition: max-height 0.3s;
+  }
+}
+
+// Info del usuario
+.user-info-card {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+
+  h3 {
+    margin-top: 0;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.user-details {
+  p {
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+
+    strong {
+      display: inline-block;
+      min-width: 120px;
+    }
+  }
+
+  .serial-display code {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+}
+
+.card-type-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+
+  &.points {
+    background: #FFD700;
+    color: #333;
+  }
+
+  &.strips {
+    background: #FF6B6B;
+    color: white;
+  }
+}
+
+.points-display,
+.points-preview {
+  .current,
+  .preview {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-left: 0.5rem;
+  }
+
+  .current {
+    color: #FFD700;
+  }
+
+  .preview {
+    color: #4CAF50;
+  }
+}
+
+.strips-progress {
   display: flex;
   align-items: center;
-}
-.password-row .input { padding-right: 40px; }
+  gap: 1rem;
 
-.eye-btn {
-  position: absolute;
-  right: 15px;
-  height: 28px;
-  width: 28px;
-  display: grid;
-  place-items: center;
-  border: none;
-  background: transparent;
-  color: #6b7280;
-  cursor: pointer;
-  border-radius: 6px;
-}
-.eye-btn:hover { color: var(--accent); }
+  .progress-bar {
+    flex: 1;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
 
-/* File input (misma “cara” que los otros) */
-input[type="file"].input {
-  height: auto;
-  padding: 10px 12px;
-  background: #fff;
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4CAF50, #8BC34A);
+      border-radius: 10px;
+      transition: width 0.3s;
+    }
+  }
 }
 
-/* ===== BUTTON ===== */
-.button {
-  height: 44px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  background: var(--accent);
-  color: #fff;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 600;
-  transition: transform .05s ease, background .2s ease, box-shadow .2s ease;
-}
-.button:hover { background: #1366d6; box-shadow: 0 8px 20px rgba(47,128,237,.2); }
-.button:active { transform: translateY(1px); }
-.button:disabled {
-  opacity: .6;
-  cursor: not-allowed;
-  box-shadow: none;
+.next-strip {
+  .strip-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #FFD700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
 }
 
-
-.input.file-like {
-  display: block;
-  width: 92%;
-  height: 44px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: #f9fafb;
-  padding: 10px 12px;
-  cursor: pointer;
-}
-.input.file-like:hover {
-  background: #fff;
-  border-color: #cbd5e1;
-  box-shadow: 0 0 0 4px rgba(47,128,237,.15);
-}
-
-.user-form { gap: 14px; }
-.divider { margin: 12px 0 18px; }
-
-
-/* Ocupa alto de pantalla y centra la tarjeta */
-:host {
-  background: var(--bg);
-  display: flex;
-  place-items: center;
-  padding: 0;
-}
-
-/* La tarjeta ahora puede scrollear en vertical */
-.login-card {
-  max-height: min(84vh, 780px); /* ajusta a gusto */
-  overflow-y: auto;
-  overscroll-behavior: contain;          /* evita “rebote” */
-  -webkit-overflow-scrolling: touch;     /* scroll suave en iOS */
-  scrollbar-gutter: stable;              /* evita saltos de layout */
-}
-
-/* Opcional: encabezado pegado al top dentro de la tarjeta */
-.login-header {
-  position: sticky;
-  top: 0;
-  background: var(--card);
-  padding-top: 4px;
-  z-index: 1;
-}
-
-/* Opcional: un separador que quede bajo el header */
-.divider {
-  position: sticky;
-  top: 48px;            /* según la altura de tu header */
-  z-index: 1;
-}
-
-.viewport-wrap {
-  width: 100%;
-  display: grid;
-  place-items: center;
-}
-@media (max-height: 740px) {
-  .login-card { max-height: 90vh; }
-}
-
-
-.scan-success {
-  background-color: #4caf50;
-  color: white;
-  padding: 10px;
-  margin-top: 10px;
+.completed-badge {
+  background: rgba(76, 175, 80, 0.3);
+  padding: 1rem;
+  border-radius: 8px;
   text-align: center;
-  border-radius: 5px;
+  font-size: 1.2rem;
   font-weight: bold;
-  animation: fadeInOut 3s ease-in-out;
+  border: 2px solid rgba(76, 175, 80, 0.5);
 }
 
-@keyframes fadeInOut {
-  0% {
+// Inputs
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: #4CAF50;
+  }
+}
+
+.manual,
+.points {
+  margin: 1rem 0;
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #555;
+  }
+}
+
+// Botones
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  margin: 0.5rem 0;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 1.1rem;
+    padding: 1rem 2rem;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #5568d3 0%, #63368d 100%);
+    }
+  }
+}
+
+// Mensajes
+.scan-success {
+  background: #4CAF50;
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  margin: 1rem 0;
+  animation: fadeIn 0.3s;
+}
+
+.ok {
+  background: #E8F5E9;
+  color: #2E7D32;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+  margin: 1rem 0;
+}
+
+.err {
+  background: #FFEBEE;
+  color: #C62828;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #F44336;
+  margin: 1rem 0;
+}
+
+@keyframes fadeIn {
+  from {
     opacity: 0;
+    transform: translateY(-10px);
   }
-  30% {
+  to {
     opacity: 1;
-  }
-  80% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-
-
-/* Responsividad del input para móviles */
-@media (max-width: 768px) {
-  .login-card {
-    padding: 16px;
-  }
-
-  .input {
-    font-size: 14px;
-    padding: 6px 10px;
-  }
-
-  .btn {
-    font-size: 14px;
-  }
-
-  .video-wrap {
-    height: 120px;
-  }
-}
-
-/* Para pantallas de tamaño móvil más pequeño */
-@media (max-width: 480px) {
-  .login-card {
-    padding: 12px;
-  }
-
-  .input {
-    font-size: 12px;
-    padding: 6px;
-  }
-
-  .btn {
-    font-size: 12px;
-  }
-
-  .video-wrap {
-    height: 100px;
-  }
-}
-
-/* Para dispositivos con pantallas altas, ajustamos la altura de la tarjeta */
-@media (max-height: 740px) {
-  .login-card {
-    max-height: 80vh;
+    transform: translateY(0);
   }
 }

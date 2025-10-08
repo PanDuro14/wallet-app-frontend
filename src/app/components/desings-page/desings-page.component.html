@@ -14,7 +14,7 @@
           <div class="meta">
             <span class="chip">{{ currentBusiness[0]?.email || 'sin-email' }}</span>
             <span class="chip chip-id">ID: {{ currentBid }}</span>
-            <span class="status active">Activo</span>
+            <span class="status active" i18n="@@activoDesgns">Activo</span>
           </div>
         </div>
       </div>
@@ -26,7 +26,7 @@
 
     <!-- Tarjeta seleccionada (vertical) dentro de una .card -->
     <div class="card card--pass" *ngIf="selectedDesign as sd">
-      <h3 class="card-title">Tarjeta seleccionada</h3>
+      <h3 class="card-title" i18n="@@selectedCardDesigns">Tarjeta seleccionada</h3>
 
       <div
         class="flip-card flip-card--vertical"
@@ -60,10 +60,10 @@
           <!-- Reverso -->
           <div class="flip-card-face back">
             <div class="kv">
-              <div><b>Programa</b></div><div>{{ sd.design_json.programName }}</div>
+              <div><b>Program</b></div><div>{{ sd.design_json.programName }}</div>
               <div><b>Label</b></div><div>{{ sd.design_json.colors.label }}</div>
-              <div><b>Fondo</b></div><div>{{ sd.design_json.colors.background }}</div>
-              <div><b>Texto</b></div><div>{{ sd.design_json.colors.foreground }}</div>
+              <div><b>Background</b></div><div>{{ sd.design_json.colors.background }}</div>
+              <div><b>Text</b></div><div>{{ sd.design_json.colors.foreground }}</div>
               <div><b>Strip</b></div><div>{{ sd.design_json.assets.disableStrip ? 'Oculto' : 'Visible' }}</div>
               <div><b>HideAccount</b></div><div>{{ sd.design_json.hideAccount }}</div>
               <div><b>Barcode</b></div><div>{{ sd.design_json.barcode.primary || '—' }}</div>
@@ -80,7 +80,7 @@
         <button class="btn" (click)="setDefault(sd.id)" [disabled]="isDefault(sd.id)">
           {{ isDefault(sd.id) ? 'Ya es predeterminada' : 'Establecer como predeterminada' }}
         </button>
-        <button class="btn" (click)="editDesing(sd.id)">Editar</button>
+        <button class="btn" (click)="editDesing(sd.id)" i18n="@@editDesigns">Editar</button>
       </div>
 
       <!-- Puntitos demo -->
@@ -93,7 +93,7 @@
 
     <!-- Carrusel de otras tarjetas -->
     <div class="card card--slider" *ngIf="othersDesigns.length">
-      <h3 class="card-title">Otros diseños</h3>
+      <h3 class="card-title" i18n="@@otherDesigns">Otros diseños</h3>
       <div class="rail" tabindex="0">
         <div class="slide" *ngFor="let d of othersDesigns" [ngStyle]="getCardStyle(d)">
           <div class="mini-card flip" [class.flipped]="flippedIds.has(d.id)" (click)="toggleFlip(d.id)">
@@ -111,19 +111,19 @@
               <div class="flip-card-face back">
                 <div class="mini-kv">
                   <div><b>Label</b>: {{ d.design_json.colors.label }}</div>
-                  <div><b>Fondo</b>: {{ d.design_json.colors.background }}</div>
-                  <div><b>Texto</b>: {{ d.design_json.colors.foreground }}</div>
+                  <div><b>BG</b>: {{ d.design_json.colors.background }}</div>
+                  <div><b>Text</b>: {{ d.design_json.colors.foreground }}</div>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="actions mini-actions">
-            <button class="btn small" (click)="selectDesign(d.id)">Ver</button>
+            <button class="btn small" (click)="selectDesign(d.id)" i18n="@@viewDesigns">Ver</button>
             <button class="btn small" (click)="setDefault(d.id)" [disabled]="isDefault(d.id)">
               {{ isDefault(d.id) ? 'Predeterminada' : 'Hacer predeterminada' }}
             </button>
-            <button class="btn danger" (click)="deleteDesign(d.id)">Eliminar</button>
+            <button class="btn danger" (click)="deleteDesign(d.id)" i18n="@@deleteDesigns">Eliminar</button>
           </div>
         </div>
       </div>
@@ -131,7 +131,7 @@
 
     <!-- Toolbar inferior reutilizando .actions/.btn -->
     <div class="actions toolbar">
-      <button class="btn primary" (click)="openCreateDesing()">Nuevo diseño</button>
+      <button class="btn primary" (click)="openCreateDesing()" i18n="@@newDesigns">Nuevo diseño</button>
     </div>
 
   </div>

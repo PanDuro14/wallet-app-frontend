@@ -13,7 +13,7 @@
       <h2 class="login-title">
         {{ currentBusiness.length ? ('Login to ' + currentBusiness[0].name) : 'Login' }}
       </h2>
-      <p class="login-sub" *ngIf="currentBusiness?.length">
+      <p class="login-sub" *ngIf="currentBusiness?.length" i18n="@@loginSubUsers">
         Accede para registrar usuarios en tu programa
       </p>
     </div>
@@ -28,7 +28,7 @@
       <input class="input" type="email" formControlName="email" placeholder="Email"/>
       <input class="input" type="text" formControlName="phone" placeholder="Phone"/>
 
-      <div class="form-hint">
+      <div class="form-hint" i18n="@@hintLoyalty">
         Los datos se usarán para generar la tarjeta de lealtad.
       </div>
 

@@ -14,4 +14,9 @@ export class WalletService {
     const url = (`${environment.urlApi}/wallets/internal/passes/${encodeURIComponent(passSerial)}/points`);
     return this.http.post<{ message?: string }>(url, { delta });
   }
+
+  updateStrips(passSerial: string, stripNumber: number): Observable<{ message?: string}>{
+    const url = (`${environment.urlApi}/wallets/internal/passes/${encodeURIComponent(passSerial)}/strips`);
+    return this.http.post<{ message?: string}>(url, { stripNumber });
+  }
 }

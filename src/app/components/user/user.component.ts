@@ -12,8 +12,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { WalletChooserComponent } from '../wallet-chooser/wallet-chooser.component';
 import { Router } from '@angular/router';
 
-const UUIDv4_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+type CardType = 'points' | 'strips';
+
 @Component({
   selector: 'app-user',
   standalone: true,
@@ -27,6 +27,8 @@ export class UserComponent implements OnInit {
   serverError = '';
   currentBid = 0;
   currentBusiness: any[] = [];
+  currentCardDetail: any = null;
+  cardType: CardType = 'points';
   walletUrl: string | null | undefined = null;
   walletStatus: 'PENDING' | undefined;
   createdUserId: number | undefined;
@@ -45,7 +47,6 @@ export class UserComponent implements OnInit {
       phone: [''],
       business_id: [1, [Validators.required, Validators.min(1)]],
       points: [0],
-
     });
   }
 
@@ -59,17 +60,56 @@ export class UserComponent implements OnInit {
     this.f['business_id'].setValue(bid);
     this.f['business_id'].disable();
     this.currentBid = bid;
+
     if(this.currentBid){
       await this.getBusinessInfo(bid);
-      console.log(this.currentBusiness);
+      // Cargar el diseño de tarjeta predeterminado del negocio
+      await this.loadDefaultCardDesign();
     }
   }
 
   get f() { return this.userRegisterForm.controls; }
 
+  /**
+   * Carga el diseño de tarjeta predeterminado usando default_card_detail_id del negocio
+   */
+  async loadDefaultCardDesign() {
+    try {
+      if (!this.currentBusiness.length || !this.currentBusiness[0].default_card_detail_id) {
+        console.warn('No hay default_card_detail_id en el negocio');
+        return;
+      }
+
+      const defaultCardDetailId = this.currentBusiness[0].default_card_detail_id;
+
+      // Obtener el diseño específico por ID
+      const res = await this.http.get<any>(
+        `${environment.urlApi}/cards/${defaultCardDetailId}`
+      ).toPromise();
+
+      const cardDetail = Array.isArray(res) ? res[0] : res;
+      if (!cardDetail) {
+        console.warn('No se encontró el diseño de tarjeta');
+        return;
+      }
+
+      this.currentCardDetail = cardDetail;
+
+      // Detectar tipo desde design_json
+      const designJson = cardDetail.design_json || {};
+      this.cardType = designJson.cardType === 'strips' ? 'strips' : 'points';
+
+      console.log('Tipo de tarjeta detectado:', this.cardType);
+      console.log('Card detail ID:', cardDetail.id);
+
+    } catch (error) {
+      console.error('Error al cargar diseño de tarjeta:', error);
+      // Si falla, usar points por defecto
+      this.cardType = 'points';
+    }
+  }
+
   private isAndroid(): boolean {
-    // userAgentData (nuevo) o userAgent (fallback)
-    // Nota: en iOS, Chrome/Edge dicen "CriOS"/"EdgiOS" y NO deben contar como Android
     const ua = navigator.userAgent || '';
     const uaDataBrands = (navigator as any).userAgentData?.brands?.map((b: any) => b.brand.toLowerCase()) || [];
     const uaDataPlatform = (navigator as any).userAgentData?.platform?.toLowerCase() || '';
@@ -79,7 +119,6 @@ export class UserComponent implements OnInit {
 
   private isIOS(): boolean {
     const ua = navigator.userAgent || '';
-    // iPhone/iPad/iPod, y también iPadOS que reporta MacIntel con touch
     const iOS = /iPad|iPhone|iPod/.test(ua);
     const iPadOS = (navigator.platform === 'MacIntel' && (navigator as any).maxTouchPoints > 1);
     return iOS || iPadOS;
@@ -91,6 +130,12 @@ export class UserComponent implements OnInit {
       this.userRegisterForm.markAllAsTouched();
       return;
     }
+
+    if (!this.currentCardDetail) {
+      this.serverError = 'No se pudo detectar el tipo de tarjeta del negocio';
+      return;
+    }
+
     this.loading = true;
 
     const walletWin = window.open('', '_blank');
@@ -98,14 +143,49 @@ export class UserComponent implements OnInit {
       walletWin.document.write('<p style="font-family:sans-serif;">Generando tarjeta…</p>');
     }
 
-    const regPayload: any = this.userRegisterForm.getRawValue();
-    regPayload.points = 0;
-    delete regPayload.authentication_token;
-    delete regPayload.strip_image_url;
-    delete regPayload.serial_number;
-    if (regPayload.points === undefined) delete regPayload.points;
+    const rawValues = this.userRegisterForm.getRawValue();
 
-    this.userService.register(regPayload).subscribe({
+    // Construir payload según el tipo detectado
+    let regPayload: any;
+    let endpoint: string;
+
+    if (this.cardType === 'strips') {
+      // Payload para STRIPS
+      endpoint = `${environment.urlApi}/onboarding/users/strips`;
+
+      const designJson = this.currentCardDetail.design_json;
+      const stripsConfig = designJson.strips || {};
+
+      regPayload = {
+        business_id: rawValues.business_id,
+        name: rawValues.name.trim(),
+        email: rawValues.email.trim(),
+        phone: rawValues.phone?.trim() || '',
+        card_detail_id: this.currentCardDetail.id,
+        stripsRequired: Number(stripsConfig.total) || 8,
+        rewardTitle: stripsConfig.rewardTitle || 'Premio',
+        rewardDescription: stripsConfig.rewardDescription || '',
+        variant: 'strips'
+      };
+    } else {
+      // Payload para POINTS (original)
+      endpoint = `${environment.urlApi}/onboarding/users`;
+      regPayload = {
+        business_id: rawValues.business_id,
+        name: rawValues.name.trim(),
+        email: rawValues.email.trim(),
+        phone: rawValues.phone?.trim() || '',
+        card_detail_id: this.currentCardDetail.id,
+        points: 0,
+        cardType: 'points'
+      };
+    }
+
+    console.log('Enviando a:', endpoint);
+    console.log('Payload:', regPayload);
+
+    // Realizar el registro con el endpoint correcto
+    this.http.post<RegisterResponse>(endpoint, regPayload).subscribe({
       next: (res: RegisterResponse) => {
         const user = res.user;
         const businessId = (user as any).business_id ?? regPayload.business_id;
@@ -117,8 +197,6 @@ export class UserComponent implements OnInit {
         const finishUrl = `${location.origin}/finish-register/${businessId}`;
         const redirectWalletWinToFinish = (delayMs = 5000) => {
           if (!walletWin) return;
-          // Fallback: si el prompt del Wallet se cierra o al volver al navegador,
-          // esta pestaña se redirige sola a la finish page.
           try {
             setTimeout(() => {
               try { walletWin.location.href = finishUrl; } catch {}
@@ -126,34 +204,31 @@ export class UserComponent implements OnInit {
           } catch {}
         };
 
-        // iOS -> Apple Wallet (usar la pestaña pre-abierta y luego redirigir esa misma)
+        // iOS -> Apple Wallet
         if (this.isIOS() && appleUrl) {
           if (walletWin) {
             walletWin.location.href = appleUrl;
             walletWin.focus?.();
-            redirectWalletWinToFinish(6000); // 6s suele bastar para el sheet de Apple Wallet
+            redirectWalletWinToFinish(6000);
           } else {
-            // Sin ventana: navega en la actual y (opcional) redirige por tiempo con History API
             window.location.href = appleUrl;
-            // Como se pierde el contexto, mejor dejar que el usuario vuelva manualmente.
           }
-          // IMPORTANTE: NO navegamos aquí la pestaña original. La finish page vivirá en walletWin.
           return;
         }
 
-        // Android -> Google Wallet (misma estrategia de temporizador)
+        // Android -> Google Wallet
         if (this.isAndroid() && googleUrl) {
           if (walletWin) {
             walletWin.location.href = googleUrl;
             walletWin.focus?.();
-            redirectWalletWinToFinish(7000); // Google suele tardar un poco más
+            redirectWalletWinToFinish(7000);
           } else {
             window.location.href = googleUrl;
           }
           return;
         }
 
-        // Desktop / otros -> chooser (flujo actual)
+        // Desktop / otros -> chooser
         const target = googleUrl || appleUrl;
         if (target) {
           if (walletWin) walletWin.close();
@@ -170,7 +245,6 @@ export class UserComponent implements OnInit {
             if (!url) return;
             const win = window.open(url, '_blank');
             if (!win) window.location.href = url;
-            // En desktop sí navegamos la pestaña original a la finish page (como ya tenías)
             this.router.navigate(['/finish-register', businessId], { replaceUrl: true });
           });
         } else {
@@ -187,7 +261,6 @@ export class UserComponent implements OnInit {
     });
   }
 
-
   retryWallet() {
     if (!this.createdUserId) return;
     this.loading = true;
@@ -197,7 +270,6 @@ export class UserComponent implements OnInit {
         this.walletUrl = res.walletUrl;
         this.walletStatus = undefined;
 
-        // Autoabrir también en reintento
         if (this.walletUrl) {
           const win = window.open(this.walletUrl, '_blank');
           if (!win) window.location.href = this.walletUrl;
@@ -210,15 +282,7 @@ export class UserComponent implements OnInit {
     });
   }
 
-  // (opcional) Fallback si el navegador no tiene crypto.randomUUID
-  private fallbackUUID(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      const r = (Math.random()*16)|0, v = c === 'x' ? r : (r&0x3|0x8);
-      return v.toString(16);
-    });
-  }
-
-   async getBusinessInfo(id: number){
+  async getBusinessInfo(id: number){
     try {
       if(!id) {
         console.log('ID no disponible');

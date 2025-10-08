@@ -179,3 +179,206 @@ button.mat-button {
     padding: 10px;
   }
 }
+
+/* ===== LAYOUT ===== */
+:host {
+  --bg: #f6f8fb;
+  --card: #fff;
+  --text: #0f172a;
+  --muted: #667085;
+  --border: #e5e7eb;
+  --accent: #2f80ed;
+  --danger: #ef4444;
+  --shadow: 0 8px 24px rgba(16,24,40,.08);
+  color: var(--text);
+  display: block;
+}
+
+
+.login-card {
+  width: min(420px, 92vw);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 20px 18px;
+}
+
+/* ===== HEADER OPCIONAL ===== */
+.login-header {
+  max-height: min(84vh, 780px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+}
+.login-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+.login-sub {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 0 16px;
+}
+
+/* ===== FORM ===== */
+.user-form {
+  display: grid;
+  gap: 12px;
+}
+
+.input {
+  width: 92%;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #f9fafb;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color .2s, background .2s, box-shadow .2s;
+  font: inherit;
+}
+
+.input:hover,
+.input:focus {
+  background: #fff;
+  border-color: #cbd5e1;
+  box-shadow: 0 0 0 4px rgba(47,128,237,.15);
+}
+
+/* estados automáticos + tu clase [class.invalid] */
+.input.invalid,
+.input.ng-invalid.ng-touched {
+  border-color: #fecaca;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(239,68,68,.08);
+}
+
+.hint.error {
+  margin-top: -4px;
+  margin-bottom: 4px;
+  color: var(--danger);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+/* Password con ojito */
+.password-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-row .input { padding-right: 40px; }
+
+.eye-btn {
+  position: absolute;
+  right: 15px;
+  height: 28px;
+  width: 28px;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.eye-btn:hover { color: var(--accent); }
+
+/* File input (misma “cara” que los otros) */
+input[type="file"].input {
+  height: auto;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+/* ===== BUTTON ===== */
+.button {
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  transition: transform .05s ease, background .2s ease, box-shadow .2s ease;
+}
+.button:hover { background: #1366d6; box-shadow: 0 8px 20px rgba(47,128,237,.2); }
+.button:active { transform: translateY(1px); }
+.button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+
+.input.file-like {
+  display: block;
+  width: 92%;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #f9fafb;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+.input.file-like:hover {
+  background: #fff;
+  border-color: #cbd5e1;
+  box-shadow: 0 0 0 4px rgba(47,128,237,.15);
+}
+
+.user-form { gap: 14px; }
+.divider { margin: 12px 0 18px; }
+
+
+/* Ocupa alto de pantalla y centra la tarjeta */
+:host {
+  background: var(--bg);
+  display: flex;
+  place-items: center;
+  padding: 0;
+}
+
+/* La tarjeta ahora puede scrollear en vertical */
+.login-card {
+  max-height: min(84vh, 780px); /* ajusta a gusto */
+  overflow-y: auto;
+  overscroll-behavior: contain;          /* evita “rebote” */
+  -webkit-overflow-scrolling: touch;     /* scroll suave en iOS */
+  scrollbar-gutter: stable;              /* evita saltos de layout */
+}
+
+/* Opcional: encabezado pegado al top dentro de la tarjeta */
+.login-header {
+  position: sticky;
+  top: 0;
+  background: var(--card);
+  padding-top: 4px;
+  z-index: 1;
+}
+
+/* Opcional: un separador que quede bajo el header */
+.divider {
+  position: sticky;
+  top: 48px;            /* según la altura de tu header */
+  z-index: 1;
+}
+
+.viewport-wrap {
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+@media (max-height: 740px) {
+  .login-card { max-height: 90vh; }
+}

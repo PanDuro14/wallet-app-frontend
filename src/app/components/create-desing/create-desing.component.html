@@ -10,6 +10,16 @@
 
   <!-- Form -->
   <form class="user-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+    <!-- Selector de Tipo de Tarjeta -->
+    <label>Tipo de Tarjeta</label>
+    <select class="input" formControlName="cardType">
+      <option value="points">Puntos (Points)</option>
+      <option value="strips">Tiras (Strips)</option>
+    </select>
+
+    <div class="divider"></div>
+
     <!-- Business / Program -->
     <input class="input"
            type="text"
@@ -81,7 +91,7 @@
       <input type="checkbox" formControlName="disableLogo"> Ocultar logo superior
     </label>
     <label>
-      <input type="checkbox" formControlName="hideAccount"> Ocultar “cuenta”
+      <input type="checkbox" formControlName="hideAccount"> Ocultar "cuenta"
     </label>
     <label>
       <input type="checkbox" formControlName="hideProgramName"> Ocultar "nombre"
@@ -89,37 +99,128 @@
 
     <div class="divider"></div>
 
+    <!-- Configuración específica de STRIPS -->
+    <div *ngIf="isStripsMode">
+      <label>Total de Strips</label>
+      <input class="input"
+             type="number"
+             formControlName="stripsTotal"
+             min="2"
+             max="20"
+             placeholder="8">
+      <div class="hint error" *ngIf="fc('stripsTotal').invalid && fc('stripsTotal').touched">
+        Debe ser entre 2 y 20 strips.
+      </div>
+
+      <label>Layout</label>
+      <select class="input" formControlName="stripsLayout">
+        <option value="horizontal">Horizontal</option>
+        <option value="vertical">Vertical</option>
+      </select>
+
+      <label>Título del Premio</label>
+      <input class="input"
+             type="text"
+             formControlName="stripsRewardTitle"
+             placeholder="Ej. Café Gratis">
+      <div class="hint error" *ngIf="fc('stripsRewardTitle').invalid && fc('stripsRewardTitle').touched">
+        El título del premio es requerido.
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Primary Fields -->
+      <div class="field">
+        <label>Campos Primarios</label>
+        <div formArrayName="primaryFields">
+          <div *ngFor="let field of primaryFieldsFA().controls; let i = index"
+               [formGroupName]="i"
+               style="display:grid;grid-template-columns:1fr 1fr 1fr 40px;gap:8px;margin-bottom:8px;">
+            <input class="input" formControlName="key" placeholder="Key">
+            <input class="input" formControlName="label" placeholder="Label">
+            <input class="input" formControlName="value" placeholder="Value">
+            <button type="button" class="button" style="height:32px;background:#ef4444;color:#fff;padding:0;"
+                    (click)="removeField('primary', i)">×</button>
+          </div>
+        </div>
+        <button type="button" class="button" style="height:36px;background:#10b981;color:#fff;margin-top:8px;"
+                (click)="addField('primary')">+ Agregar Campo Primario</button>
+      </div>
+
+      <!-- Secondary Fields -->
+      <div class="field">
+        <label>Campos Secundarios</label>
+        <div formArrayName="secondaryFields">
+          <div *ngFor="let field of secondaryFieldsFA().controls; let i = index"
+               [formGroupName]="i"
+               style="display:grid;grid-template-columns:1fr 1fr 1fr 40px;gap:8px;margin-bottom:8px;">
+            <input class="input" formControlName="key" placeholder="Key">
+            <input class="input" formControlName="label" placeholder="Label">
+            <input class="input" formControlName="value" placeholder="Value">
+            <button type="button" class="button" style="height:32px;background:#ef4444;color:#fff;padding:0;"
+                    (click)="removeField('secondary', i)">×</button>
+          </div>
+        </div>
+        <button type="button" class="button" style="height:36px;background:#10b981;color:#fff;margin-top:8px;"
+                (click)="addField('secondary')">+ Agregar Campo Secundario</button>
+      </div>
+
+      <!-- Back Fields -->
+      <div class="field">
+        <label>Campos Traseros</label>
+        <div formArrayName="backFields">
+          <div *ngFor="let field of backFieldsFA().controls; let i = index"
+               [formGroupName]="i"
+               style="display:grid;grid-template-columns:1fr 1fr 1fr 40px;gap:8px;margin-bottom:8px;">
+            <input class="input" formControlName="key" placeholder="Key">
+            <input class="input" formControlName="label" placeholder="Label">
+            <input class="input" formControlName="value" placeholder="Value">
+            <button type="button" class="button" style="height:32px;background:#ef4444;color:#fff;padding:0;"
+                    (click)="removeField('back', i)">×</button>
+          </div>
+        </div>
+        <button type="button" class="button" style="height:36px;background:#10b981;color:#fff;margin-top:8px;"
+                (click)="addField('back')">+ Agregar Campo Trasero</button>
+      </div>
+
+      <div class="divider"></div>
+    </div>
+
     <!-- Barcode -->
+    <label>Formato de código de barras</label>
     <select class="input" formControlName="primary">
       <option *ngFor="let f of formats" [value]="f">{{ f }}</option>
     </select>
 
-    <input class="input"
-           type="text"
-           formControlName="message"
-           placeholder="{{'{{cardCode}}'}}">
+    <!-- Campos adicionales solo para modo POINTS -->
+    <ng-container *ngIf="!isStripsMode">
+      <input class="input"
+             type="text"
+             formControlName="message"
+             placeholder="{{'{{cardCode}}'}}">
 
-    <input class="input"
-           type="text"
-           formControlName="altText"
-           placeholder="{{'{{cardCode}}'}}">
+      <input class="input"
+             type="text"
+             formControlName="altText"
+             placeholder="{{'{{cardCode}}'}}">
 
-    <input class="input"
-           type="text"
-           formControlName="encoding"
-           placeholder="iso-8859-1">
+      <input class="input"
+             type="text"
+             formControlName="encoding"
+             placeholder="iso-8859-1">
 
-    <!-- Chips sencillos para additional -->
-    <div>
-      <span>Formatos adicionales:</span>
-      <button type="button"
-              class="button"
-              style="height:32px;border-radius:8px;background:#eef2ff;color:#111;"
-              *ngFor="let f of formats"
-              (click)="toggleAdditional(f)">
-        {{ f }} <span *ngIf="isAdditional(f)">✔</span>
-      </button>
-    </div>
+      <!-- Chips sencillos para additional -->
+      <div>
+        <span>Formatos adicionales:</span>
+        <button type="button"
+                class="button"
+                style="height:32px;border-radius:8px;background:#eef2ff;color:#111;"
+                *ngFor="let f of formats"
+                (click)="toggleAdditional(f)">
+          {{ f }} <span *ngIf="isAdditional(f)">✔</span>
+        </button>
+      </div>
+    </ng-container>
 
     <div class="divider"></div>
 
@@ -140,14 +241,14 @@
             (click)="reset()">Limpiar</button>
 
     <!-- Mensajes -->
-    <div class="hint error" *ngIf="errorMessage"> {{ errorMessage }}</div>
-    <div class="hint" *ngIf="createdId"> Creado con id: {{ createdId }}</div>
+    <div class="hint error" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="hint" style="color:#10b981;" *ngIf="createdId">✓ Creado con id: {{ createdId }}</div>
 
-    <!-- Vista previa
+    <!-- Vista previa del JSON (opcional - descomentar si quieres ver el payload)
     <pre class="input" style="height:auto; background:#fff; overflow:auto;">
       {{ buildPayload() | json }}
     </pre>
-     -->
+    -->
   </form>
 </div>
 </div>

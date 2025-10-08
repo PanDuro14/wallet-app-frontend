@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="es" datatype="plaintext" original="ng2.template">
+    <body>
+       <!-- Ejemplos reales: -->
+      <trans-unit id="loginTitleDynamic" datatype="html">
+        <source>Login to <x id="INTERPOLATION"/></source>
+        <target>Login to <x id="INTERPOLATION"/></target>
+      </trans-unit>
+
+      <trans-unit id="loginSubUsers" datatype="html">
+        <source>Accede para registrar usuarios en tu programa</source>
+        <target>Sign in to register users in your program</target>
+      </trans-unit>
+
+      <trans-unit id="phName" datatype="html">
+        <source>Name</source>
+        <target>Name</target>
+      </trans-unit>
+
+      <trans-unit id="phEmail" datatype="html">
+        <source>Email</source>
+        <target>Email</target>
+      </trans-unit>
+
+      <trans-unit id="phPhone" datatype="html">
+        <source>Phone</source>
+        <target>Phone</target>
+      </trans-unit>
+
+      <trans-unit id="hintLoyalty" datatype="html">
+        <source>Los datos se usarán para generar la tarjeta de lealtad.</source>
+        <target>Data will be used to generate your loyalty card.</target>
+      </trans-unit>
+
+      <trans-unit id="creating" datatype="html">
+        <source>Creando...</source>
+        <target>Creating...</target>
+      </trans-unit>
+
+      <trans-unit id="registerUser" datatype="html">
+        <source>Registrar usuario</source>
+        <target>Register user</target>
+      </trans-unit>
+
+      <trans-unit id="chooserTitle" datatype="html">
+        <source>Elige dónde guardar tu tarjeta</source>
+        <target>Choose where to save your card</target>
+      </trans-unit>
+
+      <trans-unit id="saveInGoogle" datatype="html">
+        <source>Guardar en Google Wallet</source>
+        <target>Save to Google Wallet</target>
+      </trans-unit>
+
+      <trans-unit id="downloadPkpass" datatype="html">
+        <source>Descargar .pkpass</source>
+        <target>Download .pkpass</target>
+      </trans-unit>
+
+      <trans-unit id="businessLoginTitle" datatype="html">
+        <source>Business Login</source>
+        <target>Business Login</target>
+      </trans-unit>
+
+      <trans-unit id="businessLoginSub" datatype="html">
+        <source>Accede a tu panel</source>
+        <target>Access your dashboard</target>
+      </trans-unit>
+
+      <trans-unit id="phEmailLogin" datatype="html">
+        <source>Correo</source>
+        <target>Email</target>
+      </trans-unit>
+
+      <trans-unit id="phPasswordLogin" datatype="html">
+        <source>Password</source>
+        <target>Password</target>
+      </trans-unit>
+
+      <trans-unit id="ariaTogglePassword" datatype="html">
+        <source>Toggle password</source>
+        <target>Toggle password</target>
+      </trans-unit>
+
+      <trans-unit id="loggingIn" datatype="html">
+        <source>Entrando…</source>
+        <target>Signing in…</target>
+      </trans-unit>
+
+      <trans-unit id="loginCta" datatype="html">
+        <source>Iniciar sesión</source>
+        <target>Log in</target>
+      </trans-unit>
+
+      <trans-unit id="ariaGoogle" datatype="html">
+        <source>Guardar en Google Wallet</source>
+        <target>Save to Google Wallet</target>
+      </trans-unit>
+
+      <trans-unit id="ariaApple" datatype="html">
+        <source>Guardar en Apple Wallet</source>
+        <target>Save to Apple Wallet</target>
+      </trans-unit>
+
+      <trans-unit id="activoDesgns" datatype="html">
+        <source>Activo</source>
+        <target>Active</target>
+      </trans-unit>
+
+      <trans-unit id="selectedCardDesigns" datatype="html">
+        <source>Tarjeta seleccionada</source>
+        <target>Selected card</target>
+      </trans-unit>
+
+      <trans-unit id="editDesigns" datatype="html">
+        <source>Editar</source>
+        <target>Edit</target>
+      </trans-unit>
+
+      <trans-unit id="otherDesigns" datatype="html">
+        <source>Otros diseños</source>
+        <target>Other designs</target>
+      </trans-unit>
+
+      <trans-unit id="viewDesigns" datatype="html">
+        <source>Ver</source>
+        <target>View</target>
+      </trans-unit>
+
+      <trans-unit id="deleteDesigns" datatype="html">
+        <source>Eliminar</source>
+        <target>Delete</target>
+      </trans-unit>
+
+      <trans-unit id="newDesigns" datatype="html">
+        <source>Nuevo diseño</source>
+        <target>New Design</target>
+      </trans-unit>
+
+      <trans-unit id="loadPoints" datatype="html">
+        <source>Cargar puntos</source>
+        <target>Load points</target>
+      </trans-unit>
+
+      <trans-unit id="issuePass" datatype="html">
+        <source>Emitir pase</source>
+        <target>Issue pass</target>
+      </trans-unit>
+
+      <trans-unit id="manageDesings" datatype="html">
+        <source>Administrar Diseños</source>
+        <target>Manage Designs</target>
+      </trans-unit>
+
+      <trans-unit id="activePasses" datatype="html">
+        <source>Pases activos</source>
+        <target>Active passes</target>
+      </trans-unit>
+
+      <trans-unit id="last7days" datatype="html">
+        <source>Últimos 7 días</source>
+        <target>Last 7 days</target>
+      </trans-unit>
+
+      <trans-unit id="addedToday" datatype="html">
+        <source>Añadidos hoy</source>
+        <target>Added today</target>
+      </trans-unit>
+
+      <trans-unit id="today" datatype="html">
+        <source>Hoy</source>
+        <target>Today</target>
+      </trans-unit>
+
+      <trans-unit id="passivePoints" datatype="html">
+        <source>Pasivo en puntos</source>
+        <target>Passive in points</target>
+      </trans-unit>
+
+      <trans-unit id="estimated" datatype="html">
+        <source>Estimado</source>
+        <target>Estimated</target>
+      </trans-unit>
+
+      <trans-unit id="businessDetails" datatype="html">
+        <source>Detalles del negocio</source>
+        <target>Business details</target>
+      </trans-unit>
+
+      <trans-unit id="name" datatype="html">
+        <source>Nombre</source>
+        <target>Name</target>
+      </trans-unit>
+
+      <trans-unit id="email" datatype="html">
+        <source>Correo</source>
+        <target>Email</target>
+      </trans-unit>
+
+      <trans-unit id="createdAt" datatype="html">
+        <source>Creado</source>
+        <target>Created at</target>
+      </trans-unit>
+
+      <trans-unit id="updatedAt" datatype="html">
+        <source>Actualizado</source>
+        <target>Updated at</target>
+      </trans-unit>
+
+      <trans-unit id="actions" datatype="html">
+        <source>Acciones</source>
+        <target>Actions</target>
+      </trans-unit>
+
+      <trans-unit id="users" datatype="html">
+        <source>Usuarios</source>
+        <target>Users</target>
+      </trans-unit>
+
+      <trans-unit id="updatePoints" datatype="html">
+        <source>Actualizar puntos</source>
+        <target>UpdatePoints</target>
+      </trans-unit>
+
+      <trans-unit id="delete" datatype="html">
+        <source>Eliminar</source>
+        <target>Delete</target>
+      </trans-unit>
+
+      <trans-unit id="current" datatype="html">
+        <source>Actual</source>
+        <target>Current</target>
+      </trans-unit>
+
+      <trans-unit id="new" datatype="html">
+        <source>Nuevo:</source>
+        <target>New:</target>
+      </trans-unit>
+
+      <trans-unit id="cancel" datatype="html">
+        <source>Cancelar</source>
+        <target>Cancel</target>
+      </trans-unit>
+
+      <trans-unit id="apply" datatype="html">
+        <source>Aplicar</source>
+        <target>Apply</target>
+      </trans-unit>
+
+      <trans-unit id="walletProgram" datatype="html">
+        <source>Programa Wallet</source>
+        <target>Wallet program</target>
+      </trans-unit>
+
+      <trans-unit id="points" datatype="html">
+        <source>Puntos</source>
+        <target>Points</target>
+      </trans-unit>
+
+      <trans-unit id="thaksFor" datatype="html">
+        <source>¡Gracias por unirte a</source>
+        <target>Thank you for joining</target>
+      </trans-unit>
+
+      <trans-unit id="nowReady" datatype="html">
+        <source>Tu tarjeta ya está lista, úsala y disfruta las recompensas</source>
+        <target>Your card is now ready, use it and enjoy the rewards</target>
+      </trans-unit>
+
+      <trans-unit id="redeptionToday" datatype="html">
+        <source>Redenciones hoy</source>
+        <target>Redemptions today</target>
+      </trans-unit>
+
+       <!-- Sección: Escaneo de tarjeta -->
+      <trans-unit id="search-client" datatype="html">
+        <source>Buscar cliente</source>
+        <target>Search client</target>
+      </trans-unit>
+
+      <trans-unit id="phPhone" datatype="html">
+        <source>Teléfono</source>
+        <target>Phone</target>
+      </trans-unit>
+
+      <trans-unit id="scan-title" datatype="html">
+        <source>Escanear tarjeta del cliente</source>
+        <target>Scan customer card</target>
+      </trans-unit>
+
+      <trans-unit id="hint" datatype="html">
+        <source>Puedes buscar por UUID, correo electrónico o número de teléfono</source>
+        <target>You can search by UUID, email, or phone number</target>
+      </trans-unit>
+
+      <trans-unit id="select-user" datatype="html">
+        <source>Selecciona un usuario:</source>
+        <target>Select a user:</target>
+      </trans-unit>
+
+      <trans-unit id="camera-unsupported" datatype="html">
+        <source>Tu navegador no soporta cámara o no tiene permisos.</source>
+        <target>Your browser does not support camera access or permission is denied.</target>
+      </trans-unit>
+
+      <trans-unit id="scan-success" datatype="html">
+        <source>¡Escaneo exitoso! :D</source>
+        <target>Scan successful! :D</target>
+      </trans-unit>
+
+      <trans-unit id="selected-client" datatype="html">
+        <source>Cliente seleccionado</source>
+        <target>Selected client</target>
+      </trans-unit>
+
+      <trans-unit id="phName" datatype="html">
+        <source>Nombre</source>
+        <target>Name</target>
+      </trans-unit>
+
+      <trans-unit id="phEmail" datatype="html">
+        <source>Correo</source>
+        <target>Email</target>
+      </trans-unit>
+
+      <trans-unit id="card-points" datatype="html">
+        <source>Tarjeta de Puntos</source>
+        <target>Points Card</target>
+      </trans-unit>
+
+      <trans-unit id="card-strips" datatype="html">
+        <source>Tarjeta de Colección</source>
+        <target>Collection Card</target>
+      </trans-unit>
+
+      <trans-unit id="current-points" datatype="html">
+        <source>Puntos actuales:</source>
+        <target>Current points:</target>
+      </trans-unit>
+
+      <trans-unit id="preview-points" datatype="html">
+        <source>Puntos después:</source>
+        <target>Points after:</target>
+      </trans-unit>
+
+      <trans-unit id="progress" datatype="html">
+        <source>Progreso:</source>
+        <target>Progress:</target>
+      </trans-unit>
+
+      <trans-unit id="reward-title" datatype="html">
+        <source>Premio:</source>
+        <target>Reward:</target>
+      </trans-unit>
+
+      <trans-unit id="reward-unlocked" datatype="html">
+        <source>¡Colección completada!</source>
+        <target>Collection completed!</target>
+      </trans-unit>
+
+      <trans-unit id="next-strip" datatype="html">
+        <source>Siguiente strip a otorgar:</source>
+        <target>Next strip to grant:</target>
+      </trans-unit>
+
+      <trans-unit id="points-input-label" datatype="html">
+        <source>Puntos a aplicar (positivo suma / negativo resta)</source>
+        <target>Points to apply (positive adds / negative subtracts)</target>
+      </trans-unit>
+
+      <trans-unit id="apply" datatype="html">
+        <source>Aplicar</source>
+        <target>Apply</target>
+      </trans-unit>
+
+      <trans-unit id="apply-points" datatype="html">
+        <source>Aplicar Puntos</source>
+        <target>Apply Points</target>
+      </trans-unit>
+
+      <trans-unit id="grant-strip" datatype="html">
+        <source>Otorgar Strip</source>
+        <target>Grant Strip</target>
+      </trans-unit>
+
+      <trans-unit id="busy-searching" datatype="html">
+        <source>Buscando...</source>
+        <target>Searching...</target>
+      </trans-unit>
+
+      <trans-unit id="busy-applying" datatype="html">
+        <source>Aplicando…</source>
+        <target>Applying…</target>
+      </trans-unit>
+
+      <trans-unit id="button-search" datatype="html">
+        <source>Buscar</source>
+        <target>Search</target>
+      </trans-unit>
+
+      <trans-unit id="start-camera" datatype="html">
+        <source>Iniciar cámara</source>
+        <target>Start camera</target>
+      </trans-unit>
+
+      <trans-unit id="stop-camera" datatype="html">
+        <source>Detener cámara</source>
+        <target>Stop camera</target>
+      </trans-unit>
+
+      <trans-unit id="okMsg" datatype="html">
+        <source>Operación completada correctamente</source>
+        <target>Operation completed successfully</target>
+      </trans-unit>
+
+      <trans-unit id="errMsg" datatype="html">
+        <source>Ocurrió un error al procesar la solicitud</source>
+        <target>An error occurred while processing the request</target>
+      </trans-unit>
+
+    </body>
+  </file>
+</xliff>

@@ -1,5 +1,5 @@
 <div class="chooser">
-  <h2 class="title">
+  <h2 class="title" i18n="@@registerUser">
     Elige dónde guardar tu tarjeta
   </h2>
 
@@ -9,6 +9,7 @@
       type="button"
       class="store-card"
       (click)="choose('google')"
+      i18n="@@businessLoginSub"
       aria-label="Guardar en Google Wallet"
     >
       <div class="store-logo">
@@ -30,7 +31,7 @@
           Google Wallet
         </div>
         <div class="store-sub">
-          Guardar en Google Wallet
+          Google Wallet
         </div>
       </div>
     </button>
@@ -40,6 +41,7 @@
       type="button"
       class="store-card"
       (click)="choose('apple')"
+      i18n="@@ariaGoogle"
       aria-label="Guardar en Apple Wallet"
     >
       <div class="store-logo">
@@ -60,8 +62,8 @@
         <div class="store-title">
           Apple Wallet
         </div>
-        <div class="store-sub">
-          Descargar .pkpass
+        <div class="store-sub" >
+          Download .pkpass
         </div>
       </div>
     </button>
@@ -74,7 +76,7 @@
       (click)="close()"
       aria-label="Cerrar"
     >
-      Cancelar
+      Cancel
     </button>
   </div>
 </div>
