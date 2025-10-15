@@ -102,6 +102,7 @@
         <!-- Tarjeta de STRIPS -->
         <ng-container *ngIf="userData.isStrips">
           <div class="card-type-badge strips" i18n="@@card-strips">Tarjeta de Colección</div>
+
           <p class="strips-progress">
             <strong i18n="@@progress">Progreso:</strong>
             <span class="progress-bar">
@@ -112,12 +113,22 @@
             </span>
             {{ userData.strips_collected }}/{{ userData.strips_required }}
           </p>
+
           <p *ngIf="userData.reward_title" class="reward-title">
             <strong i18n="@@reward-title">Premio:</strong> {{ userData.reward_title }}
           </p>
-          <p *ngIf="userData.reward_unlocked" class="completed-badge" i18n="@@reward-unlocked">
-            ¡Colección completada!
-          </p>
+
+          <!-- Si la colección está completada -->
+          <div *ngIf="userData.reward_unlocked" class="completed-section">
+            <p class="completed-badge" i18n="@@reward-unlocked">
+              🎉 ¡Colección completada!
+            </p>
+            <p class="completion-message" i18n="@@completion-instructions">
+              Haz clic en el botón de abajo para gestionar el premio.
+            </p>
+          </div>
+
+          <!-- Si aún está en progreso -->
           <p *ngIf="!userData.reward_unlocked" class="next-strip">
             <strong i18n="@@next-strip">Siguiente strip a otorgar:</strong>
             <span class="strip-number">#{{ nextStripNumber }}</span>
@@ -150,7 +161,17 @@
       *ngIf="userData"
       i18n="@@apply"
     >
-      {{ busy ? 'Aplicando…' : userData.isStrips ? 'Otorgar Strip #' + nextStripNumber : 'Aplicar Puntos' }}
+      <ng-container *ngIf="userData.isStrips">
+        <ng-container *ngIf="userData.reward_unlocked">
+          {{ busy ? 'Procesando...' : 'Gestionar Premio' }}
+        </ng-container>
+        <ng-container *ngIf="!userData.reward_unlocked">
+          {{ busy ? 'Aplicando…' : 'Otorgar Strip #' + nextStripNumber }}
+        </ng-container>
+      </ng-container>
+      <ng-container *ngIf="!userData.isStrips">
+        {{ busy ? 'Aplicando…' : 'Aplicar Puntos' }}
+      </ng-container>
     </button>
 
     <p class="ok" *ngIf="okMsg" aria-live="polite" i18n="@@okMsg">
@@ -158,6 +179,64 @@
     </p>
     <p class="err" *ngIf="errMsg" aria-live="assertive" i18n="@@errMsg">
       Ocurrió un error al procesar la solicitud
+    </p>
+  </div>
+</div>
+
+<!-- MODAL DE CONFIRMACIÓN -->
+<div class="modal-overlay" *ngIf="showResetModal" (click)="confirmResetAction('cancel')">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-icon">🎁</div>
+
+    <h3 i18n="@@reset-modal-title">¡Colección Completada!</h3>
+
+    <p class="modal-message" i18n="@@reset-modal-text">
+      El cliente ha completado su colección y desbloqueó:
+      <strong>{{ userData.reward_title }}</strong>
+    </p>
+
+    <p class="modal-question" i18n="@@reset-question">
+      ¿Qué deseas hacer?
+    </p>
+
+    <div class="modal-actions">
+      <button
+        class="btn btn-redeem"
+        [disabled]="busy"
+        (click)="confirmResetAction('redeem')"
+        i18n="@@redeem-and-reset"
+      >
+        <span class="btn-icon">✅</span>
+        <span class="btn-text">
+          {{ busy && resetAction === 'redeem' ? 'Procesando...' : 'Canjear y Reiniciar' }}
+        </span>
+      </button>
+
+      <button
+        class="btn btn-reset-only"
+        [disabled]="busy"
+        (click)="confirmResetAction('reset')"
+        i18n="@@reset-only"
+      >
+        <span class="btn-icon">🔄</span>
+        <span class="btn-text">
+          {{ busy && resetAction === 'reset' ? 'Reiniciando...' : 'Solo Reiniciar' }}
+        </span>
+      </button>
+
+      <button
+        class="btn btn-cancel"
+        [disabled]="busy"
+        (click)="confirmResetAction('cancel')"
+        i18n="@@cancel"
+      >
+        Cancelar
+      </button>
+    </div>
+
+    <p class="modal-hint" i18n="@@modal-hint">
+      <strong>Canjear y Reiniciar:</strong> Marca el premio como entregado y reinicia la colección.<br>
+      <strong>Solo Reiniciar:</strong> Reinicia sin marcar como canjeado (útil para pruebas).
     </p>
   </div>
 </div>

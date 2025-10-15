@@ -47,6 +47,7 @@ export class UserComponent implements OnInit {
       phone: [''],
       business_id: [1, [Validators.required, Validators.min(1)]],
       points: [0],
+      acceptTerms: [false, [Validators.requiredTrue]] // El checkbox debe ser true
     });
   }
 
@@ -194,7 +195,12 @@ export class UserComponent implements OnInit {
 
         this.loading = false;
 
-        const finishUrl = `${location.origin}/finish-register/${businessId}`;
+        // const finishUrl = `${location.origin}/finish-register/${businessId}`;
+        const pathLang = location.pathname.split('/')[1];
+        const supportedLangs = ['es', 'en'];
+        const langPrefix = supportedLangs.includes(pathLang) ? `/${pathLang}` : '';
+        const finishUrl = `${location.origin}${langPrefix}/finish-register/${businessId}`;
+
         const redirectWalletWinToFinish = (delayMs = 5000) => {
           if (!walletWin) return;
           try {
@@ -245,7 +251,7 @@ export class UserComponent implements OnInit {
             if (!url) return;
             const win = window.open(url, '_blank');
             if (!win) window.location.href = url;
-            this.router.navigate(['/finish-register', businessId], { replaceUrl: true });
+            this.router.navigate(['finish-register', businessId], { replaceUrl: true });
           });
         } else {
           if (walletWin) walletWin.close();

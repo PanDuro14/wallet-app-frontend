@@ -3,7 +3,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { firstValueFrom, from } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { WalletService } from '../../services/wallet/wallet.service';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 
@@ -40,11 +40,15 @@ export class AdminScanComponentComponent implements OnDestroy {
   searchResults: UserSearchResult[] = [];
   showResults = false;
 
+  // Modal de reset
+  showResetModal = false;
+  resetAction: 'redeem' | 'reset' | null = null;
+
   code = '';
   delta = 10;
   busy = false;
-  okMsg = '';
-  errMsg = '';
+  okMsg = false;
+  errMsg = false;
   userData: any = null;
   currentPoints = 0;
   newPoints = 0;
@@ -58,8 +62,8 @@ export class AdminScanComponentComponent implements OnDestroy {
 
   async toggleScan() {
     if (this.scanning || this.scannedSuccessfully) return;
-    this.errMsg = '';
-    this.okMsg = '';
+    this.errMsg = false;
+    this.okMsg = false;
 
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
@@ -118,7 +122,7 @@ export class AdminScanComponentComponent implements OnDestroy {
           }
         });
     } catch (e: any) {
-      this.errMsg = e?.message || 'No se pudo iniciar la cámara. Verifica permisos y HTTPS.';
+      this.errMsg = true;
       this.scanning = false;
       this.stopScan();
     }
@@ -144,16 +148,15 @@ export class AdminScanComponentComponent implements OnDestroy {
     }
   }
 
-  // Nueva función de búsqueda
   async searchUsers() {
     if (!this.searchQuery.trim()) {
-      this.errMsg = 'Ingresa un término de búsqueda';
+      this.errMsg = true;
       return;
     }
 
     this.busy = true;
-    this.errMsg = '';
-    this.okMsg = '';
+    this.errMsg = false;
+    this.okMsg = false;
     this.showResults = false;
     this.searchResults = [];
 
@@ -177,17 +180,15 @@ export class AdminScanComponentComponent implements OnDestroy {
         this.searchResults = response;
 
         if (response.length === 1) {
-          // Si solo hay un resultado, seleccionarlo automáticamente
           this.selectUser(response[0]);
         } else {
-          // Mostrar lista para elegir
           this.showResults = true;
         }
       } else {
-        this.errMsg = 'No se encontraron usuarios con ese criterio';
+        this.errMsg = true;
       }
     } catch (e: any) {
-      this.errMsg = e?.error?.error || e?.error?.message || 'Error al buscar usuarios';
+      this.errMsg = true;
     } finally {
       this.busy = false;
     }
@@ -203,7 +204,7 @@ export class AdminScanComponentComponent implements OnDestroy {
     if (!this.code) return false;
 
     if (this.userData?.isStrips) {
-      return true; // Para strips solo necesitamos el código
+      return true;
     }
 
     return Number.isFinite(Number(this.delta));
@@ -215,9 +216,28 @@ export class AdminScanComponentComponent implements OnDestroy {
 
   async apply() {
     if (!this.canSubmit()) return;
+
+    // Si es strips y está completo, mostrar modal
+    if (this.userData?.isStrips && this.userData?.reward_unlocked) {
+      this.showResetModal = true;
+      return;
+    }
+
+    // Si es strips y NO está completo, otorgar strip
+    if (this.userData?.isStrips) {
+      await this.grantStrip();
+    } else {
+      // Es puntos
+      await this.applyPoints();
+    }
+  }
+
+  async grantStrip() {
+    if (!this.code || this.busy) return;
+
     this.busy = true;
-    this.okMsg = '';
-    this.errMsg = '';
+    this.errMsg = false;
+    this.okMsg = false;
 
     try {
       const code = this.code.trim();
@@ -226,45 +246,138 @@ export class AdminScanComponentComponent implements OnDestroy {
         throw new Error('El código no parece un serial UUID válido.');
       }
 
-      if (this.userData.isStrips) {
-        // Para strips: simplemente incrementar (el backend maneja todo)
-        const stripNumber = this.nextStripNumber;
+      const stripNumber = this.nextStripNumber;
+      const res = await firstValueFrom(this.wallet.updateStrips(code, stripNumber));
 
-        const res = await firstValueFrom(this.wallet.updateStrips(code, stripNumber));
+      if (res.ok) {
+        this.okMsg = true;
 
-        this.okMsg = `Strip #${stripNumber} otorgado. ` +
-                    `${(res as any).strips_collected}/${(res as any).strips_required}` +
-                    ((res as any).justCompleted ? ' ¡Colección completada!' : '');
+        // Actualizar datos locales
+        this.userData.strips_collected = res.strips_collected;
+        this.userData.reward_unlocked = res.isComplete;
+        this.calculateNextStrip();
 
-        // Actualizar datos después de aplicar
-        await this.getUserData(code);
-
-      } else {
-        // Para puntos (lógica existente)
-        const delta = Number(this.delta);
-
-        if (delta < 0 && Math.abs(delta) > this.currentPoints) {
-          this.errMsg = 'Saldo insuficiente. No puedes restar más puntos de los que tienes.';
-          return;
+        // Si se completó, mostrar celebración
+        if (res.isComplete) {
+          setTimeout(() => {
+            alert(`🎉 ¡Felicidades! Colección completada: ${res.reward_title}`);
+          }, 500);
         }
 
-        const res = await firstValueFrom(this.wallet.updatePoints(code, delta));
-        const newPoints = (res as any)?.points;
-        const applied = delta > 0 ? `+${delta}` : `${delta}`;
-
-        this.okMsg = `Listo. Se aplicaron ${applied} puntos.` +
-                    (newPoints != null ? ` Nuevo total: ${newPoints}.` : '');
-
-        // Actualizar datos
+        // Recargar datos del usuario
         await this.getUserData(code);
+      } else {
+        this.errMsg = true;
       }
 
       this.bumpedPoints.emit();
 
     } catch (e: any) {
-      this.errMsg = e?.error?.error || e?.error?.message || e?.message || 'Error al actualizar';
+      console.error('Error granting strip:', e);
+
+      // Si el error indica que está completo
+      if (e.error?.error === 'collection_complete') {
+        this.userData.reward_unlocked = true;
+        this.userData.strips_collected = e.error.strips_collected;
+        this.showResetModal = true;
+      } else {
+        this.errMsg = true;
+      }
     } finally {
       this.busy = false;
+      setTimeout(() => {
+        this.okMsg = false;
+        this.errMsg = false;
+      }, 3000);
+    }
+  }
+
+  async applyPoints() {
+    if (!this.code || this.busy) return;
+
+    this.busy = true;
+    this.okMsg = false;
+    this.errMsg = false;
+
+    try {
+      const code = this.code.trim();
+
+      if (!this.looksLikeUuid(code)) {
+        throw new Error('El código no parece un serial UUID válido.');
+      }
+
+      const delta = Number(this.delta);
+
+      if (delta < 0 && Math.abs(delta) > this.currentPoints) {
+        this.errMsg = true;
+        return;
+      }
+
+      const res = await firstValueFrom(this.wallet.updatePoints(code, delta));
+
+      if (res.ok) {
+        this.okMsg = true;
+        await this.getUserData(code);
+      } else {
+        this.errMsg = true;
+      }
+
+      this.bumpedPoints.emit();
+
+    } catch (e: any) {
+      this.errMsg = true;
+    } finally {
+      this.busy = false;
+      setTimeout(() => {
+        this.okMsg = false;
+        this.errMsg = false;
+      }, 3000);
+    }
+  }
+
+  confirmResetAction(action: 'redeem' | 'reset' | 'cancel') {
+    if (action === 'cancel') {
+      this.showResetModal = false;
+      this.resetAction = null;
+      return;
+    }
+
+    this.resetAction = action;
+    this.resetStrips(action === 'redeem');
+  }
+
+  async resetStrips(redeemed: boolean = false) {
+    if (!this.code || this.busy) return;
+
+    this.busy = true;
+    this.errMsg = false;
+    this.okMsg = false;
+
+    try {
+      const res = await firstValueFrom(this.wallet.resetStrips(this.code, redeemed));
+
+      if (res.ok) {
+        this.userData.strips_collected = 0;
+        this.userData.reward_unlocked = false;
+        this.nextStripNumber = 1;
+
+        this.okMsg = true;
+        this.showResetModal = false;
+        this.resetAction = null;
+
+        await this.getUserData(this.code);
+      } else {
+        this.errMsg = true;
+      }
+    } catch (e: any) {
+      console.error('Error resetting strips:', e);
+      this.errMsg = true;
+    } finally {
+      this.busy = false;
+      setTimeout(() => {
+        this.okMsg = false;
+        this.errMsg = false;
+      }, 3000);
     }
   }
 
@@ -292,8 +405,8 @@ export class AdminScanComponentComponent implements OnDestroy {
           this.userData.strips_collected = response.strips_collected || 0;
           this.userData.strips_required = response.strips_required || 10;
           this.userData.reward_title = response.reward_title;
+          this.userData.reward_unlocked = response.reward_unlocked || false;
 
-          // Calcular automáticamente el siguiente strip disponible
           this.calculateNextStrip();
         } else {
           this.userData.isStrips = false;
@@ -302,19 +415,16 @@ export class AdminScanComponentComponent implements OnDestroy {
       }
     } catch (error) {
       console.error("Error al obtener los datos del usuario:", error);
-      this.errMsg = 'Error al cargar datos del usuario';
+      this.errMsg = true;
     }
   }
 
   private calculateNextStrip() {
-    // Versión simple: siguiente strip = strips_collected + 1
     const collected = this.userData.strips_collected || 0;
     const required = this.userData.strips_required || 10;
 
-    // El siguiente strip es simplemente el siguiente número
     this.nextStripNumber = collected + 1;
 
-    // Si ya completó, mantener en el último
     if (this.nextStripNumber > required) {
       this.nextStripNumber = required;
     }
@@ -323,11 +433,11 @@ export class AdminScanComponentComponent implements OnDestroy {
   updateNewPoints() {
     if (!isNaN(this.delta)) {
       if (this.delta < 0 && Math.abs(this.delta) > this.currentPoints) {
-        this.errMsg = 'Saldo insuficiente.';
+        this.errMsg = true;
         this.newPoints = this.currentPoints;
       } else {
         this.newPoints = this.currentPoints + this.delta;
-        this.errMsg = '';
+        this.errMsg = false;
       }
     }
   }

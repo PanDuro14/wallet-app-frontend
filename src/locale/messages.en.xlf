@@ -9,8 +9,8 @@
       </trans-unit>
 
       <trans-unit id="loginSubUsers" datatype="html">
-        <source>Accede para registrar usuarios en tu programa</source>
-        <target>Sign in to register users in your program</target>
+        <source>Registrate a nuestro programa de lealtad</source>
+        <target>Sign up for our loyalty program</target>
       </trans-unit>
 
       <trans-unit id="phName" datatype="html">
@@ -417,6 +417,21 @@
       <trans-unit id="errMsg" datatype="html">
         <source>Ocurrió un error al procesar la solicitud</source>
         <target>An error occurred while processing the request</target>
+      </trans-unit>
+
+      <trans-unit id="errMsg" datatype="html">
+        <source>Debes aceptar los términos y condiciones</source>
+        <target>You must accept the terms and conditions</target>
+      </trans-unit>
+
+      <trans-unit id="termsLink" datatype="html">
+        <source>términos y condiciones</source>
+        <target>terms and conditions</target>
+      </trans-unit>
+
+      <trans-unit id="acceptTermsText" datatype="html">
+        <source>Acepto los</source>
+        <target>I accept them</target>
       </trans-unit>
 
     </body>
