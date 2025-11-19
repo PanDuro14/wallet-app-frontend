@@ -397,3 +397,152 @@
     padding: 12px;
   }
 }
+
+/* Estilos adicionales para business-page con soporte puntos/strips */
+
+// Badges para tipo de tarjeta
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
+  white-space: nowrap;
+
+  &.badge-points {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #fde68a;
+  }
+
+  &.badge-strips {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #bfdbfe;
+  }
+
+  &.badge-none {
+    background: #f3f4f6;
+    color: #6b7280;
+    border-color: #e5e7eb;
+  }
+}
+
+// Display del valor actual
+.value-display {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 14px;
+
+  strong {
+    font-size: 16px;
+    color: #1f2937;
+    font-weight: 700;
+  }
+
+  .max-value {
+    color: #6b7280;
+    font-size: 13px;
+  }
+}
+
+// Actualizar estilos de tabla
+.table.users {
+  td {
+    vertical-align: middle;
+  }
+
+  .col-pts {
+    text-align: center;
+  }
+}
+
+// Botones deshabilitados
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+
+  &:hover {
+    background: var(--card);
+    border-color: var(--border);
+  }
+}
+
+// Responsive
+@media (max-width: 920px) {
+  .table.users {
+    font-size: 12px;
+
+    th, td {
+      padding: 10px 8px;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 3px 8px;
+    }
+
+    .btn.small {
+      padding: 6px 8px;
+      font-size: 11px;
+    }
+
+    .value-display {
+      strong {
+        font-size: 14px;
+      }
+
+      .max-value {
+        font-size: 11px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  .table.users {
+    min-width: 900px;
+  }
+
+  .col-actions {
+    .btn {
+      display: block;
+      width: 100%;
+      margin-bottom: 4px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// Tooltips para botones deshabilitados
+.btn[disabled][title] {
+  position: relative;
+
+  &:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 10px;
+    background: #1f2937;
+    color: white;
+    font-size: 11px;
+    border-radius: 6px;
+    white-space: nowrap;
+    margin-bottom: 6px;
+    z-index: 1000;
+    pointer-events: none;
+  }
+}

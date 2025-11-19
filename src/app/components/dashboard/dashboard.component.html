@@ -14,10 +14,12 @@
           <th>Name</th>
           <th> Email </th>
           <th> Logo </th>
+          <!--
           <th class="link-col"> Link </th>
           <th> Was created </th>
           <th> Last updated </th>
-          <th colspan="3" class="col-actions">Actions</th>
+          -->
+          <th colspan="4" class="col-actions"></th>
         </tr>
       </thead>
 
@@ -30,6 +32,7 @@
             <img *ngIf="b.logo" [src]="b.logo | bufferToBase64:b.logoMimeType" width="50" height="50" />
           </td>
 
+          <!--
           <td class="link-cell">
             <a [href]="links.buildBussinessLink(b)" target="_blank" rel="noopener">
               {{ links.buildBussinessLink(b) }}
@@ -39,7 +42,8 @@
 
           <td>{{ b.created_atFormat }}</td>
           <td>{{ b.updated_atFormat }}</td>
-
+          -->
+          <td><button (click)="openQRModal(b.id)"  class="btn small">QR</button></td>
           <td><button (click)="viewFullBusiness(b.id)"  class="btn small">Admin</button></td>
           <td><button (click)="openEditarModal(b.id)"    class="btn small">Update</button></td>
           <td><button (click)="deleteOneItem(b.id)"      class="btn small danger">Delete</button></td>

@@ -16,6 +16,7 @@ import { AuthService } from '../../services/auth/auth.service';
 
 import { MatDialog } from '@angular/material/dialog';
 import { AdminScanComponentComponent } from '../admin-scan-component/admin-scan-component.component';
+import { AddPointsStripsComponent } from '../add-points-strips/add-points-strips.component';
 
 // Usuarios
 export interface UserApi {
@@ -25,6 +26,10 @@ export interface UserApi {
   phone?: string;
   business_id: number;
   points: number;
+  strips_collected?: number;
+  strips_required?: number;
+  card_type?: string;
+  reward_unlocked?: boolean;
   serial_number: string;
   created_at: string;
   updated_at: string;
@@ -41,9 +46,13 @@ export type UserRow = Pick<UserApi, 'id'|'name'|'email'|'points'> & {
   created_atFormat: string;
   updated_atFormat: string;
   hasWallet: boolean;
+  cardType?: 'points' | 'strips' | null;
+  currentValue: number;
+  maxStrips?: number;
+  strips_collected?: number;
 };
 
-// ModalSatte
+// ModalState
 type AdjustModalState = {
   open: boolean;
   busy: boolean;
@@ -72,6 +81,7 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
   currentBid = 0;
   currentBusiness: any[] = [];
   currentUsers: any[] = [];
+  allCards: any[] = []; // Para determinar tipo de tarjeta
 
   businessLink: string | null = null;
 
@@ -97,15 +107,22 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
     private router: Router,
   ) {}
 
-  private toRow = (u: UserApi): UserRow => ({
-    id: u.id,
-    name: u.name,
-    email: u.email,
-    points: u.points,
-    created_atFormat: this.formatDate(u.created_at),
-    updated_atFormat: this.formatDate(u.updated_at),
-    hasWallet: !!u.wallet_added || !!u.wallet_url,
-  });
+  private toRow = (u: UserApi): UserRow => {
+    const cardType = this.getUserCardType(u);
+    return {
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      points: u.points,
+      strips_collected: u.strips_collected,
+      created_atFormat: this.formatDate(u.created_at),
+      updated_atFormat: this.formatDate(u.updated_at),
+      hasWallet: !!u.wallet_added || !!u.wallet_url,
+      cardType,
+      currentValue: this.getUserCurrentValue(u),
+      maxStrips: cardType === 'strips' ? this.getUserMaxStrips(u) : undefined,
+    };
+  };
 
   private setUsers(list: UserApi[]) {
     this.usersById = new Map(list.map(u => [u.id, u]));
@@ -138,6 +155,7 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
 
     this.currentBid = id;
     await this.getBusinessInfo(id);
+    await this.getAllCardsByBusiness(id); // Cargar tarjetas para determinar tipo
     this.getLinkById(id);
 
     // (Opcional) bloquear back y redirigir
@@ -184,8 +202,22 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Obtener tarjetas del negocio
+  async getAllCardsByBusiness(id: number): Promise<any> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<any>(`${environment.urlApi}/cards/getByBusiness/${id}`)
+      );
+      this.allCards = Array.isArray(response) ? response : (response?.data ?? []);
+    } catch (error){
+      console.error('Error al obtener las tarjetas', error);
+      this.allCards = [];
+    }
+  }
+
   async cargarInformacion(){
     await this.getBusinessInfo(this.currentBid);
+    await this.getAllCardsByBusiness(this.currentBid);
     this.getLinkById(this.currentBid);
   }
 
@@ -205,8 +237,108 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ===== MÉTODOS PARA PUNTOS Y STRIPS =====
 
-  // Acciones rápidas (wire-ups a futuro)
+  // Determina tipo de tarjeta (primero revisa usuario, luego tarjeta)
+  getUserCardType(user: UserApi): 'points' | 'strips' | null {
+    // Si el usuario ya tiene card_type, usarlo directamente
+    if ((user as any).card_type) {
+      const type = (user as any).card_type.toLowerCase();
+      return type === 'strips' ? 'strips' : 'points';
+    }
+
+    // Fallback: buscar en la tarjeta
+    if (!user.card_detail_id) return null;
+
+    const card = this.allCards.find(c => c.id === user.card_detail_id);
+    if (!card) return null;
+
+    const designJson = card.design_json || card.designJson;
+    const useStrips = designJson?.useStrips || designJson?.use_strips || false;
+
+    return useStrips ? 'strips' : 'points';
+  }
+
+  // Obtiene valor actual (primero revisa campos específicos del usuario)
+  getUserCurrentValue(user: UserApi): number {
+    const type = this.getUserCardType(user);
+    if (!type) return 0;
+
+    // Para strips, usar strips_collected si existe
+    if (type === 'strips') {
+      return (user as any).strips_collected ?? user.strips_collected ?? 0;
+    }
+
+    // Para puntos
+    return user.points || 0;
+  }
+
+  // Obtiene máximo de strips (primero del usuario, luego de tarjeta)
+  getUserMaxStrips(user: UserApi): number {
+    const type = this.getUserCardType(user);
+    if (type !== 'strips') return 0;
+
+    // Si el usuario tiene strips_required directamente
+    if ((user as any).strips_required) {
+      return (user as any).strips_required;
+    }
+
+    // Fallback: buscar en la tarjeta
+    const card = this.allCards.find(c => c.id === user.card_detail_id);
+    if (!card) return 10; // valor por defecto
+
+    const designJson = card.design_json || card.designJson;
+    return designJson?.stripsRequired || designJson?.strips_required || 10;
+  }
+
+  // Badge visual
+  getUserTypeBadge(user: UserApi): string {
+    const type = this.getUserCardType(user);
+    if (!type) return '—';
+    return type === 'points' ? '⭐ Puntos' : '🎫 Strips';
+  }
+
+  // Abre modal para agregar (wrapper público para el template)
+  async openAddPointsStripsById(userId: number) {
+    const user = this.usersById.get(userId);
+    if (!user) {
+      alert('Usuario no encontrado');
+      return;
+    }
+    await this.openAddPointsStrips(user);
+  }
+
+  // Abre modal para agregar
+  private async openAddPointsStrips(user: UserApi) {
+    const type = this.getUserCardType(user);
+
+    if (!type) {
+      alert('Este usuario no tiene una tarjeta asignada');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(AddPointsStripsComponent, {
+      width: '500px',
+      panelClass: 'app-dialog',
+      backdropClass: 'app-backdrop',
+      data: {
+        userId: user.id,
+        userName: user.name,
+        cardType: type,
+        currentValue: this.getUserCurrentValue(user),
+        maxStrips: type === 'strips' ? this.getUserMaxStrips(user) : undefined
+      }
+    });
+
+    const result = await dialogRef.afterClosed().toPromise();
+
+    if (result?.success) {
+      await this.cargarInformacion();
+      alert(`Se agregaron ${result.amount} ${type === 'points' ? 'puntos' : 'strips'} correctamente`);
+    }
+  }
+
+  // Acciones rápidas
   onIssuePass() {
     const id = this.currentBid;
     this.router.navigate(['/registro'], { queryParams: { bid: id } });
@@ -219,7 +351,6 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
     const b = this.currentBusiness.find(x => x.id === id);
     return b ? this.links.buildBussinessLink(b) : null;
   }
-
 
   formatDate(v?: string | Date, fmt = 'dd/MM/yyyy HH:mm'): string {
     if (!v) return '—';

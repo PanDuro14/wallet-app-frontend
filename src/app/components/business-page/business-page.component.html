@@ -1,4 +1,4 @@
-  <div class="page">
+<div class="page">
     <div class="container">
       <!-- Error -->
       <div class="alert alert-error" *ngIf="serverError">
@@ -101,9 +101,6 @@
             </div>
           </div>
         </section>
-
-        <!-- Aquí podrías renderizar tus enlaces/acciones específicas -->
-        <!-- <app-business-links [businessId]="currentBid"></app-business-links> -->
       </ng-container>
 
       <!-- Empty state -->
@@ -111,7 +108,7 @@
       <p i18n="@@">No se encontró información del negocio.</p>
     </div>
 
-      <!-- Tabla de usuarios (demo) -->
+      <!-- Tabla de usuarios con soporte para puntos/strips -->
     <section class="card table-card" *ngIf="!isLoading">
       <div class="table-header">
         <h3 i18n="@@users">Usuarios</h3>
@@ -125,9 +122,9 @@
               <th class="col-id">ID</th>
               <th i18n="@@name">Nombre</th>
               <th i18n="@@email">Correo</th>
-              <th class="col-pts" i18n="@@points">Puntos</th>
+              <th>Tipo</th>
+              <th>Valor Actual</th>
               <th i18n="@@createdAt">Creado</th>
-              <th i18n="@@updatedAt">Actualizado</th>
               <th class="col-actions" i18n="@@actions">Acciones</th>
             </tr>
           </thead>
@@ -136,13 +133,41 @@
               <td class="col-id">#{{ u.id }}</td>
               <td class="col-name">{{ u.name }}</td>
               <td class="col-email">{{ u.email }}</td>
-              <td class="col-pts">
-                <span class="badge pts">{{ u.points }}</span>
+
+              <!-- Tipo de tarjeta con badge -->
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-points]="u.cardType === 'points'"
+                  [class.badge-strips]="u.cardType === 'strips'"
+                  [class.badge-none]="!u.cardType"
+                >
+                  {{ u.cardType === 'points' ? 'Puntos' : u.cardType === 'strips' ? 'Strips' : '—' }}
+                </span>
               </td>
+
+              <!-- Valor actual -->
+              <td class="col-pts">
+                <span class="value-display">
+                  <strong>{{ u.currentValue }}</strong>
+                  <span *ngIf="u.cardType === 'strips' && u.maxStrips" class="max-value">
+                    / {{ u.maxStrips }}
+                  </span>
+                </span>
+              </td>
+
               <td class="col-date">{{ u.created_atFormat }}</td>
-              <td class="col-date">{{ u.updated_atFormat }}</td>
+
+              <!-- Acciones -->
               <td class="col-actions">
-                <button class="btn small primary" (click)="openUpdatePoints(u.id)" i18n="@@updatePoints">Actualizar puntos</button>
+                <button
+                  class="btn small primary"
+                  (click)="openAddPointsStripsById(u.id)"
+                  [disabled]="!u.cardType"
+                  [title]="!u.cardType ? 'Usuario sin tarjeta asignada' : 'Agregar ' + (u.cardType === 'points' ? 'puntos' : 'strips')"
+                >
+                  {{ u.cardType === 'points' ? 'Agregar' : u.cardType === 'strips' ? 'Agregar' : '—' }}
+                </button>
                 <button class="btn small danger" (click)="onDeleteUser(u)" i18n="@@delete">Eliminar</button>
               </td>
             </tr>
@@ -150,8 +175,8 @@
         </table>
       </div>
     </section>
-    <!-- Modal Ajuste de Puntos -->
-    <!-- Modal Ajuste de Puntos -->
+
+    <!-- Modal Ajuste de Puntos (mantener por compatibilidad con sistema anterior) -->
     <div class="backdrop" *ngIf="adjust.open" (click)="!adjust.busy && onCloseAdjust()"></div>
 
     <div class="modal" *ngIf="adjust.open" role="dialog" aria-modal="true">
@@ -198,5 +223,3 @@
     </div>
   </div>
 </div>
-
-

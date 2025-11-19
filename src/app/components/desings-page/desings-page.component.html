@@ -1,4 +1,3 @@
-
 <div class="page">
   <div class="container designs">
     <!-- Header (idéntico al de business-page) -->
@@ -24,7 +23,7 @@
       {{ serverError }}
     </div>
 
-    <!-- Tarjeta seleccionada (vertical) dentro de una .card -->
+    <!-- Tarjeta seleccionada con diseño PWA -->
     <div class="card card--pass" *ngIf="selectedDesign as sd">
       <h3 class="card-title" i18n="@@selectedCardDesigns">Tarjeta seleccionada</h3>
 
@@ -34,26 +33,34 @@
         [ngStyle]="getCardStyle(sd)"
       >
         <div class="flip-card-inner">
-          <!-- Frente -->
-          <div class="flip-card-face front front--preview-vertical">
-            <div class="card-head">
-              <img *ngIf="businessLogoSrc" [src]="businessLogoSrc" alt="logo" class="logo" />
-            </div>
-
-            <div class="points-vertical">
-              <div class="points-number">{{ previewPoints }}</div>
-              <div class="points-info">
-                <div class="points-label">POINTS</div>
-                <div class="member">
-                  <span class="member-label">{{ previewMemberLabel }}</span>
-                  <span class="member-name">{{ previewName }}</span>
-                </div>
+          <!-- Frente estilo PWA -->
+          <div class="flip-card-face front front--pwa">
+            <!-- Header con logo -->
+            <div class="card-header-pwa">
+              <div class="card-logo-pwa">
+                <img *ngIf="businessLogoSrc" [src]="businessLogoSrc" alt="logo" />
               </div>
             </div>
 
-            <div class="barcode-box">
-              <div class="barcode-fake" aria-hidden="true"></div>
-              <div class="barcode-text">{{ previewCode }}</div>
+            <!-- Grid de strips -->
+            <div class="strips-grid" [attr.data-layout]="getStripsLayout(10)">
+              <div class="strip-item" *ngFor="let i of getStripsArray(5, 10)" [class.collected]="i < 5">
+                <span *ngIf="i < 5">✓</span>
+              </div>
+            </div>
+
+            <!-- Información del miembro -->
+            <div class="member-info-pwa">
+              <div class="member-label-pwa">MIEMBRO</div>
+              <div class="member-name-pwa">{{ previewName }}</div>
+            </div>
+
+            <!-- Sección del código de barras -->
+            <div class="barcode-section-pwa">
+              <div class="barcode-container-pwa">
+                <div class="barcode-fake-pwa" aria-hidden="true"></div>
+                <div class="barcode-text-pwa">{{ previewCode }}</div>
+              </div>
             </div>
           </div>
 
@@ -72,7 +79,7 @@
         </div>
       </div>
 
-      <!-- Acciones estiladas con .actions / .btn -->
+      <!-- Acciones -->
       <div class="actions selected-actions">
         <button class="btn" (click)="toggleFlipSelected()">
           {{ flipSelected ? 'Ver frente' : 'Ver reverso' }}
@@ -129,7 +136,7 @@
       </div>
     </div>
 
-    <!-- Toolbar inferior reutilizando .actions/.btn -->
+    <!-- Toolbar inferior -->
     <div class="actions toolbar">
       <button class="btn primary" (click)="openCreateDesing()" i18n="@@newDesigns">Nuevo diseño</button>
     </div>

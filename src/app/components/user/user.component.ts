@@ -47,7 +47,7 @@ export class UserComponent implements OnInit {
       phone: [''],
       business_id: [1, [Validators.required, Validators.min(1)]],
       points: [0],
-      acceptTerms: [false, [Validators.requiredTrue]] // El checkbox debe ser true
+      acceptTerms: [false, [Validators.requiredTrue]]
     });
   }
 
@@ -64,16 +64,12 @@ export class UserComponent implements OnInit {
 
     if(this.currentBid){
       await this.getBusinessInfo(bid);
-      // Cargar el diseño de tarjeta predeterminado del negocio
       await this.loadDefaultCardDesign();
     }
   }
 
   get f() { return this.userRegisterForm.controls; }
 
-  /**
-   * Carga el diseño de tarjeta predeterminado usando default_card_detail_id del negocio
-   */
   async loadDefaultCardDesign() {
     try {
       if (!this.currentBusiness.length || !this.currentBusiness[0].default_card_detail_id) {
@@ -83,7 +79,6 @@ export class UserComponent implements OnInit {
 
       const defaultCardDetailId = this.currentBusiness[0].default_card_detail_id;
 
-      // Obtener el diseño específico por ID
       const res = await this.http.get<any>(
         `${environment.urlApi}/cards/${defaultCardDetailId}`
       ).toPromise();
@@ -96,7 +91,6 @@ export class UserComponent implements OnInit {
 
       this.currentCardDetail = cardDetail;
 
-      // Detectar tipo desde design_json
       const designJson = cardDetail.design_json || {};
       this.cardType = designJson.cardType === 'strips' ? 'strips' : 'points';
 
@@ -105,7 +99,6 @@ export class UserComponent implements OnInit {
 
     } catch (error) {
       console.error('Error al cargar diseño de tarjeta:', error);
-      // Si falla, usar points por defecto
       this.cardType = 'points';
     }
   }
@@ -125,6 +118,82 @@ export class UserComponent implements OnInit {
     return iOS || iPadOS;
   }
 
+  // Detecta el idioma del navegador
+  private getUserLanguage(): 'es' | 'en' {
+    const lang = navigator.language || (navigator as any).userLanguage || 'en';
+    return lang.toLowerCase().startsWith('es') ? 'es' : 'en';
+  }
+
+  // Genera HTML de pantalla de carga con estilo consistente
+  private getLoadingPageHTML(): string {
+    const userLang = this.getUserLanguage();
+    const message = userLang === 'es' ? 'Generando pase...' : 'Generating pass...';
+    const subtitle = userLang === 'es' ? 'Por favor espera un momento' : 'Please wait a moment';
+
+    return `
+      <!DOCTYPE html>
+      <html lang="${userLang}">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${message}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f5f7fa;
+            padding: 1rem;
+          }
+          .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            padding: 3rem 2rem;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+          }
+          .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e3e8ef;
+            border-top: 4px solid #4A7BF7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 2rem;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.75rem;
+          }
+          p {
+            font-size: 0.95rem;
+            color: #6b7280;
+            line-height: 1.5;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div class="spinner"></div>
+          <h1>${message}</h1>
+          <p>${subtitle}</p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
   onSubmit() {
     this.serverError = '';
     if (this.userRegisterForm.invalid) {
@@ -141,17 +210,16 @@ export class UserComponent implements OnInit {
 
     const walletWin = window.open('', '_blank');
     if (walletWin) {
-      walletWin.document.write('<p style="font-family:sans-serif;">Generando tarjeta…</p>');
+      walletWin.document.write(this.getLoadingPageHTML());
+      walletWin.document.close();
     }
 
     const rawValues = this.userRegisterForm.getRawValue();
 
-    // Construir payload según el tipo detectado
     let regPayload: any;
     let endpoint: string;
 
     if (this.cardType === 'strips') {
-      // Payload para STRIPS
       endpoint = `${environment.urlApi}/onboarding/users/strips`;
 
       const designJson = this.currentCardDetail.design_json;
@@ -169,7 +237,6 @@ export class UserComponent implements OnInit {
         variant: 'strips'
       };
     } else {
-      // Payload para POINTS (original)
       endpoint = `${environment.urlApi}/onboarding/users`;
       regPayload = {
         business_id: rawValues.business_id,
@@ -185,17 +252,17 @@ export class UserComponent implements OnInit {
     console.log('Enviando a:', endpoint);
     console.log('Payload:', regPayload);
 
-    // Realizar el registro con el endpoint correcto
     this.http.post<RegisterResponse>(endpoint, regPayload).subscribe({
       next: (res: RegisterResponse) => {
         const user = res.user;
         const businessId = (user as any).business_id ?? regPayload.business_id;
         const appleUrl = (res as any)?.wallet?.apple_pkpass_url as string | undefined;
-        const googleUrl = (res as any)?.wallet?.google_save_url as string | undefined;
+
+        const pwaInstallUrl = (res as any)?.wallet?.pwa_install_url as string | undefined;
+        const pwaWalletUrl = (res as any)?.wallet?.pwa_wallet_url as string | undefined;
 
         this.loading = false;
 
-        // const finishUrl = `${location.origin}/finish-register/${businessId}`;
         const pathLang = location.pathname.split('/')[1];
         const supportedLangs = ['es', 'en'];
         const langPrefix = supportedLangs.includes(pathLang) ? `/${pathLang}` : '';
@@ -210,8 +277,14 @@ export class UserComponent implements OnInit {
           } catch {}
         };
 
-        // iOS -> Apple Wallet
+        console.log('📱 Wallet URLs disponibles:', {
+          apple: appleUrl,
+          pwaInstall: pwaInstallUrl,
+          pwaWallet: pwaWalletUrl
+        });
+
         if (this.isIOS() && appleUrl) {
+          console.log('🍎 Detectado iOS - Abriendo Apple Wallet');
           if (walletWin) {
             walletWin.location.href = appleUrl;
             walletWin.focus?.();
@@ -222,38 +295,45 @@ export class UserComponent implements OnInit {
           return;
         }
 
-        // Android -> Google Wallet
-        if (this.isAndroid() && googleUrl) {
+        if (this.isAndroid() && pwaInstallUrl) {
+          console.log('🤖 Detectado Android - Abriendo PWA Card');
           if (walletWin) {
-            walletWin.location.href = googleUrl;
+            walletWin.location.href = pwaInstallUrl;
             walletWin.focus?.();
-            redirectWalletWinToFinish(7000);
           } else {
-            window.location.href = googleUrl;
+            window.location.href = pwaInstallUrl;
           }
           return;
         }
 
-        // Desktop / otros -> chooser
-        const target = googleUrl || appleUrl;
-        if (target) {
+        const pwaUrl = pwaInstallUrl || pwaWalletUrl;
+
+        if (appleUrl || pwaUrl) {
+          console.log('🖥️ Desktop/otros - Abriendo chooser');
           if (walletWin) walletWin.close();
+
           const dialogRef = this.dialog.open(WalletChooserComponent, {
             width: '520px',
             maxWidth: '95vw',
             panelClass: 'app-dialog',
             backdropClass: 'app-backdrop',
-            data: { appleUrl, googleUrl }
+            data: {
+              appleUrl,
+              googleUrl: pwaUrl,
+              isPwa: true
+            }
           });
+
           dialogRef.afterClosed().subscribe((choice: 'apple' | 'google' | undefined) => {
             if (!choice) return;
-            const url = choice === 'apple' ? appleUrl : googleUrl;
+            const url = choice === 'apple' ? appleUrl : pwaUrl;
             if (!url) return;
             const win = window.open(url, '_blank');
             if (!win) window.location.href = url;
             this.router.navigate(['finish-register', businessId], { replaceUrl: true });
           });
         } else {
+          console.error('❌ No se recibieron URLs de wallet');
           if (walletWin) walletWin.close();
           this.serverError = 'No se recibió una URL válida de Wallet.';
         }

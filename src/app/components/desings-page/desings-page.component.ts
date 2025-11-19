@@ -84,7 +84,7 @@ export class DesingsPageComponent implements OnInit, OnDestroy {
   private designById = new Map<number, DesignData>();
   designsRows: DesignData[] = [];
 
-  // === NUEVO: estado de selección/flip ===
+  // Estado de selección/flip
   selectedId: ID | null = null;
   flippedIds = new Set<ID>();
   flipSelected = false;
@@ -237,7 +237,7 @@ export class DesingsPageComponent implements OnInit, OnDestroy {
     };
   }
 
-  // === helpers de UI ===
+  // Helpers de UI
   get selectedDesign(): DesignData | null {
     return this.selectedId ? (this.designById.get(this.selectedId) ?? null) : null;
   }
@@ -248,7 +248,7 @@ export class DesingsPageComponent implements OnInit, OnDestroy {
 
   selectDesign(id: ID) {
     this.selectedId = id;
-    this.flipSelected = false; // resetea flip al cambiar
+    this.flipSelected = false;
   }
 
   toggleFlipSelected() { this.flipSelected = !this.flipSelected; }
@@ -314,7 +314,6 @@ export class DesingsPageComponent implements OnInit, OnDestroy {
 
     if (confirmed){
       try {
-        // TODO: ajusta a tu ruta real si usas /business/:id/designs/:designId
         const response = await this.http.delete(`${environment.urlApi}/cards/${id}`).toPromise();
         await this.cargarInformacion();
         return response;
@@ -346,9 +345,24 @@ export class DesingsPageComponent implements OnInit, OnDestroy {
     const b = this.currentBusiness?.[0];
     if (!b?.logo?.data?.length) return null;
     const mime = b.logoMimeType || 'image/png';
-    // BufferToBase64Pipe lo usas en plantillas, aquí doy alternativa por si quieres usarlo directo
     const base64 = b.logo.data ? btoa(String.fromCharCode(...b.logo.data)) : '';
     return `data:${mime};base64,${base64}`;
+  }
+
+  // genera array [0,1,2,...,total-1] para *ngFor de strips
+  getStripsArray(collected: number, total: number): number[] {
+    return Array.from({ length: total }, (_, i) => i);
+  }
+
+  // determina layout del grid según cantidad de strips
+  getStripsLayout(total: number): string {
+    if (total === 6) return '2x3';
+    if (total === 8) return '2x4';
+    if (total === 10) return '2x5';
+    if (total === 5) return 'odd-5';
+    if (total === 7) return 'odd-7';
+    if (total === 9) return 'odd-9';
+    return 'generic';
   }
 
   ngOnDestroy(): void {

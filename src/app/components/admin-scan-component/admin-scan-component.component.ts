@@ -1,3 +1,6 @@
+// admin-scan-component.component.ts
+// ✅ VERSIÓN HÍBRIDA MEJORADA: Máxima compatibilidad con PWA y Apple Wallet
+
 import { Component, ElementRef, OnDestroy, ViewChild, EventEmitter, Output } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
@@ -102,12 +105,14 @@ export class AdminScanComponentComponent implements OnDestroy {
           if (this.shouldStopScanning) return;
 
           if (result && !this.scannedSuccessfully) {
-            this.code = result.getText().trim();
-            this.searchQuery = this.code;
-            this.getUserData(this.code);
+            const scannedCode = result.getText().trim();
+            console.log('📷 Código escaneado:', scannedCode);
+
+            // ✅ Procesar código escaneado (puede ser UUID, URL, o serial de Apple)
+            this.processScannedCode(scannedCode);
+
             this.scannedSuccessfully = true;
             this.shouldStopScanning = true;
-
             this.stopScan();
 
             setTimeout(() => {
@@ -125,6 +130,124 @@ export class AdminScanComponentComponent implements OnDestroy {
       this.errMsg = true;
       this.scanning = false;
       this.stopScan();
+    }
+  }
+
+  /**
+   * ✅ VERSIÓN HÍBRIDA: Procesa CUALQUIER formato de código
+   * Soporta:
+   * - UUID directo: "550e8400-e29b-41d4-a716-446655440000"
+   * - URL completa: "https://loyalty.windoe.mx/wallet/550e8400-..."
+   * - URL corta: "loyalty.windoe.mx/wallet/550e8400-..."
+   * - Apple Pass: "pass.com.empresa.card.12345"
+   * - Cualquier otro formato custom
+   */
+  private processScannedCode(scannedCode: string) {
+    console.log('🔍 Procesando código escaneado...');
+    console.log('📝 Valor recibido:', scannedCode);
+    console.log('📏 Longitud:', scannedCode.length);
+    console.log('🔤 Tipo:', typeof scannedCode);
+
+    // 1️⃣ Verificar si es un UUID directo (caso más común para CODE128)
+    if (this.looksLikeUuid(scannedCode)) {
+      console.log('🎫 ✅ Detectado: UUID directo de PWA Card');
+      this.code = scannedCode;
+      this.searchQuery = scannedCode;
+      this.getUserData(scannedCode);
+      return;
+    }
+
+    // 2️⃣ Verificar si es una URL (puede ser QR de PWA)
+    if (scannedCode.includes('/wallet/') || scannedCode.includes('wallet/')) {
+      console.log('🌐 Detectado: Posible URL de PWA Card');
+      const uuid = this.extractUuidFromUrl(scannedCode);
+      if (uuid) {
+        console.log('✅ UUID extraído de URL:', uuid);
+        this.code = uuid;
+        this.searchQuery = uuid;
+        this.getUserData(uuid);
+        return;
+      } else {
+        console.warn('⚠️ URL detectada pero no se pudo extraer UUID');
+      }
+    }
+
+    // 3️⃣ Verificar si contiene un UUID en alguna parte (regex agresivo)
+    const uuidMatch = scannedCode.match(/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/i);
+    if (uuidMatch && uuidMatch[1]) {
+      console.log('🔍 ✅ UUID encontrado dentro del texto:', uuidMatch[1]);
+      this.code = uuidMatch[1];
+      this.searchQuery = uuidMatch[1];
+      this.getUserData(uuidMatch[1]);
+      return;
+    }
+
+    // 4️⃣ Si no es nada de lo anterior, asumir que es Apple Wallet u otro formato
+    console.log('🍎 Detectado: Apple Wallet Pass o formato legacy');
+    this.code = scannedCode;
+    this.searchQuery = scannedCode;
+    this.getUserData(scannedCode);
+  }
+
+  /**
+   * ✅ VERSIÓN MEJORADA: Extrae UUID de URLs con múltiples estrategias
+   * Implementa 4 estrategias de extracción para máxima compatibilidad
+   */
+  private extractUuidFromUrl(url: string): string | null {
+    try {
+      console.log('🔗 Intentando extraer UUID de:', url);
+
+      // Estrategia 1: Regex directo (más rápido y preciso)
+      const regexMatch = url.match(/\/wallet\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/i);
+      if (regexMatch && regexMatch[1]) {
+        console.log('✅ UUID extraído con regex:', regexMatch[1]);
+        return regexMatch[1];
+      }
+
+      // Estrategia 2: Parsear como URL válida
+      try {
+        const urlObj = new URL(url);
+        const pathSegments = urlObj.pathname.split('/').filter(s => s);
+
+        for (const segment of pathSegments) {
+          const cleaned = segment.split('?')[0].split('#')[0];
+          if (this.looksLikeUuid(cleaned)) {
+            console.log('✅ UUID encontrado en pathname:', cleaned);
+            return cleaned;
+          }
+        }
+      } catch (e) {
+        console.log('⚠️ No es una URL válida, intentando con split manual...');
+      }
+
+      // Estrategia 3: Split manual sin parsear (para URLs sin protocolo)
+      const segments = url
+        .replace(/^https?:\/\//, '') // Remover protocolo si existe
+        .replace(/^\/\//, '')         // Remover // si existe
+        .split('/')
+        .filter(s => s);
+
+      for (const segment of segments) {
+        const cleaned = segment.split('?')[0].split('#')[0];
+        if (this.looksLikeUuid(cleaned)) {
+          console.log('✅ UUID encontrado en segmento:', cleaned);
+          return cleaned;
+        }
+      }
+
+      // Estrategia 4: Buscar UUID en cualquier parte del string (última opción)
+      const globalMatch = url.match(/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/i);
+      if (globalMatch && globalMatch[1]) {
+        console.log('✅ UUID encontrado globalmente:', globalMatch[1]);
+        return globalMatch[1];
+      }
+
+      console.warn('❌ No se pudo extraer UUID de:', url);
+      return null;
+
+    } catch (error) {
+      console.error('❌ Error crítico extrayendo UUID:', error);
+      return null;
     }
   }
 
@@ -210,7 +333,7 @@ export class AdminScanComponentComponent implements OnDestroy {
     return Number.isFinite(Number(this.delta));
   }
 
-  private looksLikeUuid(v: string) {
+  private looksLikeUuid(v: string): boolean {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
   }
 
@@ -241,44 +364,84 @@ export class AdminScanComponentComponent implements OnDestroy {
 
     try {
       const code = this.code.trim();
+      const stripNumber = this.nextStripNumber;
+      const walletType = this.userData?.walletType; // Puede ser undefined
 
-      if (!this.looksLikeUuid(code)) {
-        throw new Error('El código no parece un serial UUID válido.');
+      console.log('🎯 Otorgando strip:', stripNumber, 'a serial:', code);
+      if (walletType) {
+        console.log('📱 Tipo de wallet (explícito):', walletType);
+      } else {
+        console.log('📱 Tipo de wallet: auto-detección activada');
       }
 
-      const stripNumber = this.nextStripNumber;
-      const res = await firstValueFrom(this.wallet.updateStrips(code, stripNumber));
+      // ✅ Usar método auto que detecta el tipo automáticamente
+      // Si walletType es undefined, el service intentará Apple primero, luego PWA
+      const res = await firstValueFrom(
+        this.wallet.updateStripsAuto(code, stripNumber, walletType)
+      );
 
-      if (res.ok) {
+      console.log('📦 Respuesta del servidor (completa):', res);
+      console.log('📦 Tipo de respuesta:', typeof res);
+      console.log('📦 Keys de respuesta:', Object.keys(res));
+
+      // ✅ Verificar éxito de manera más flexible
+      const isSuccess = res && (
+        res.ok === true ||
+        res.ok === 1 ||
+        typeof res.strips_collected === 'number'
+      );
+
+      if (isSuccess) {
+        console.log('✅ Strip otorgado exitosamente');
         this.okMsg = true;
 
-        // Actualizar datos locales
-        this.userData.strips_collected = res.strips_collected;
-        this.userData.reward_unlocked = res.isComplete;
+        // Actualizar datos locales con manejo seguro
+        if (typeof res.strips_collected === 'number') {
+          this.userData.strips_collected = res.strips_collected;
+        }
+
+        if (typeof res.isComplete === 'boolean') {
+          this.userData.reward_unlocked = res.isComplete;
+        }
+
+        if (res.reward_title) {
+          this.userData.reward_title = res.reward_title;
+        }
+
         this.calculateNextStrip();
 
         // Si se completó, mostrar celebración
-        if (res.isComplete) {
+        if (res.isComplete === true) {
           setTimeout(() => {
-            alert(`🎉 ¡Felicidades! Colección completada: ${res.reward_title}`);
+            alert(`🎉 ¡Felicidades! Colección completada: ${res.reward_title || this.userData.reward_title}`);
           }, 500);
         }
 
         // Recargar datos del usuario
         await this.getUserData(code);
+        this.bumpedPoints.emit();
       } else {
+        console.warn('⚠️ Respuesta inesperada del servidor:', res);
         this.errMsg = true;
       }
 
-      this.bumpedPoints.emit();
-
     } catch (e: any) {
-      console.error('Error granting strip:', e);
+      console.error('❌ Error granting strip:', e);
+      console.error('❌ Error message:', e?.message);
+      console.error('❌ Error error:', e?.error);
+      console.error('❌ Error status:', e?.status);
 
       // Si el error indica que está completo
-      if (e.error?.error === 'collection_complete') {
+      if (e.error?.error === 'collection_complete' ||
+          e.error?.message?.includes('completa') ||
+          e.status === 400) {
+
+        console.log('⚠️ Colección ya completa, mostrando modal de reset');
+
+        if (typeof e.error?.strips_collected === 'number') {
+          this.userData.strips_collected = e.error.strips_collected;
+        }
         this.userData.reward_unlocked = true;
-        this.userData.strips_collected = e.error.strips_collected;
         this.showResetModal = true;
       } else {
         this.errMsg = true;
@@ -301,30 +464,47 @@ export class AdminScanComponentComponent implements OnDestroy {
 
     try {
       const code = this.code.trim();
-
-      if (!this.looksLikeUuid(code)) {
-        throw new Error('El código no parece un serial UUID válido.');
-      }
-
       const delta = Number(this.delta);
+      const walletType = this.userData?.walletType; // Puede ser undefined
 
       if (delta < 0 && Math.abs(delta) > this.currentPoints) {
         this.errMsg = true;
         return;
       }
 
-      const res = await firstValueFrom(this.wallet.updatePoints(code, delta));
+      console.log('⭐ Actualizando puntos. Delta:', delta, 'Serial:', code);
+      if (walletType) {
+        console.log('📱 Tipo de wallet (explícito):', walletType);
+      } else {
+        console.log('📱 Tipo de wallet: auto-detección activada');
+      }
 
-      if (res.ok) {
+      // ✅ Usar método auto (intentará Apple primero si walletType es undefined)
+      const res = await firstValueFrom(
+        this.wallet.updatePointsAuto(code, delta, walletType)
+      );
+
+      console.log('📦 Respuesta del servidor:', res);
+
+      // ✅ Verificar éxito
+      const isSuccess = res && (
+        res.ok === true ||
+        res.ok === 1 ||
+        typeof res.points === 'number'
+      );
+
+      if (isSuccess) {
         this.okMsg = true;
         await this.getUserData(code);
+        this.bumpedPoints.emit();
       } else {
+        console.warn('⚠️ Respuesta sin ok o points:', res);
         this.errMsg = true;
       }
 
-      this.bumpedPoints.emit();
-
     } catch (e: any) {
+      console.error('❌ Error applying points:', e);
+      console.error('Error details:', e.error);
       this.errMsg = true;
     } finally {
       this.busy = false;
@@ -354,23 +534,43 @@ export class AdminScanComponentComponent implements OnDestroy {
     this.okMsg = false;
 
     try {
-      const res = await firstValueFrom(this.wallet.resetStrips(this.code, redeemed));
+      const code = this.code.trim();
+      const walletType = this.userData?.walletType; // Puede ser undefined
 
-      if (res.ok) {
+      console.log('🔄 Reseteando strips. Canjeado:', redeemed, 'Serial:', code);
+      if (walletType) {
+        console.log('📱 Tipo de wallet (explícito):', walletType);
+      } else {
+        console.log('📱 Tipo de wallet: auto-detección activada');
+      }
+
+      // ✅ Usar método auto (intentará Apple primero si walletType es undefined)
+      const res = await firstValueFrom(
+        this.wallet.resetStripsAuto(code, redeemed, walletType)
+      );
+
+      console.log('📦 Respuesta del servidor:', res);
+
+      // ✅ Verificar éxito
+      const isSuccess = res && (res.ok === true || res.ok === 1);
+
+      if (isSuccess) {
         this.userData.strips_collected = 0;
         this.userData.reward_unlocked = false;
         this.nextStripNumber = 1;
-
         this.okMsg = true;
         this.showResetModal = false;
         this.resetAction = null;
 
-        await this.getUserData(this.code);
+        await this.getUserData(code);
       } else {
+        console.warn('⚠️ Respuesta sin ok:', res);
         this.errMsg = true;
       }
+
     } catch (e: any) {
-      console.error('Error resetting strips:', e);
+      console.error('❌ Error resetting strips:', e);
+      console.error('Error details:', e.error);
       this.errMsg = true;
     } finally {
       this.busy = false;
@@ -391,6 +591,8 @@ export class AdminScanComponentComponent implements OnDestroy {
 
   async getUserData(serial: string) {
     try {
+      console.log(`🔑 Obteniendo datos del usuario con serial: ${serial}`);
+
       const response = await this.http.post<any>(
         `${environment.urlApi}/users/getbyserial`,
         { serial }
@@ -400,6 +602,16 @@ export class AdminScanComponentComponent implements OnDestroy {
         this.userData = response;
         this.currentPoints = response.points || 0;
 
+        // ✅ Guardar el tipo de wallet si el backend lo proporciona
+        if (response.wallet_type) {
+          this.userData.walletType = response.wallet_type; // 'pwa' o 'apple'
+          console.log(`✅ Tipo de wallet desde backend: ${response.wallet_type}`);
+        } else {
+          // ⚠️ Sin wallet_type desde el backend - el service usará fallback
+          this.userData.walletType = undefined;
+          console.log(`⚠️ Backend no envió wallet_type - usando auto-detección`);
+        }
+
         if (response.card_type === 'strips') {
           this.userData.isStrips = true;
           this.userData.strips_collected = response.strips_collected || 0;
@@ -408,9 +620,13 @@ export class AdminScanComponentComponent implements OnDestroy {
           this.userData.reward_unlocked = response.reward_unlocked || false;
 
           this.calculateNextStrip();
+
+          console.log(`🎫 Tarjeta de STRIPS: ${this.userData.strips_collected}/${this.userData.strips_required}`);
         } else {
           this.userData.isStrips = false;
           this.newPoints = this.currentPoints + this.delta;
+
+          console.log(`⭐ Tarjeta de PUNTOS: ${this.currentPoints} pts`);
         }
       }
     } catch (error) {

@@ -8,7 +8,7 @@ import { BufferToBase64Pipe } from '../../Pipe/BufferToBase64.pipe';
 import { LinksServicesService } from '../../services/linksServices/links-services.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
-
+import { QrDialogComponent } from '../qr-dialog/qr-dialog.component';
 
 // fecha
 import { DatePipe } from '@angular/common';
@@ -342,6 +342,63 @@ export class DashboardComponent {
     return this.datePipe.transform(fecha, 'dd/MM/yyyy');
   }
 
+  // Métodos corregidos en dashboard.component.ts
+  openQRModal(id: number) {
+    // Buscar el negocio en el array
+    const business = this.allBusinesess.find(b => b.id === id);
+
+    if (!business) {
+      alert('No se encontró el negocio');
+      return;
+    }
+
+    const link = this.links.buildBussinessLink(business);
+
+    if (!link) {
+      alert('No se pudo generar el link del negocio');
+      return;
+    }
+
+    this.dialog.open(QrDialogComponent, {
+      width: '500px',
+      panelClass: 'qr-dialog-container',
+      data: {
+        url: link,
+        businessName: business.name || 'Negocio'
+      }
+    });
+  }
+
+  async downloadQRDirect(id: number) {
+    // Buscar el negocio en el array
+    const business = this.allBusinesess.find(b => b.id === id);
+
+    if (!business) {
+      alert('No se encontró el negocio');
+      return;
+    }
+
+    const link = this.links.buildBussinessLink(business);
+
+    if (!link) {
+      alert('No se pudo generar el link del negocio');
+      return;
+    }
+
+    try {
+      const filename = business.name
+        ? `qr-${this.links.cleanFilename(business.name)}`
+        : 'qr-negocio';
+
+      await this.links.downloadQR(link, filename);
+      alert('QR descargado');
+    } catch (error) {
+      console.error('Error descargando QR:', error);
+      alert('Error al generar el código QR');
+    }
+  }
+
+  // Cerrar sesión xd
   logout(){
     this.authService.logout();
   }

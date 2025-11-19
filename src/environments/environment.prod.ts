@@ -1,6 +1,7 @@
 export const environment  = {
   production: true,
   urlApi: 'https://wallet-app-backend.fly.dev/api/v1',
-  frontBase: 'https://loyalty-6a5be.web.app',
+  urlApiWallet: 'https://wallet-app-backend.fly.dev/api',
+  frontBase: 'https://loyalty.windoe.mx/',
   programName: 'Wallet App'
 }

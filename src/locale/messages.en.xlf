@@ -434,6 +434,41 @@
         <target>I accept them</target>
       </trans-unit>
 
+      <trans-unit id="emailLogin" datatype="html">
+        <source>Correo</source>
+        <target>Email</target>
+      </trans-unit>
+
+      <trans-unit id="passwordLogin" datatype="html">
+        <source>Contraseña</source>
+        <target>Password</target>
+      </trans-unit>
+
+      <trans-unit id="togglePasswordLabel" datatype="html">
+        <source>Mostrar/ocultar contraseña</source>
+        <target>Show/Hide password</target>
+      </trans-unit>
+
+      <trans-unit id="loginButton" datatype="html">
+        <source>Iniciar sesión</source>
+        <target>Login</target>
+      </trans-unit>
+
+
+      <trans-unit id="loginButtonLoading" datatype="html">
+        <source>Entrando...</source>
+        <target>Loading...</target>
+      </trans-unit>
+
+      <trans-unit id="emailPlaceholder" datatype="html">
+        <source>Correo</source>
+        <target>Email</target>
+      </trans-unit>
+
+      <trans-unit id="passwordPlaceholder" datatype="html">
+        <source>Contraseña</source>
+        <target>Password</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
