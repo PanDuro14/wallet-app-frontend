@@ -1,6 +1,4 @@
 <!-- admin-scan-component HTML-->
-<!-- html del frontend en angular -->
-
 <div class="login-card">
   <div class="scan-card">
     <h2 i18n="@@scan-title">Escanear tarjeta del cliente</h2>
@@ -14,22 +12,46 @@
           class="input"
           [(ngModel)]="searchQuery"
           placeholder="Serial, email o teléfono"
+          i18n-placeholder="@@searchPlaceholder"
           (keyup.enter)="searchUsers()"
+          [disabled]="busy"
         />
       </div>
 
-      <button class="btn btn-search" [disabled]="busy" (click)="searchUsers()" i18n="@@button-search">
-        {{ busy ? 'Buscando...' : 'Buscar' }}
+      <button
+        class="btn btn-search"
+        [disabled]="busy || !searchQuery.trim()"
+        (click)="searchUsers()"
+        i18n="@@button-search"
+      >
+        <span *ngIf="busy">🔍 Buscando...</span>
+        <span *ngIf="!busy">Buscar</span>
       </button>
 
       <p class="hint" i18n="@@hint">
         Puedes buscar por UUID, correo electrónico o número de teléfono
       </p>
+
+      <div *ngIf="busy && !showResults" class="search-loading">
+        <div class="spinner"></div>
+        <p>Buscando en el negocio...</p>
+      </div>
+
+      <div *ngIf="searchAttempted && !busy && searchResults.length === 0 && !userData" class="search-empty">
+        <div class="empty-icon">🔍</div>
+        <p class="empty-title">No se encontraron usuarios</p>
+        <p class="empty-hint">
+          Verifica que el término de búsqueda sea correcto y que el usuario pertenezca a este negocio.
+        </p>
+      </div>
     </div>
 
     <!-- RESULTADOS DE BÚSQUEDA -->
     <div *ngIf="showResults && searchResults.length > 0" class="search-results">
-      <h3 i18n="@@select-user">Selecciona un usuario:</h3>
+      <div class="results-header">
+        <h3 i18n="@@select-user">Selecciona un usuario:</h3>
+        <span class="results-count">{{ searchResults.length }} resultado(s)</span>
+      </div>
       <div class="results-list">
         <div
           *ngFor="let user of searchResults"
@@ -38,9 +60,9 @@
         >
           <div class="result-info">
             <strong>{{ user.name }}</strong>
-            <span class="result-detail" *ngIf="user.email"> {{ user.email }}</span>
-            <span class="result-detail" *ngIf="user.phone"> {{ user.phone }}</span>
-            <span class="result-serial">Serial: {{ user.serial }}</span>
+            <span class="result-detail" *ngIf="user.email">📧 {{ user.email }}</span>
+            <span class="result-detail" *ngIf="user.phone">📱 {{ user.phone }}</span>
+            <span class="result-serial">🎫 Serial: {{ user.serial }}</span>
           </div>
           <div class="result-type">
             {{ user.card_type === 'strips' ? '🎫 Colección' : '⭐ Puntos' }}
@@ -64,7 +86,11 @@
         ></video>
       </div>
 
-      <button class="btn" (click)="toggleScan()" i18n="@@start-camera">
+       <button
+        class="btn"
+        (click)="toggleScan(); $event.stopPropagation()"
+        i18n="@@start-camera"
+      >
         {{ scanning ? 'Detener cámara' : 'Iniciar cámara' }}
       </button>
     </ng-container>
@@ -77,7 +103,7 @@
 
     <!-- Callback de escaneo exitoso -->
     <div *ngIf="scannedSuccessfully" class="scan-success" i18n="@@scan-success">
-      ¡Escaneo exitoso! :D
+      ✅ ¡Escaneo exitoso!
     </div>
 
     <!-- INFORMACIÓN DEL USUARIO SELECCIONADO -->
@@ -91,7 +117,7 @@
 
         <!-- Tarjeta de PUNTOS -->
         <ng-container *ngIf="!userData.isStrips">
-          <div class="card-type-badge points" i18n="@@card-points">Tarjeta de Puntos</div>
+          <div class="card-type-badge points" i18n="@@card-points">⭐ Tarjeta de Puntos</div>
           <p class="points-display">
             <strong i18n="@@current-points">Puntos actuales:</strong>
             <span class="current">{{ currentPoints }}</span>
@@ -104,7 +130,7 @@
 
         <!-- Tarjeta de STRIPS -->
         <ng-container *ngIf="userData.isStrips">
-          <div class="card-type-badge strips" i18n="@@card-strips">Tarjeta de Colección</div>
+          <div class="card-type-badge strips" i18n="@@card-strips">🎫 Tarjeta de Colección</div>
 
           <p class="strips-progress">
             <strong i18n="@@progress">Progreso:</strong>
@@ -177,12 +203,16 @@
       </ng-container>
     </button>
 
-    <p class="ok" *ngIf="okMsg" aria-live="polite" i18n="@@okMsg">
-      Operación completada correctamente
-    </p>
-    <p class="err" *ngIf="errMsg" aria-live="assertive" i18n="@@errMsg">
-      Ocurrió un error al procesar la solicitud
-    </p>
+    <!-- ✅ MENSAJES DE ÉXITO/ERROR MEJORADOS -->
+    <div *ngIf="okMsg" class="alert alert-success" aria-live="polite">
+      <span class="alert-icon">✅</span>
+      <span class="alert-text" i18n="@@okMsg">Operación completada correctamente</span>
+    </div>
+
+    <div *ngIf="errMsg" class="alert alert-error" aria-live="assertive">
+      <span class="alert-icon">❌</span>
+      <span class="alert-text" i18n="@@errMsg">Ocurrió un error al procesar la solicitud</span>
+    </div>
   </div>
 </div>
 

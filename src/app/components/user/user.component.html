@@ -55,7 +55,8 @@
 
 
       <button class="button" type="submit" [disabled]="loading">
-        {{ loading ? 'Creando...' : 'Registrar usuario' }}
+        <ng-container i18n="@@creatingLabel" *ngIf="loading">Creando...</ng-container>
+        <ng-container i18n="@@registerUserLabel" *ngIf="!loading">Registrarse</ng-container>
       </button>
     </form>
 

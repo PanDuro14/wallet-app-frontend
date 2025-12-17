@@ -345,7 +345,43 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
   }
 
   async adminDesings(id: number) {await this.router.navigate(['/desings', String(id)]);}
-  onDeleteUser(user: UserRow) { console.log('Eliminar usuario →', user); /* TODO: confirm + llamada API */ }
+
+  async onDeleteUser(user: UserRow) {
+    // Confirmación
+    const confirmMsg = `¿Estás seguro de eliminar a ${user.name}?\n\nEsta acción eliminará:\n- Sus puntos/strips\n- Registros de Apple Wallet\n- Push notifications\n- Historial de actividad\n\n⚠️ Esta acción NO se puede deshacer.`;
+
+    if (!confirm(confirmMsg)) {
+      return;
+    }
+
+    try {
+      // Mostrar loading (opcional: agregar flag isDeleting)
+      this.serverError = '';
+
+      // Llamar al endpoint de eliminación
+      await firstValueFrom(
+        this.http.delete(
+          `${environment.urlApi}/business/${this.currentBid}/users/${user.id}`
+        )
+      );
+
+      // Actualizar lista local
+      this.userRows = this.userRows.filter(u => u.id !== user.id);
+      this.usersById.delete(user.id);
+
+      // Notificación de éxito
+      alert(` Usuario ${user.name} eliminado correctamente`);
+
+    } catch (error: any) {
+      console.error('Error al eliminar usuario:', error);
+      this.serverError = error?.error?.message
+        || error?.message
+        || 'No se pudo eliminar el usuario';
+
+      // Scroll al error
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
 
   private getLinkById(id: number): string | null {
     const b = this.currentBusiness.find(x => x.id === id);
@@ -365,6 +401,8 @@ export class BusinessPageComponent implements OnInit, OnDestroy {
       autoFocus: false,
       restoreFocus: false,
     });
+
+    dialogAdmin.componentInstance.businessId = this.currentBid;
 
     dialogAdmin.componentInstance.bumpedPoints.subscribe(() => {
       dialogAdmin.close();

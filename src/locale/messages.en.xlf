@@ -469,6 +469,67 @@
         <source>Contraseña</source>
         <target>Password</target>
       </trans-unit>
+
+      <trans-unit id="addAction" datatype="html">
+        <source>Agregar</source>
+        <target>Add</target>
+      </trans-unit>
+
+      <!-- Tooltip: Usuario sin tarjeta asignada -->
+      <trans-unit id="noCardAssigned" datatype="html">
+        <source>Usuario sin tarjeta asignada</source>
+        <target>User has no assigned card</target>
+      </trans-unit>
+
+      <!-- Tooltip dinámico: Agregar puntos -->
+      <trans-unit id="addPointsTooltip" datatype="html">
+        <source>Agregar puntos</source>
+        <target>Add points</target>
+      </trans-unit>
+
+      <!-- Tooltip dinámico: Agregar strips -->
+      <trans-unit id="addStripsTooltip" datatype="html">
+        <source>Agregar strips</source>
+        <target>Add stamps</target>
+      </trans-unit>
+
+      <!-- Botón Eliminar -->
+      <trans-unit id="deleteAction" datatype="html">
+        <source>Eliminar</source>
+        <target>Delete</target>
+      </trans-unit>
+
+      <!-- Columna Acciones -->
+      <trans-unit id="actionsColumn" datatype="html">
+        <source>Acciones</source>
+        <target>Actions</target>
+      </trans-unit>
+
+      <trans-unit id="creatingLabel" datatype="html">
+        <source>Creando...</source>
+        <target>Creating...</target>
+      </trans-unit>
+
+      <trans-unit id="registerUserLabel" datatype="html">
+        <source>Registrarse</source>
+        <target>Register</target>
+      </trans-unit>
+
+      <trans-unit id="searchPlaceholder" datatype="html">
+        <source>Serial, email o teléfono</source>
+        <target>Serial, email or phone</target>
+      </trans-unit>
+
+      <trans-unit id="tdType" datatype="html">
+        <source>Tipo</source>
+        <target>Type</target>
+      </trans-unit>
+
+      <trans-unit id="tdCV" datatype="html">
+        <source>Valor actual</source>
+        <target>Current value</target>
+      </trans-unit>
+
     </body>
   </file>
 </xliff>

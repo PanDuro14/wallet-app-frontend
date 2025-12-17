@@ -2,23 +2,25 @@
   <div class="table-header">
     <h3>Negocios</h3>
     <div class="header-actions">
-      <button class="btn small primary" (click)="openCrearBusinessModal()">Create Business</button>
-      <button class="btn small danger" (click)="logout()">Log out</button>
+      <button class="btn small primary" (click)="openCrearBusinessModal()">
+        <i class="fas fa-plus"></i>
+        <span class="btn-text">Create</span>
+      </button>
+      <button class="btn small danger" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span class="btn-text">Logout</span>
+      </button>
     </div>
   </div>
 
-  <div class="table-wrapper">
+  <!-- VISTA DESKTOP: Tabla -->
+  <div class="table-wrapper desktop-only">
     <table class="table businesses">
       <thead>
         <tr>
           <th>Name</th>
-          <th> Email </th>
-          <th> Logo </th>
-          <!--
-          <th class="link-col"> Link </th>
-          <th> Was created </th>
-          <th> Last updated </th>
-          -->
+          <th>Email</th>
+          <th>Logo</th>
           <th colspan="4" class="col-actions"></th>
         </tr>
       </thead>
@@ -27,28 +29,51 @@
         <tr *ngFor="let b of allBusinesess">
           <td>{{ b.name }}</td>
           <td class="col-email">{{ b.email }}</td>
-
           <td>
-            <img *ngIf="b.logo" [src]="b.logo | bufferToBase64:b.logoMimeType" width="50" height="50" />
+            <img *ngIf="b.logo" [src]="b.logo | bufferToBase64:b.logoMimeType"
+                 width="50" height="50" class="business-logo" />
           </td>
-
-          <!--
-          <td class="link-cell">
-            <a [href]="links.buildBussinessLink(b)" target="_blank" rel="noopener">
-              {{ links.buildBussinessLink(b) }}
-            </a>
-            <button type="button" class="btn-copy" (click)="copy(links.buildBussinessLink(b))">Copy</button>
-          </td>
-
-          <td>{{ b.created_atFormat }}</td>
-          <td>{{ b.updated_atFormat }}</td>
-          -->
-          <td><button (click)="openQRModal(b.id)"  class="btn small">QR</button></td>
-          <td><button (click)="viewFullBusiness(b.id)"  class="btn small">Admin</button></td>
-          <td><button (click)="openEditarModal(b.id)"    class="btn small">Update</button></td>
-          <td><button (click)="deleteOneItem(b.id)"      class="btn small danger">Delete</button></td>
+          <td><button (click)="openQRModal(b.id)" class="btn small">QR</button></td>
+          <td><button (click)="viewFullBusiness(b.id)" class="btn small">Admin</button></td>
+          <td><button (click)="openEditarModal(b.id)" class="btn small">Update</button></td>
+          <td><button (click)="deleteOneItem(b.id)" class="btn small danger">Delete</button></td>
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- VISTA MÓVIL: Cards -->
+  <div class="mobile-cards mobile-only">
+    <div class="business-card" *ngFor="let b of allBusinesess">
+
+      <!-- Header de la card -->
+      <div class="business-card-header">
+        <img *ngIf="b.logo"
+             [src]="b.logo | bufferToBase64:b.logoMimeType"
+             class="business-logo-mobile"
+             alt="{{ b.name }}">
+        <div class="business-info">
+          <h4 class="business-name">{{ b.name }}</h4>
+          <p class="business-email">{{ b.email }}</p>
+        </div>
+      </div>
+
+      <!-- Acciones de la card -->
+      <div class="business-card-actions">
+        <button (click)="openQRModal(b.id)" class="btn small">
+          <i class="fas fa-qrcode"></i> QR
+        </button>
+        <button (click)="viewFullBusiness(b.id)" class="btn small">
+          <i class="fas fa-cog"></i> Admin
+        </button>
+        <button (click)="openEditarModal(b.id)" class="btn small">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+        <button (click)="deleteOneItem(b.id)" class="btn small danger">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+
+    </div>
   </div>
 </section>

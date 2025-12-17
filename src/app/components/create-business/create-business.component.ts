@@ -16,6 +16,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
+
+
 @Component({
   selector: 'app-create-business',
   standalone: true,
@@ -45,6 +47,8 @@ export class CreateBusinessComponent implements OnInit{
   selectedLogoFile: string | null = null;
   selectedStripOnFile: string | null = null;
   selectedStripOffFile: string | null = null;
+
+  imagesSectionExpanded = true;
 
   constructor(
     private fb: FormBuilder,
@@ -159,28 +163,25 @@ export class CreateBusinessComponent implements OnInit{
     return !!(c && c.invalid && (c.touched || c.dirty));
   }
 
-  // --- File input: guarda en logo y preview ---
   onFileChange(event: any, type: string) {
     const file: File | undefined = event?.target?.files?.[0];
     if (!file) return;
 
-    // Preview base64
     const reader = new FileReader();
     reader.onload = () => {
       if (type === 'logo') {
         this.previewLogo = reader.result as string;
-        this.selectedLogoFile = file.name
+        this.selectedLogoFile = file.name;
       } else if (type === 'strip_image_on') {
         this.previewStripOn = reader.result as string;
         this.selectedStripOnFile = file.name;
       } else if (type === 'strip_image_off') {
         this.previewStripOff = reader.result as string;
-        this.selectedStripOffFile = file.name;
+        this.selectedStripOffFile = file.name; // ✅ CORREGIDO
       }
     };
     reader.readAsDataURL(file);
 
-    // Set the file in the control
     this.formCreateBusiness.get(type)?.setValue(file);
   }
 
@@ -242,11 +243,39 @@ export class CreateBusinessComponent implements OnInit{
     }
 
   }
+
   ngOnDestroy() {
     if (this.previewImage) return this.previewImage = null;
     return;
   }
 
+   // ✅ NUEVO: Toggle del acordeón
+  toggleImagesSection() {
+    this.imagesSectionExpanded = !this.imagesSectionExpanded;
+  }
 
+  // ✅ NUEVO: Helper para trigger file input
+  triggerFileInput(inputId: string) {
+    document.getElementById(inputId)?.click();
+  }
 
+  // Contador de imágenes subidas
+  uploadedImagesCount(): number {
+    let count = 0;
+    if (this.previewLogo) count++;
+    if (this.previewStripOn) count++;
+    if (this.previewStripOff) count++;
+    return count;
+  }
+
+  //  Check si todas están subidas
+  allImagesUploaded(): boolean {
+    return this.uploadedImagesCount() === 3;
+  }
+
+  // Check si al menos una está subida
+  someImagesUploaded(): boolean {
+    const count = this.uploadedImagesCount();
+    return count > 0 && count < 3;
+  }
 }

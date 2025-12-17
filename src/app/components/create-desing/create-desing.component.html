@@ -1,3 +1,5 @@
+<!-- create-desing.component.html -->
+
 <div class="viewport-wrap">
 <div class="login-card">
   <!-- Header -->
@@ -99,33 +101,157 @@
 
     <div class="divider"></div>
 
-    <!-- Configuración específica de STRIPS -->
+    <!-- ✅ NUEVO: Configuración específica de STRIPS -->
     <div *ngIf="isStripsMode">
-      <label>Total de Strips</label>
-      <input class="input"
-             type="number"
-             formControlName="stripsTotal"
-             min="2"
-             max="20"
-             placeholder="8">
-      <div class="hint error" *ngIf="fc('stripsTotal').invalid && fc('stripsTotal').touched">
-        Debe ser entre 2 y 20 strips.
+
+      <!-- ✅ SELECTOR DE MODO: Single vs Multi-Tier -->
+      <label>Tipo de Recompensas</label>
+      <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="radio" formControlName="rewardMode" value="single">
+          <span>Una sola recompensa (Single)</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="radio" formControlName="rewardMode" value="multi-tier">
+          <span>Múltiples niveles (Multi-Tier)</span>
+        </label>
       </div>
 
+      <div class="divider"></div>
+
+      <!-- ✅ CONFIGURACIÓN SINGLE (original) -->
+      <div *ngIf="!isMultiTierMode">
+        <label>Total de Strips</label>
+        <input class="input"
+               type="number"
+               formControlName="stripsTotal"
+               min="2"
+               max="20"
+               placeholder="8">
+        <div class="hint error" *ngIf="fc('stripsTotal').invalid && fc('stripsTotal').touched">
+          Debe ser entre 2 y 20 strips.
+        </div>
+
+        <label>Título del Premio</label>
+        <input class="input"
+               type="text"
+               formControlName="stripsRewardTitle"
+               placeholder="Ej. Café Gratis">
+        <div class="hint error" *ngIf="fc('stripsRewardTitle').invalid && fc('stripsRewardTitle').touched">
+          El título del premio es requerido.
+        </div>
+
+        <label>Descripción del Premio (opcional)</label>
+        <input class="input"
+               type="text"
+               formControlName="stripsRewardDescription"
+               placeholder="Ej. Un café americano gratis">
+      </div>
+
+      <!-- ✅ CONFIGURACIÓN MULTI-TIER (nueva) -->
+      <div *ngIf="isMultiTierMode">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <label style="margin: 0;">Recompensas por Nivel</label>
+          <button type="button"
+                  class="button"
+                  style="height:36px;background:#10b981;color:#fff;"
+                  (click)="addReward()">
+            + Agregar Nivel
+          </button>
+        </div>
+
+        <div class="hint" style="color:#6b7280;margin-bottom:16px;">
+          💡 Define los premios que el cliente irá desbloqueando conforme avanza.
+          Ejemplo: Nivel 1 = Café, Nivel 2 = Café + Cookie, Nivel 3 = Bebida Premium.
+        </div>
+
+        <!-- Array de recompensas -->
+        <div formArrayName="rewards" style="display: flex; flex-direction: column; gap: 16px;">
+          <div *ngFor="let reward of rewardsFA().controls; let i = index"
+               [formGroupName]="i"
+               style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb;">
+
+            <!-- Header del nivel -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <strong style="color: #111827;">Nivel {{ i + 1 }}</strong>
+              <button type="button"
+                      class="button"
+                      style="height:32px;background:#ef4444;color:#fff;padding:0 12px;"
+                      (click)="removeReward(i)"
+                      [disabled]="rewardsFA().length === 1">
+                × Eliminar
+              </button>
+            </div>
+
+            <!-- Campos del reward -->
+            <div style="display: grid; gap: 12px;">
+              <div>
+                <label style="display: block; margin-bottom: 4px; font-size: 14px;">
+                  Título del Premio *
+                </label>
+                <input class="input"
+                       formControlName="title"
+                       placeholder="Ej. Café Americano Gratis"
+                       style="width: 100%;">
+                <div class="hint error"
+                     *ngIf="reward.get('title')?.invalid && reward.get('title')?.touched">
+                  El título es requerido.
+                </div>
+              </div>
+
+              <div>
+                <label style="display: block; margin-bottom: 4px; font-size: 14px;">
+                  Descripción (opcional)
+                </label>
+                <input class="input"
+                       formControlName="description"
+                       placeholder="Ej. Completa {{ reward.get('strips_required')?.value }} visitas"
+                       style="width: 100%;">
+              </div>
+
+              <div>
+                <label style="display: block; margin-bottom: 4px; font-size: 14px;">
+                  Strips Requeridos *
+                </label>
+                <input class="input"
+                       type="number"
+                       formControlName="strips_required"
+                       min="1"
+                       max="20"
+                       placeholder="5"
+                       style="width: 100%;">
+                <div class="hint error"
+                     *ngIf="reward.get('strips_required')?.invalid && reward.get('strips_required')?.touched">
+                  Debe ser entre 1 y 20.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mensaje si no hay recompensas -->
+          <div *ngIf="rewardsFA().length === 0"
+               style="padding: 32px; text-align: center; color: #6b7280; border: 2px dashed #e5e7eb; border-radius: 8px;">
+            No hay niveles configurados. Haz clic en "+ Agregar Nivel" para empezar.
+          </div>
+        </div>
+
+        <!-- Resumen total -->
+        <div *ngIf="rewardsFA().length > 0"
+             style="margin-top: 16px; padding: 12px; background: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe;">
+          <div style="font-size: 14px; color: #1e40af;">
+            📊 <strong>Total de strips necesarios:</strong>
+            {{ totalStripsRequired }} strips para completar {{ totalLevels }} nivel(es)
+          </div>
+        </div>
+      </div>
+
+      <!-- Layout (común para ambos modos) -->
+      <div class="divider"></div>
       <label>Layout</label>
       <select class="input" formControlName="stripsLayout">
         <option value="horizontal">Horizontal</option>
         <option value="vertical">Vertical</option>
       </select>
-
-      <label>Título del Premio</label>
-      <input class="input"
-             type="text"
-             formControlName="stripsRewardTitle"
-             placeholder="Ej. Café Gratis">
-      <div class="hint error" *ngIf="fc('stripsRewardTitle').invalid && fc('stripsRewardTitle').touched">
-        El título del premio es requerido.
-      </div>
 
       <div class="divider"></div>
 
@@ -244,11 +370,13 @@
     <div class="hint error" *ngIf="errorMessage">{{ errorMessage }}</div>
     <div class="hint" style="color:#10b981;" *ngIf="createdId">✓ Creado con id: {{ createdId }}</div>
 
-    <!-- Vista previa del JSON (opcional - descomentar si quieres ver el payload)
-    <pre class="input" style="height:auto; background:#fff; overflow:auto;">
-      {{ buildPayload() | json }}
-    </pre>
-    -->
+    <!-- Vista previa del JSON (opcional - descomentar si quieres ver el payload) -->
+    <details style="margin-top: 24px;">
+      <summary style="cursor: pointer; color: #6b7280; font-size: 14px;">
+        👁️ Ver JSON que se enviará
+      </summary>
+      <pre class="input" style="margin-top: 12px; height:auto; background:#f9fafb; overflow:auto; font-size:12px;">{{ buildPayload() | json }}</pre>
+    </details>
   </form>
 </div>
 </div>

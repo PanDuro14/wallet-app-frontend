@@ -36,7 +36,7 @@
           <div class="actions">
             <button class="btn primary" (click)="onOpenAdjust()" i18n="@@loadPoints">Cargar puntos</button>
             <button class="btn" (click)="onIssuePass()" i18n="@@issuePass">Emitir pase</button>
-            <button class="btn ghost" (click)="adminDesings(currentBusiness[0]?.id)" i18n="@@manageDesings">Administrar Diseños</button>
+            <!--<button class="btn ghost" (click)="adminDesings(currentBusiness[0]?.id)" i18n="@@manageDesings">Administrar Diseños</button>-->
             <button class="btn danger" (click)="logout()">Log out</button>
           </div>
         </div>
@@ -108,46 +108,50 @@
       <p i18n="@@">No se encontró información del negocio.</p>
     </div>
 
-      <!-- Tabla de usuarios con soporte para puntos/strips -->
+    <!-- Tabla de usuarios (solo desktop, sin mobile cards) -->
     <section class="card table-card" *ngIf="!isLoading">
       <div class="table-header">
         <h3 i18n="@@users">Usuarios</h3>
-        <span class="sub"></span>
+        <span class="sub">{{ userRows.length }} usuarios registrados</span>
       </div>
 
       <div class="table-wrapper">
         <table class="table users">
           <thead>
             <tr>
-              <th class="col-id">ID</th>
-              <th i18n="@@name">Nombre</th>
-              <th i18n="@@email">Correo</th>
-              <th>Tipo</th>
-              <th>Valor Actual</th>
-              <th i18n="@@createdAt">Creado</th>
-              <th class="col-actions" i18n="@@actions">Acciones</th>
+              <th class="col-name">Nombre</th>
+              <th class="col-email">Correo</th>
+              <th class="col-type">Tipo</th>
+              <th class="col-value">Valor</th>
+              <th class="col-date">Creado</th>
+              <th class="col-actions">Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let u of userRows; trackBy: trackById">
-              <td class="col-id">#{{ u.id }}</td>
-              <td class="col-name">{{ u.name }}</td>
+              <!-- Nombre con ID -->
+              <td class="col-name">
+                <div class="user-name">{{ u.name }}</div>
+                <div class="user-id">#{{ u.id }}</div>
+              </td>
+
+              <!-- Email -->
               <td class="col-email">{{ u.email }}</td>
 
-              <!-- Tipo de tarjeta con badge -->
-              <td>
+              <!-- Tipo con badge -->
+              <td class="col-type">
                 <span
                   class="badge"
                   [class.badge-points]="u.cardType === 'points'"
                   [class.badge-strips]="u.cardType === 'strips'"
                   [class.badge-none]="!u.cardType"
                 >
-                  {{ u.cardType === 'points' ? 'Puntos' : u.cardType === 'strips' ? 'Strips' : '—' }}
+                  {{ u.cardType === 'points' ? '⭐ Puntos' : u.cardType === 'strips' ? '🎫 Strips' : '—' }}
                 </span>
               </td>
 
               <!-- Valor actual -->
-              <td class="col-pts">
+              <td class="col-value">
                 <span class="value-display">
                   <strong>{{ u.currentValue }}</strong>
                   <span *ngIf="u.cardType === 'strips' && u.maxStrips" class="max-value">
@@ -156,25 +160,44 @@
                 </span>
               </td>
 
+              <!-- Fecha -->
               <td class="col-date">{{ u.created_atFormat }}</td>
 
               <!-- Acciones -->
               <td class="col-actions">
-                <button
-                  class="btn small primary"
-                  (click)="openAddPointsStripsById(u.id)"
-                  [disabled]="!u.cardType"
-                  [title]="!u.cardType ? 'Usuario sin tarjeta asignada' : 'Agregar ' + (u.cardType === 'points' ? 'puntos' : 'strips')"
-                >
-                  {{ u.cardType === 'points' ? 'Agregar' : u.cardType === 'strips' ? 'Agregar' : '—' }}
-                </button>
-                <button class="btn small danger" (click)="onDeleteUser(u)" i18n="@@delete">Eliminar</button>
+                <div class="actions-group">
+                  <!-- Agregar -->
+                  <button
+                    class="btn small primary"
+                    (click)="openAddPointsStripsById(u.id)"
+                    [disabled]="!u.cardType"
+                    title="Agregar puntos o strips"
+                  >
+                    <i class="icon">➕</i>
+                    <span class="btn-text">Agregar</span>
+                  </button>
+
+                  <!-- Eliminar -->
+                  <button
+                    class="btn small danger"
+                    (click)="onDeleteUser(u)"
+                    title="Eliminar usuario"
+                  >
+                    <i class="icon">🗑️</i>
+                    <span class="btn-text">Eliminar</span>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-    </section>
+
+      <!-- Empty state -->
+      <div class="empty" *ngIf="!userRows.length">
+        <p>No hay usuarios registrados todavía</p>
+      </div>
+</section>
 
     <!-- Modal Ajuste de Puntos (mantener por compatibilidad con sistema anterior) -->
     <div class="backdrop" *ngIf="adjust.open" (click)="!adjust.busy && onCloseAdjust()"></div>

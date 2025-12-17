@@ -1,3 +1,5 @@
+<!-- create-business.component.html -->
+
 <div class="contenedor">
   <div class="login-card">
     <div class="login-header">
@@ -22,68 +24,159 @@
         <p *ngIf="formCreateBusiness.get('email')?.hasError('required')">Required email</p>
         <p *ngIf="formCreateBusiness.get('email')?.hasError('email')">Invalid email</p>
       </div>
-      <br><br>
 
-      <!-- LOGO -->
-      <input id="logo" type="file" accept="image/*" (change)="onFileChange($event, 'logo')" hidden>
-      <label for="logo" class="input file-like">{{ selectedLogoFile || 'Logo' }}</label>
-      <div class="hint error" *ngIf="touchedInvalid('logo')">
-        <p *ngIf="formCreateBusiness.get('logo')?.hasError('required')">Logo is required</p>
-        <p *ngIf="formCreateBusiness.get('logo')?.hasError('fileType')">Only PNG, JPG/JPEG or WEBP</p>
-        <p *ngIf="formCreateBusiness.get('logo')?.hasError('fileMaxSize')">Max size 160MB</p>
+      <div class="divider"></div>
+
+      <!-- ✅ SECCIÓN DE IMÁGENES CON ACORDEÓN -->
+      <div class="images-section-collapsible">
+        <button type="button"
+                class="section-header"
+                (click)="toggleImagesSection()">
+          <span class="section-title">
+            <i class="fas fa-images"></i>
+            Imágenes del Negocio
+            <span class="badge"
+                  [class.complete]="allImagesUploaded()"
+                  [class.partial]="someImagesUploaded()">
+              {{ uploadedImagesCount() }}/3
+            </span>
+          </span>
+          <i class="fas" [ngClass]="imagesSectionExpanded ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </button>
+
+        <div class="section-content" [class.collapsed]="!imagesSectionExpanded">
+          <!-- Grid responsivo -->
+          <div class="images-grid-responsive">
+
+            <!-- LOGO -->
+            <div class="image-card-compact">
+              <div class="card-header">
+                <span class="card-label">
+                  <i class="fas fa-image"></i> Logo
+                </span>
+                <span class="status-icon" *ngIf="previewLogo">✓</span>
+              </div>
+
+              <input id="logo" type="file" accept="image/*" (change)="onFileChange($event, 'logo')" hidden>
+
+              <div class="preview-compact" [class.has-image]="previewLogo" (click)="triggerFileInput('logo')">
+                <img *ngIf="previewLogo" [src]="previewLogo" alt="Logo">
+                <div *ngIf="!previewLogo" class="placeholder-compact">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <span>Click para subir</span>
+                </div>
+              </div>
+
+              <label for="logo" class="btn-compact">
+                {{ previewLogo ? 'Cambiar' : 'Subir' }}
+              </label>
+
+              <div class="hint error" *ngIf="touchedInvalid('logo')">
+                <p *ngIf="formCreateBusiness.get('logo')?.hasError('required')">Requerido</p>
+                <p *ngIf="formCreateBusiness.get('logo')?.hasError('fileType')">Solo PNG/JPG/WEBP</p>
+              </div>
+            </div>
+
+            <!-- STRIP ON -->
+            <div class="image-card-compact">
+              <div class="card-header">
+                <span class="card-label">
+                  <i class="fas fa-check-circle"></i> Strip ON
+                </span>
+                <span class="status-icon" *ngIf="previewStripOn">✓</span>
+              </div>
+
+              <input id="strip_image_on" type="file" accept="image/*" (change)="onFileChange($event, 'strip_image_on')" hidden>
+
+              <div class="preview-compact" [class.has-image]="previewStripOn" (click)="triggerFileInput('strip_image_on')">
+                <img *ngIf="previewStripOn" [src]="previewStripOn" alt="Strip On">
+                <div *ngIf="!previewStripOn" class="placeholder-compact">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <span>Click para subir</span>
+                </div>
+              </div>
+
+              <label for="strip_image_on" class="btn-compact">
+                {{ previewStripOn ? 'Cambiar' : 'Subir' }}
+              </label>
+
+              <div class="hint error" *ngIf="touchedInvalid('strip_image_on')">
+                <p *ngIf="formCreateBusiness.get('strip_image_on')?.hasError('required')">Requerido</p>
+              </div>
+            </div>
+
+            <!-- STRIP OFF -->
+            <div class="image-card-compact">
+              <div class="card-header">
+                <span class="card-label">
+                  <i class="fas fa-circle"></i> Strip OFF
+                </span>
+                <span class="status-icon" *ngIf="previewStripOff">✓</span>
+              </div>
+
+              <input id="strip_image_off" type="file" accept="image/*" (change)="onFileChange($event, 'strip_image_off')" hidden>
+
+              <div class="preview-compact" [class.has-image]="previewStripOff" (click)="triggerFileInput('strip_image_off')">
+                <img *ngIf="previewStripOff" [src]="previewStripOff" alt="Strip Off">
+                <div *ngIf="!previewStripOff" class="placeholder-compact">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <span>Click para subir</span>
+                </div>
+              </div>
+
+              <label for="strip_image_off" class="btn-compact">
+                {{ previewStripOff ? 'Cambiar' : 'Subir' }}
+              </label>
+
+              <div class="hint error" *ngIf="touchedInvalid('strip_image_off')">
+                <p *ngIf="formCreateBusiness.get('strip_image_off')?.hasError('required')">Requerido</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
 
-      <!-- Strip Image On -->
-      <input id="strip_image_on" type="file" accept="image/*" (change)="onFileChange($event, 'strip_image_on')" hidden>
-      <label for="strip_image_on" class="input file-like">{{ selectedStripOnFile || ' Strip On' }}</label>
-      <div class="hint error" *ngIf="touchedInvalid('strip_image_on')">
-        <p *ngIf="formCreateBusiness.get('strip_image_on')?.hasError('required')">Logo is required</p>
-        <p *ngIf="formCreateBusiness.get('strip_image_on')?.hasError('fileType')">Only PNG, JPG/JPEG or WEBP</p>
-        <p *ngIf="formCreateBusiness.get('strip_image_on')?.hasError('fileMaxSize')">Max size 160MB</p>
-      </div>
+      <div class="divider"></div>
 
-      <!-- Strip Image Off -->
-      <input id="strip_image_off" type="file" accept="image/*" (change)="onFileChange($event, 'strip_image_off')" hidden>
-      <label for="strip_image_off" class="input file-like">{{ selectedStripOnFile || ' Strip Off' }}</label>
-      <div class="hint error" *ngIf="touchedInvalid('strip_image_off')">
-        <p *ngIf="formCreateBusiness.get('strip_image_off')?.hasError('required')">Logo is required</p>
-        <p *ngIf="formCreateBusiness.get('strip_image_off')?.hasError('fileType')">Only PNG, JPG/JPEG or WEBP</p>
-        <p *ngIf="formCreateBusiness.get('strip_image_off')?.hasError('fileMaxSize')">Max size 160MB</p>
-      </div>
-
-      <!-- Previews de imágenes -->
-      <img *ngIf="previewLogo" [src]="previewLogo" alt="Logo Preview" class="preview" width="60px" height="60px">
-      <img *ngIf="previewStripOn" [src]="previewStripOn" alt="Strip On Preview" class="preview" width="60px" height="60px">
-      <img *ngIf="previewStripOff" [src]="previewStripOff" alt="Strip Off Preview" class="preview" width="60px" height="60px">
-
-      <br><br>
       <!-- PASSWORD -->
       <div class="password-row">
-        <input [type]="passwordFieldType" class="input" formControlName="password" placeholder="Password" [class.invalid]="touchedInvalid('password')" required>
-        <button type="button" class="eye-btn" (click)="togglePassword()" aria-label="Toggle password">
+        <input [type]="passwordFieldType"
+              class="input"
+              formControlName="password"
+              placeholder="Password"
+              [class.invalid]="touchedInvalid('password')"
+              required>
+        <button type="button"
+                class="eye-btn"
+                (click)="togglePassword()"
+                aria-label="Toggle password">
           <i class="fas" [ngClass]="passwordFieldType === 'text' ? 'fa-eye-slash' : 'fa-eye'"></i>
         </button>
       </div>
-      <div class="hint error" *ngIf="touchedInvalid('password')">
-        <p *ngIf="formCreateBusiness.get('password')?.hasError('required')">Required password</p>
-        <p *ngIf="formCreateBusiness.get('password')?.hasError('minlength')">Min 8 characters</p>
-        <p *ngIf="formCreateBusiness.get('password')?.hasError('pattern')">At least 1 upper, 1 number</p>
-      </div>
 
-      <!-- CONFIRM -->
+      <!-- CONFIRM PASSWORD -->
       <div class="password-row">
-        <input [type]="confirmFieldType" class="input" formControlName="confirmPass" placeholder="Confirm password" [class.invalid]="touchedInvalid('confirmPass') || formCreateBusiness.hasError('passwordMismatch')" required>
-        <button type="button" class="eye-btn" (click)="toggleConfirmPassVisibility()" aria-label="Toggle confirm">
+        <input [type]="confirmFieldType"
+              class="input"
+              formControlName="confirmPass"
+              placeholder="Confirm password"
+              [class.invalid]="touchedInvalid('confirmPass') || formCreateBusiness.hasError('passwordMismatch')"
+              required>
+        <button type="button"
+                class="eye-btn"
+                (click)="toggleConfirmPassVisibility()"
+                aria-label="Toggle confirm password">
           <i class="fas" [ngClass]="confirmFieldType === 'text' ? 'fa-eye-slash' : 'fa-eye'"></i>
         </button>
-      </div>
-      <div class="hint error" *ngIf="touchedInvalid('confirmPass') || formCreateBusiness.hasError('passwordMismatch')">
-        <p *ngIf="formCreateBusiness.get('confirmPass')?.hasError('required')">Required confirmation</p>
-        <p *ngIf="formCreateBusiness.hasError('passwordMismatch')">Passwords don’t match</p>
       </div>
 
       <!-- SUBMIT -->
       <button type="submit" class="button button-65" [disabled]="formCreateBusiness.invalid">Create</button>
+
+      <div class="hint error" *ngIf="errorMessage" style="margin-top: 12px;">
+        {{ errorMessage }}
+      </div>
     </form>
   </div>
 </div>

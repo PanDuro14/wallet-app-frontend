@@ -1,4 +1,5 @@
 // user.component.ts
+
 import { Component, OnInit } from '@angular/core';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
@@ -13,6 +14,7 @@ import { WalletChooserComponent } from '../wallet-chooser/wallet-chooser.compone
 import { Router } from '@angular/router';
 
 type CardType = 'points' | 'strips';
+type RewardMode = 'single' | 'multi-tier'; // ✅ NUEVO
 
 @Component({
   selector: 'app-user',
@@ -29,6 +31,7 @@ export class UserComponent implements OnInit {
   currentBusiness: any[] = [];
   currentCardDetail: any = null;
   cardType: CardType = 'points';
+  rewardMode: RewardMode = 'single'; // ✅ NUEVO
   walletUrl: string | null | undefined = null;
   walletStatus: 'PENDING' | undefined;
   createdUserId: number | undefined;
@@ -94,12 +97,34 @@ export class UserComponent implements OnInit {
       const designJson = cardDetail.design_json || {};
       this.cardType = designJson.cardType === 'strips' ? 'strips' : 'points';
 
-      console.log('Tipo de tarjeta detectado:', this.cardType);
+      // ✅ NUEVO: Detectar si es multi-tier
+      if (this.cardType === 'strips') {
+        const stripsConfig = designJson.strips || {};
+
+        // Si tiene array de rewards, es multi-tier
+        if (Array.isArray(stripsConfig.rewards) && stripsConfig.rewards.length > 0) {
+          this.rewardMode = 'multi-tier';
+          console.log('🎯 Sistema multi-tier detectado:', {
+            levels: stripsConfig.rewards.length,
+            rewards: stripsConfig.rewards.map((r: any) => r.title)
+          });
+        } else {
+          this.rewardMode = 'single';
+          console.log('📍 Sistema single detectado:', {
+            total: stripsConfig.total,
+            reward: stripsConfig.rewardTitle
+          });
+        }
+      }
+
+      console.log('Tipo de tarjeta:', this.cardType);
+      console.log('Modo de recompensas:', this.rewardMode);
       console.log('Card detail ID:', cardDetail.id);
 
     } catch (error) {
       console.error('Error al cargar diseño de tarjeta:', error);
       this.cardType = 'points';
+      this.rewardMode = 'single';
     }
   }
 
@@ -118,13 +143,11 @@ export class UserComponent implements OnInit {
     return iOS || iPadOS;
   }
 
-  // Detecta el idioma del navegador
   private getUserLanguage(): 'es' | 'en' {
     const lang = navigator.language || (navigator as any).userLanguage || 'en';
     return lang.toLowerCase().startsWith('es') ? 'es' : 'en';
   }
 
-  // Genera HTML de pantalla de carga con estilo consistente
   private getLoadingPageHTML(): string {
     const userLang = this.getUserLanguage();
     const message = userLang === 'es' ? 'Generando pase...' : 'Generating pass...';
@@ -220,22 +243,29 @@ export class UserComponent implements OnInit {
     let endpoint: string;
 
     if (this.cardType === 'strips') {
-      endpoint = `${environment.urlApi}/onboarding/users/strips`;
+      // ✅ ACTUALIZADO: Usar endpoint unificado que detecta single/multi-tier automáticamente
+      endpoint = `${environment.urlApi}/onboarding/users`;
 
       const designJson = this.currentCardDetail.design_json;
       const stripsConfig = designJson.strips || {};
 
+      // ✅ IMPORTANTE: No enviar stripsRequired, rewardTitle, etc.
+      // El backend los obtiene del design_json usando card_detail_id
       regPayload = {
         business_id: rawValues.business_id,
         name: rawValues.name.trim(),
         email: rawValues.email.trim(),
         phone: rawValues.phone?.trim() || '',
-        card_detail_id: this.currentCardDetail.id,
-        stripsRequired: Number(stripsConfig.total) || 8,
-        rewardTitle: stripsConfig.rewardTitle || 'Premio',
-        rewardDescription: stripsConfig.rewardDescription || '',
-        variant: 'strips'
+        card_detail_id: this.currentCardDetail.id, // ✅ CRÍTICO: Esto es lo que importa
+        cardType: 'strips'
       };
+
+      console.log('📦 Payload para strips:', {
+        mode: this.rewardMode,
+        card_detail_id: this.currentCardDetail.id,
+        ...regPayload
+      });
+
     } else {
       endpoint = `${environment.urlApi}/onboarding/users`;
       regPayload = {
@@ -247,10 +277,11 @@ export class UserComponent implements OnInit {
         points: 0,
         cardType: 'points'
       };
+
+      console.log('📦 Payload para points:', regPayload);
     }
 
-    console.log('Enviando a:', endpoint);
-    console.log('Payload:', regPayload);
+    console.log('🚀 Enviando a:', endpoint);
 
     this.http.post<RegisterResponse>(endpoint, regPayload).subscribe({
       next: (res: RegisterResponse) => {
@@ -260,6 +291,17 @@ export class UserComponent implements OnInit {
 
         const pwaInstallUrl = (res as any)?.wallet?.pwa_install_url as string | undefined;
         const pwaWalletUrl = (res as any)?.wallet?.pwa_wallet_url as string | undefined;
+
+        // ✅ NUEVO: Mostrar info de reward_system si viene
+        const rewardSystem = (res as any)?.reward_system;
+        if (rewardSystem) {
+          console.log('🎯 Reward system configurado:', {
+            type: rewardSystem.type,
+            total_levels: rewardSystem.total_levels,
+            current_level: rewardSystem.current_tier?.currentLevel,
+            current_reward: rewardSystem.current_tier?.currentReward?.title
+          });
+        }
 
         this.loading = false;
 

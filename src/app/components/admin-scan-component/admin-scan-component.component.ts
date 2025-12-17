@@ -1,7 +1,5 @@
 // admin-scan-component.component.ts
-// ✅ VERSIÓN HÍBRIDA MEJORADA: Máxima compatibilidad con PWA y Apple Wallet
-
-import { Component, ElementRef, OnDestroy, ViewChild, EventEmitter, Output } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild, EventEmitter, Output, Input } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
@@ -32,6 +30,7 @@ interface UserSearchResult {
 export class AdminScanComponentComponent implements OnDestroy {
   @ViewChild('video', { static: false }) videoRef?: ElementRef<HTMLVideoElement>;
   @Output() bumpedPoints = new EventEmitter<void>();
+  @Input() businessId?: number;
 
   scannedSuccessfully = false;
   scanning = false;
@@ -42,6 +41,7 @@ export class AdminScanComponentComponent implements OnDestroy {
   searchType: 'serial' | 'email' | 'phone' = 'serial';
   searchResults: UserSearchResult[] = [];
   showResults = false;
+  searchAttempted = false;
 
   // Modal de reset
   showResetModal = false;
@@ -63,8 +63,25 @@ export class AdminScanComponentComponent implements OnDestroy {
 
   constructor(private http: HttpClient, private wallet: WalletService) {}
 
+  ngOnInit() {
+    if (!this.businessId) {
+      console.error('No se recibió businessId como @Input()');
+    } else {
+      console.log('Component iniciado con businessId:', this.businessId);
+    }
+  }
+
   async toggleScan() {
-    if (this.scanning || this.scannedSuccessfully) return;
+    if (this.scanning) {
+      this.stopScan();
+      return;
+    }
+
+    if (this.scannedSuccessfully) {
+      this.scannedSuccessfully = false;
+    }
+
+    // Limpiar mensajes
     this.errMsg = false;
     this.okMsg = false;
 
@@ -255,17 +272,23 @@ export class AdminScanComponentComponent implements OnDestroy {
     this.scanning = false;
     this.shouldStopScanning = true;
 
+    // Detener stream
     if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop());
+      this.stream.getTracks().forEach(track => {
+        track.stop();
+        console.log('🔴 Track detenido:', track.kind);
+      });
       this.stream = null;
     }
 
+    // Detener video
     const video = this.videoRef?.nativeElement;
     if (video) {
       video.pause();
-      (video as any).srcObject = null;
+      video.srcObject = null;
     }
 
+    // Limpiar lector
     if (this.codeReader) {
       this.codeReader = null;
     }
@@ -277,14 +300,23 @@ export class AdminScanComponentComponent implements OnDestroy {
       return;
     }
 
+    if (!this.businessId) {
+      console.error(' No se especificó business_id');
+      this.errMsg = true;
+      return;
+    }
+
     this.busy = true;
     this.errMsg = false;
     this.okMsg = false;
     this.showResults = false;
     this.searchResults = [];
+    this.searchAttempted = true;
 
     try {
-      const payload: any = {};
+      const payload: any = {
+        business_id: this.businessId
+      };
 
       if (this.looksLikeUuid(this.searchQuery)) {
         payload.serial = this.searchQuery.trim();
@@ -293,6 +325,8 @@ export class AdminScanComponentComponent implements OnDestroy {
       } else {
         payload.phone = this.searchQuery.trim();
       }
+
+      console.log('🔍 Buscando usuarios con payload:', payload);
 
       const response = await this.http.post<any>(
         `${environment.urlApi}/users/search`,
@@ -308,9 +342,11 @@ export class AdminScanComponentComponent implements OnDestroy {
           this.showResults = true;
         }
       } else {
+        console.warn('⚠️ No se encontraron usuarios');
         this.errMsg = true;
       }
     } catch (e: any) {
+      console.error('❌ Error en búsqueda:', e);
       this.errMsg = true;
     } finally {
       this.busy = false;
@@ -321,6 +357,7 @@ export class AdminScanComponentComponent implements OnDestroy {
     this.code = user.serial;
     this.showResults = false;
     this.getUserData(user.serial);
+    this.searchAttempted = false;
   }
 
   canSubmit() {
@@ -479,14 +516,11 @@ export class AdminScanComponentComponent implements OnDestroy {
         console.log('📱 Tipo de wallet: auto-detección activada');
       }
 
-      // ✅ Usar método auto (intentará Apple primero si walletType es undefined)
       const res = await firstValueFrom(
         this.wallet.updatePointsAuto(code, delta, walletType)
       );
 
       console.log('📦 Respuesta del servidor:', res);
-
-      // ✅ Verificar éxito
       const isSuccess = res && (
         res.ok === true ||
         res.ok === 1 ||
@@ -589,27 +623,42 @@ export class AdminScanComponentComponent implements OnDestroy {
     }
   }
 
-  async getUserData(serial: string) {
+   async getUserData(serial: string) {
     try {
-      console.log(`🔑 Obteniendo datos del usuario con serial: ${serial}`);
+      console.log(`Obteniendo datos del usuario con serial: ${serial}`);
+      if (!this.businessId) {
+        console.error('No se especificó business_id');
+        this.errMsg = true;
+        return;
+      }
 
       const response = await this.http.post<any>(
         `${environment.urlApi}/users/getbyserial`,
-        { serial }
+        {
+          serial,
+          business_id: this.businessId
+        }
       ).toPromise();
 
       if (response) {
+        // VALIDAR: Que el usuario pertenezca al negocio
+        if (response.business_id !== this.businessId) {
+          console.error('Usuario no pertenece a este negocio');
+          console.error('Usuario business_id:', response.business_id);
+          console.error('Esperado business_id:', this.businessId);
+          this.errMsg = true;
+          return;
+        }
+
         this.userData = response;
         this.currentPoints = response.points || 0;
 
-        // ✅ Guardar el tipo de wallet si el backend lo proporciona
         if (response.wallet_type) {
-          this.userData.walletType = response.wallet_type; // 'pwa' o 'apple'
-          console.log(`✅ Tipo de wallet desde backend: ${response.wallet_type}`);
+          this.userData.walletType = response.wallet_type;
+          console.log(`Tipo de wallet desde backend: ${response.wallet_type}`);
         } else {
-          // ⚠️ Sin wallet_type desde el backend - el service usará fallback
           this.userData.walletType = undefined;
-          console.log(`⚠️ Backend no envió wallet_type - usando auto-detección`);
+          console.log(`Backend no envió wallet_type - usando auto-detección`);
         }
 
         if (response.card_type === 'strips') {
